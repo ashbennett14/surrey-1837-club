@@ -240,6 +240,21 @@ const socialEvents = [
       "An evening at James Terry Court with a hog roast and dessert, entertainment by Chelsey, a raffle, and a cash bar. Vegetarian options are available when advised in advance.",
   },
   {
+    id: "treehouse-croydon-social",
+    date: "2026-08-21",
+    title: "1837 Social At The Treehouse",
+    time: "19:30",
+    location: "The Treehouse, Croydon, CR0 1LD",
+    host: "Surrey 1837 Club",
+    type: "social",
+    category: "1837 Club Event",
+    poster: "assets/treehouse-croydon-social.png",
+    posterAlt: "1837 Social at The Treehouse Croydon poster",
+    tags: ["Open social", "Croydon", "Good company", "Great conversations"],
+    description:
+      "A casual social for all 1837 Club members at The Treehouse in Croydon. Meet the committee, catch up with old friends, meet new ones, and share ideas for events in the Masonic year ahead.",
+  },
+  {
     id: "rifle-shooting-day",
     date: "2026-09-05",
     title: "Rifle Shooting Day",
@@ -823,11 +838,11 @@ const calendarType = document.body.dataset.calendar || "social";
 const calendarConfig = {
   social: {
     events: socialEvents,
-    initialDate: new Date(2026, 5, 1),
+    initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
   },
   lodge: {
     events: lodgeEvents,
-    initialDate: new Date(2026, 5, 1),
+    initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
   },
 };
 
