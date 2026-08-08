@@ -255,6 +255,21 @@ const socialEvents = [
       "A casual social for all 1837 Club members at The Treehouse in Croydon. Meet the committee, catch up with old friends, meet new ones, and share ideas for events in the Masonic year ahead.",
   },
   {
+    id: "bisley-lodge-of-instruction-festival",
+    date: "2026-09-03",
+    title: "Bisley Lodge Of Instruction Festival",
+    time: "17:00",
+    location: "Godalming Masonic Hall, Ockford Road, Godalming, Surrey",
+    host: "Bisley Lodge No. 2317",
+    type: "talk",
+    category: "Community Event",
+    poster: "assets/bisley-lodge-of-instruction-festival.png",
+    posterAlt: "Bisley Lodge of Instruction Festival 2026 poster",
+    tags: ["Learning", "First Degree ceremony", "Light Blue Masons", "Godalming"],
+    description:
+      "A Bisley Lodge of Instruction Festival celebrating learning, confidence and fellowship. Every office will be filled by Light Blue Masons, demonstrating a First Degree ceremony at Godalming Masonic Hall.",
+  },
+  {
     id: "rifle-shooting-day",
     date: "2026-09-05",
     title: "Rifle Shooting Day",
