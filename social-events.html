@@ -16,6 +16,7 @@
     />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#071f3f" />
+    <link rel="canonical" href="https://1837-club.com/social-events.html" />
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
@@ -26,14 +27,15 @@
       property="og:description"
       content="Upcoming 1837 Club events, charity activities and community social events across Surrey and nearby areas."
     />
-    <meta property="og:image" content="assets/surrey-1837-club-badge.png" />
+    <meta property="og:image" content="https://1837-club.com/assets/surrey-1837-club-badge.png" />
+    <meta property="og:url" content="https://1837-club.com/social-events.html" />
     <meta property="og:site_name" content="The Surrey 1837 Club" />
     <meta name="twitter:card" content="summary" />
     <title>Social Events Calendar | The Surrey 1837 Club</title>
-    <link rel="stylesheet" href="styles.css?v=motion" />
+    <link rel="stylesheet" href="styles.css?v=professional-polish" />
     <script src="auth.js?v=login-gate"></script>
     <script src="analytics.js?v=stats" defer></script>
-    <script src="motion.js?v=motion" defer></script>
+    <script src="motion.js?v=professional-polish" defer></script>
   </head>
   <body data-calendar="social">
     <main class="app-shell">
@@ -44,6 +46,8 @@
               class="brand-crest"
               src="assets/surrey-1837-club-badge.png"
               alt="The Surrey 1837 Club Light Blues badge"
+              width="552"
+              height="530"
             />
             <div>
               <p class="brand-name">The Surrey 1837 Club</p>
@@ -75,7 +79,19 @@
 
         <div class="month-bar">
           <h2 id="monthLabel" aria-live="polite"></h2>
-          <p id="eventCount"></p>
+          <div class="month-tools">
+            <p id="eventCount"></p>
+            <div class="meeting-filters social-filters" aria-label="Social event filters">
+              <label class="meeting-filter" for="socialCategoryFilter">
+                <span>Category</span>
+                <select id="socialCategoryFilter">
+                  <option value="">All</option>
+                  <option value="1837 Club Event">1837 Club Event</option>
+                  <option value="Community Event">Community Event</option>
+                </select>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div class="weekday-row" aria-hidden="true">
@@ -89,6 +105,7 @@
         </div>
 
         <div class="calendar-grid" id="calendarGrid"></div>
+        <p id="calendarEmptyMessage" class="calendar-empty-message" hidden></p>
       </section>
 
       <aside class="details-panel" id="detailsPanel" aria-live="polite">
@@ -131,6 +148,6 @@
       </footer>
     </main>
 
-    <script src="script.js?v=bisley-loi-festival"></script>
+    <script src="script.js?v=professional-polish"></script>
   </body>
 </html>

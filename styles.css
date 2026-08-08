@@ -51,6 +51,8 @@ button,
 .home-feature-image,
 .form-card,
 .next-steps,
+.home-next-event,
+.about-club-card,
 .community-chat-card,
 .stats-card,
 .site-footer,
@@ -397,6 +399,113 @@ button,
   font-size: clamp(1.45rem, 2.4vw, 2rem);
   font-weight: 800;
   line-height: 1;
+}
+
+.home-next-event,
+.about-club-card {
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(13, 55, 109, 0.14);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(5, 20, 42, 0.1);
+}
+
+.home-next-event {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background:
+    linear-gradient(135deg, rgba(7, 31, 63, 0.96), rgba(13, 55, 109, 0.94)),
+    var(--navy-deep);
+  color: #ffffff;
+}
+
+.home-next-event:hover,
+.about-club-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 38px rgba(5, 20, 42, 0.14);
+}
+
+.section-kicker {
+  margin: 0 0 6px;
+  color: var(--gold);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-next-event h2,
+.about-club-card h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+  line-height: 1.05;
+}
+
+.home-next-event p:not(.section-kicker),
+.about-club-card p {
+  margin: 9px 0 0;
+  line-height: 1.55;
+}
+
+.home-next-event p:not(.section-kicker) {
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 700;
+}
+
+.small-action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(197, 154, 54, 0.68);
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.small-action-link:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.72);
+  background: rgba(197, 154, 54, 0.2);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.about-club-card {
+  background:
+    linear-gradient(135deg, rgba(216, 235, 255, 0.3), rgba(255, 255, 255, 0.96)),
+    #ffffff;
+}
+
+.about-club-card .section-kicker {
+  color: var(--navy);
+}
+
+.about-club-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.about-club-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
+.about-club-grid a {
+  color: var(--navy);
+  font-weight: 850;
+  text-decoration-color: rgba(13, 55, 109, 0.35);
+  text-underline-offset: 3px;
 }
 
 .social-card,
@@ -1094,6 +1203,15 @@ h1 {
   width: min(420px, 100%);
 }
 
+.social-filters {
+  grid-template-columns: minmax(0, 1fr);
+  width: min(240px, 100%);
+}
+
+.social-filters .meeting-filter select {
+  max-width: 150px;
+}
+
 .meeting-filter {
   display: inline-flex;
   align-items: center;
@@ -1156,6 +1274,18 @@ h1 {
 
 body[data-calendar="lodge"] .calendar-grid {
   align-items: start;
+}
+
+.calendar-empty-message {
+  margin: 16px 0 0;
+  padding: 16px;
+  border: 1px dashed rgba(13, 55, 109, 0.26);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(238, 246, 255, 0.72);
+  font-size: 0.95rem;
+  font-weight: 750;
+  text-align: center;
 }
 
 .day-cell {
@@ -1402,7 +1532,7 @@ body[data-calendar="lodge"] .calendar-grid {
   align-self: start;
   min-height: calc(100vh - 32px);
   max-height: calc(100vh - 32px);
-  padding: 28px;
+  padding: 26px;
   border-radius: 8px;
   overflow: auto;
   color: #ffffff;
@@ -1453,7 +1583,7 @@ body[data-calendar="lodge"] .calendar-grid {
 
 .event-details {
   display: grid;
-  gap: 22px;
+  gap: 18px;
 }
 
 .hidden {
@@ -1469,14 +1599,14 @@ body[data-calendar="lodge"] .calendar-grid {
 
 dl {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   margin: 0;
 }
 
 dl div {
   justify-content: space-between;
   gap: 18px;
-  padding-bottom: 12px;
+  padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
@@ -1539,6 +1669,7 @@ dd {
 
 .event-poster {
   width: 100%;
+  aspect-ratio: 4 / 5;
   max-height: 360px;
   border: 1px solid rgba(197, 154, 54, 0.52);
   border-radius: 8px;
@@ -1558,6 +1689,7 @@ dd {
 body[data-calendar="lodge"] .event-poster {
   justify-self: start;
   width: 118px;
+  aspect-ratio: 1;
   max-height: 118px;
   border-radius: 50%;
   background: #ffffff;
@@ -1662,6 +1794,10 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
     width: 100%;
   }
 
+  .social-filters {
+    width: 100%;
+  }
+
   .brand-place {
     display: none;
   }
@@ -1694,6 +1830,19 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
   }
 
   .home-intro {
+    grid-template-columns: 1fr;
+  }
+
+  .home-next-event {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .small-action-link {
+    width: 100%;
+  }
+
+  .about-club-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1730,6 +1879,11 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
     padding: 6px;
     border-left-width: 3px;
     font-size: 0.68rem;
+  }
+
+  .calendar-empty-message {
+    margin-top: 12px;
+    text-align: left;
   }
 
   body[data-calendar="social"] .weekday-row,

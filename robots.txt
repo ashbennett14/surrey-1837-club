@@ -3,3 +3,5 @@ Allow: /
 
 Disallow: /login.html
 Disallow: /stats.html
+
+Sitemap: https://1837-club.com/sitemap.xml

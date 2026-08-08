@@ -16,6 +16,7 @@
     />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#071f3f" />
+    <link rel="canonical" href="https://1837-club.com/" />
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
@@ -26,7 +27,8 @@
       property="og:description"
       content="A central hub for Surrey Light Blues to discover social events, lodge visits, learning opportunities and ways to get involved."
     />
-    <meta property="og:image" content="assets/surrey-1837-club-home.png" />
+    <meta property="og:image" content="https://1837-club.com/assets/surrey-1837-club-home.png" />
+    <meta property="og:url" content="https://1837-club.com/" />
     <meta property="og:site_name" content="The Surrey 1837 Club" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="The Surrey 1837 Club" />
@@ -34,19 +36,20 @@
       name="twitter:description"
       content="Social events, lodge visits and learning opportunities for Surrey Light Blue Freemasons."
     />
-    <meta name="twitter:image" content="assets/surrey-1837-club-home.png" />
+    <meta name="twitter:image" content="https://1837-club.com/assets/surrey-1837-club-home.png" />
     <title>The Surrey 1837 Club | Surrey Light Blues Freemasons</title>
-    <link rel="stylesheet" href="styles.css?v=motion" />
+    <link rel="stylesheet" href="styles.css?v=professional-polish" />
     <script src="auth.js?v=login-gate"></script>
     <script src="analytics.js?v=stats" defer></script>
-    <script src="motion.js?v=motion" defer></script>
+    <script src="motion.js?v=professional-polish" defer></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "The Surrey 1837 Club",
         "description": "The Light Blues club for newer Freemasons across the Province of Surrey.",
-        "logo": "assets/surrey-1837-club-badge.png",
+        "url": "https://1837-club.com/",
+        "logo": "https://1837-club.com/assets/surrey-1837-club-badge.png",
         "sameAs": [
           "https://www.facebook.com/groups/230485027119230",
           "https://www.instagram.com/thesurrey1837club",
@@ -64,6 +67,8 @@
               class="brand-crest"
               src="assets/surrey-1837-club-badge.png"
               alt="The Surrey 1837 Club Light Blues badge"
+              width="552"
+              height="530"
             />
             <div>
               <p class="brand-name">The Surrey 1837 Club</p>
@@ -106,6 +111,8 @@
               <img
                 src="assets/surrey-1837-club-home.png"
                 alt="The Surrey 1837 Club badge above a lit masonic building"
+                width="1024"
+                height="1536"
               />
             </figure>
           </section>
@@ -124,6 +131,38 @@
               <span>Join the Community</span>
             </a>
           </nav>
+
+          <section class="home-next-event" id="homeNextEvent" aria-labelledby="homeNextTitle">
+            <div>
+              <p class="section-kicker">Next Up</p>
+              <h2 id="homeNextTitle">Upcoming Social Events</h2>
+              <p id="homeNextMeta">
+                See the next social events and community activities in the Social Events Calendar.
+              </p>
+            </div>
+            <a id="homeNextLink" class="small-action-link" href="social-events.html">
+              View Social Events
+            </a>
+          </section>
+
+          <section class="about-club-card" aria-labelledby="aboutClubTitle">
+            <p class="section-kicker">About the 1837 Club</p>
+            <h2 id="aboutClubTitle">A Province-wide Light Blues community</h2>
+            <div class="about-club-grid">
+              <p>
+                The 1837 Club supports newer Freemasons across Surrey by making it
+                easier to meet, visit, learn, and take part beyond their own lodge.
+              </p>
+              <p>
+                The calendars bring together official Club activity, community
+                events, and lodge meetings that are open to visitors.
+              </p>
+              <p>
+                For details or to get involved, join the WhatsApp community or email
+                <a href="mailto:1837t5@surreymason.org.uk">1837t5@surreymason.org.uk</a>.
+              </p>
+            </div>
+          </section>
 
           <section class="club-links-box" aria-label="Club social links">
             <h2>Get Involved</h2>
@@ -223,5 +262,7 @@
         <p>© 2026 The Surrey 1837 Club</p>
       </footer>
     </main>
+    <script src="script.js?v=professional-polish"></script>
+    <script src="home.js?v=professional-polish"></script>
   </body>
 </html>

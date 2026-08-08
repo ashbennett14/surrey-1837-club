@@ -847,6 +847,12 @@ const lodgeEvents = [
   },
 ];
 
+window.surrey1837CalendarData = {
+  socialEvents,
+  lodgeEvents,
+};
+
+if (document.querySelector("#calendarGrid")) {
 const today = new Date();
 const todayKey = toKey(today);
 const calendarType = document.body.dataset.calendar || "social";
@@ -869,6 +875,8 @@ const monthLabel = document.querySelector("#monthLabel");
 const eventCount = document.querySelector("#eventCount");
 const meetingTypeFilter = document.querySelector("#meetingTypeFilter");
 const meetingLocationFilter = document.querySelector("#meetingLocationFilter");
+const socialCategoryFilter = document.querySelector("#socialCategoryFilter");
+const calendarEmptyMessage = document.querySelector("#calendarEmptyMessage");
 const emptyState = document.querySelector("#emptyState");
 const eventDetails = document.querySelector("#eventDetails");
 const detailsPanel = document.querySelector("#detailsPanel");
@@ -886,6 +894,7 @@ let activeDate = selectedCalendar.initialDate;
 let selectedEventId = null;
 let activeMeetingType = "";
 let activeMeetingLocation = "";
+let activeSocialCategory = "";
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   weekday: "long",
@@ -927,16 +936,42 @@ function getMonthDays(date) {
 }
 
 function matchesActiveFilters(event) {
+  const matchesCategory =
+    calendarType !== "social" ||
+    !activeSocialCategory ||
+    event.category === activeSocialCategory;
   const matchesType =
+    calendarType !== "lodge" ||
     !activeMeetingType ||
-    event.degree
+    (event.degree || "")
       .split(" & ")
       .map((degree) => degree.trim())
       .includes(activeMeetingType);
   const matchesLocation =
+    calendarType !== "lodge" ||
     !activeMeetingLocation || event.location === activeMeetingLocation;
 
-  return matchesType && matchesLocation;
+  return matchesCategory && matchesType && matchesLocation;
+}
+
+function resetDetails() {
+  selectedEventId = null;
+  eventDetails.classList.add("hidden");
+  emptyState.classList.remove("hidden");
+}
+
+function getEmptyMessage() {
+  if (calendarType === "social") {
+    return activeSocialCategory
+      ? "No events match this category this month. Try another category or move to a different month."
+      : "No social events are listed for this month. Try moving to the next month.";
+  }
+
+  if (activeMeetingType || activeMeetingLocation) {
+    return "No lodge meetings match these filters this month. Try changing the type or location.";
+  }
+
+  return "No lodge meetings are listed for this month. Try moving to the next month.";
 }
 
 function renderCalendar() {
@@ -956,6 +991,10 @@ function renderCalendar() {
   const countLabel = calendarType === "lodge" ? "meeting" : "event";
   eventCount.textContent =
     `${monthlyEvents.length} ${countLabel}${monthlyEvents.length === 1 ? "" : "s"}`;
+  if (calendarEmptyMessage) {
+    calendarEmptyMessage.textContent = getEmptyMessage();
+    calendarEmptyMessage.hidden = monthlyEvents.length > 0;
+  }
   calendarGrid.innerHTML = "";
 
   visibleDays.forEach((day) => {
@@ -1088,9 +1127,7 @@ document.querySelector("#todayButton").addEventListener("click", () => {
 if (meetingTypeFilter) {
   meetingTypeFilter.addEventListener("change", () => {
     activeMeetingType = meetingTypeFilter.value;
-    selectedEventId = null;
-    eventDetails.classList.add("hidden");
-    emptyState.classList.remove("hidden");
+    resetDetails();
     renderCalendar();
   });
 }
@@ -1109,11 +1146,27 @@ if (meetingLocationFilter) {
 
   meetingLocationFilter.addEventListener("change", () => {
     activeMeetingLocation = meetingLocationFilter.value;
-    selectedEventId = null;
-    eventDetails.classList.add("hidden");
-    emptyState.classList.remove("hidden");
+    resetDetails();
+    renderCalendar();
+  });
+}
+
+if (socialCategoryFilter) {
+  socialCategoryFilter.addEventListener("change", () => {
+    activeSocialCategory = socialCategoryFilter.value;
+    resetDetails();
     renderCalendar();
   });
 }
 
 renderCalendar();
+
+const initialEventId = decodeURIComponent(window.location.hash.slice(1));
+const initialEvent = events.find((event) => event.id === initialEventId);
+if (initialEvent) {
+  const initialDate = parseLocalDate(initialEvent.date);
+  activeDate = new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
+  renderCalendar();
+  selectEvent(initialEvent.id);
+}
+}
