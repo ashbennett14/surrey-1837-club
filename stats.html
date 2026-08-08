@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZXL9CHXXT3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZXL9CHXXT3');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#071f3f" />
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <title>1837 Club Website Stats</title>
+    <link rel="stylesheet" href="styles.css?v=motion" />
+    <script src="auth.js?v=login-gate"></script>
+    <script src="motion.js?v=motion" defer></script>
+  </head>
+  <body>
+    <main class="stats-shell">
+      <section class="stats-panel" aria-label="Website statistics">
+        <div class="brand-strip" aria-label="1837 Club">
+          <div class="brand-lockup">
+            <img
+              class="brand-crest"
+              src="assets/surrey-1837-club-badge.png"
+              alt="The Surrey 1837 Club Light Blues badge"
+            />
+            <div>
+              <p class="brand-name">Website Stats</p>
+            </div>
+          </div>
+          <span class="brand-place">Private</span>
+        </div>
+
+        <div class="stats-summary" id="statsSummary"></div>
+        <section class="stats-card">
+          <h1>Page Views</h1>
+          <div class="stats-table" id="pageStats"></div>
+        </section>
+        <section class="stats-card">
+          <h2>Recent Visits</h2>
+          <div class="recent-visits" id="recentVisits"></div>
+        </section>
+        <button class="login-button reset-stats-button" id="resetStats" type="button">
+          Reset Stats
+        </button>
+      </section>
+      <footer class="site-footer" aria-label="Site footer">
+        <p class="footer-title">The Surrey 1837 Club</p>
+        <p>Supporting Surrey Light Blues Across the Province</p>
+        <p>© 2026 The Surrey 1837 Club</p>
+      </footer>
+    </main>
+
+    <script src="stats.js?v=stats"></script>
+  </body>
+</html>

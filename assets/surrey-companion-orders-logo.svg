@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 44" role="img" aria-label="Surrey Companion Orders logo">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.4">
+    <path stroke="#5aa846" d="M12 9 23 19" />
+    <path stroke="#f0b434" d="M32 8 23 19" />
+    <path stroke="#3f86d9" d="M23 19 12 36" />
+    <path stroke="#f18a28" d="M32 8 45 12" />
+    <path stroke="#ef5a3c" d="M45 12 33 28" />
+  </g>
+  <path
+    fill="none"
+    stroke="#ef5a3c"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="6.4"
+    d="M33 28 45 36"
+  />
+  <g>
+    <circle cx="12" cy="9" r="4.5" fill="#5aa846" />
+    <circle cx="32" cy="8" r="4.5" fill="#f0b434" />
+    <circle cx="45" cy="12" r="4.5" fill="#f18a28" />
+    <circle cx="12" cy="36" r="4.5" fill="#3f86d9" />
+    <circle cx="45" cy="36" r="4.5" fill="#ef5a3c" />
+  </g>
+</svg>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZXL9CHXXT3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZXL9CHXXT3');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Find Surrey lodge meetings open to visitors, with lodge names, numbers, locations and meeting types for Light Blue Freemasons."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#071f3f" />
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Lodge Meeting Calendar | The Surrey 1837 Club" />
+    <meta
+      property="og:description"
+      content="A visitor-friendly calendar of Surrey lodge meetings, locations and degree types for Light Blue Freemasons."
+    />
+    <meta property="og:image" content="assets/surrey-1837-club-badge.png" />
+    <meta property="og:site_name" content="The Surrey 1837 Club" />
+    <meta name="twitter:card" content="summary" />
+    <title>Lodge Meeting Calendar | The Surrey 1837 Club</title>
+    <link rel="stylesheet" href="styles.css?v=motion" />
+    <script src="auth.js?v=login-gate"></script>
+    <script src="analytics.js?v=stats" defer></script>
+    <script src="motion.js?v=motion" defer></script>
+  </head>
+  <body data-calendar="lodge">
+    <main class="app-shell">
+      <section class="calendar-panel" aria-label="1837 Club calendar">
+        <div class="brand-strip" aria-label="1837 Club">
+          <div class="brand-lockup">
+            <img
+              class="brand-crest"
+              src="assets/surrey-1837-club-badge.png"
+              alt="The Surrey 1837 Club Light Blues badge"
+            />
+            <div>
+              <p class="brand-name">The Surrey 1837 Club</p>
+            </div>
+          </div>
+          <span class="brand-place">Light Blues</span>
+        </div>
+        <nav class="page-nav" aria-label="Site pages">
+          <a href="index.html">Home</a>
+          <a href="social-events.html">Social Events</a>
+          <a href="lodge-meetings.html" aria-current="page">Lodge Meetings</a>
+          <a href="join-the-community.html">Join the Community</a>
+        </nav>
+
+        <header class="calendar-header">
+          <div>
+            <h1>Lodge Meeting Calendar</h1>
+          </div>
+          <div class="calendar-actions" aria-label="Calendar navigation">
+            <button class="icon-button" id="prevMonth" type="button" aria-label="Previous month">
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button class="text-button" id="todayButton" type="button">Today</button>
+            <button class="icon-button" id="nextMonth" type="button" aria-label="Next month">
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="month-bar">
+          <h2 id="monthLabel" aria-live="polite"></h2>
+          <div class="month-tools">
+            <p id="eventCount"></p>
+            <div class="meeting-filters" aria-label="Meeting filters">
+              <label class="meeting-filter" for="meetingTypeFilter">
+                <span>Type</span>
+                <select id="meetingTypeFilter">
+                  <option value="">All types</option>
+                  <option value="Installation">Installation</option>
+                  <option value="Initiation">Initiation</option>
+                  <option value="Passing">Passing</option>
+                  <option value="Raising">Raising</option>
+                  <option value="Royal Arch">Royal Arch</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+              <label class="meeting-filter" for="meetingLocationFilter">
+                <span>Location</span>
+                <select id="meetingLocationFilter">
+                  <option value="">All locations</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="weekday-row" aria-hidden="true">
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+          <span>Sun</span>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </section>
+
+      <aside class="details-panel" id="detailsPanel" aria-live="polite">
+        <div id="emptyState" class="empty-state">
+          <p class="kicker">Lodge Meetings</p>
+          <h2>Choose a meeting to see the details</h2>
+        </div>
+        <article class="event-details hidden" id="eventDetails">
+          <p class="detail-date" id="detailDate"></p>
+          <h2 id="detailTitle"></h2>
+          <img class="event-poster hidden" id="detailPoster" alt="" />
+          <dl>
+            <div class="time-detail-row">
+              <dt>Time</dt>
+              <dd id="detailTime"></dd>
+            </div>
+            <div>
+              <dt>Location</dt>
+              <dd id="detailLocation"></dd>
+            </div>
+            <div>
+              <dt>Lodge Name</dt>
+              <dd id="detailHost"></dd>
+            </div>
+          </dl>
+          <p id="detailDescription"></p>
+          <div class="detail-tags" id="detailTags"></div>
+          <p class="detail-contact-note">
+            For further details,
+            <a href="join-the-community.html">join the 1837 Club WhatsApp community</a>,
+            or email
+            <a href="mailto:1837t5@surreymason.org.uk">1837t5@surreymason.org.uk</a>
+          </p>
+        </article>
+      </aside>
+
+      <footer class="site-footer" aria-label="Site footer">
+        <p class="footer-title">The Surrey 1837 Club</p>
+        <p>Supporting Surrey Light Blues Across the Province</p>
+        <p>© 2026 The Surrey 1837 Club</p>
+      </footer>
+    </main>
+
+    <script src="script.js?v=motion"></script>
+  </body>
+</html>

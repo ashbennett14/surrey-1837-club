@@ -1,0 +1,19 @@
+{
+  "name": "The Surrey 1837 Club",
+  "short_name": "1837 Club",
+  "icons": [
+    {
+      "src": "favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#071f3f",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
