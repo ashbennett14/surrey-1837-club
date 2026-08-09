@@ -20,6 +20,7 @@
 }
 
 body {
+  position: relative;
   min-height: 100vh;
   margin: 0;
   color: var(--ink);
@@ -37,6 +38,19 @@ body {
     ),
     radial-gradient(circle at 18% 8%, rgba(197, 154, 54, 0.2), transparent 28%),
     linear-gradient(135deg, #d7e8fb 0%, #ffffff 48%, #eef4fb 100%);
+  isolation: isolate;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.64)),
+    url("assets/ornate-masonic-background.webp") center / cover no-repeat;
+  content: "";
+  opacity: 0.42;
+  pointer-events: none;
 }
 
 button {
@@ -68,6 +82,8 @@ button,
 }
 
 .app-shell {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
   gap: 22px;
@@ -77,6 +93,8 @@ button,
 }
 
 .home-shell {
+  position: relative;
+  z-index: 1;
   width: min(1120px, calc(100vw - 32px));
   min-height: calc(100vh - 32px);
   margin: 16px auto;
@@ -85,10 +103,41 @@ button,
 .calendar-panel,
 .details-panel,
 .home-panel {
+  position: relative;
+  overflow: hidden;
   border: 1px solid rgba(13, 55, 109, 0.16);
   background: rgba(255, 255, 255, 0.94);
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
+}
+
+.calendar-panel::before,
+.home-panel::before,
+.login-panel::before,
+.stats-panel::before {
+  position: absolute;
+  inset: 11px;
+  border: 1px solid rgba(197, 154, 54, 0.2);
+  border-radius: 6px;
+  content: "";
+  pointer-events: none;
+}
+
+.calendar-panel::after,
+.home-panel::after,
+.login-panel::after,
+.stats-panel::after {
+  position: absolute;
+  inset: 9px;
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(197, 154, 54, 0.34) 0 12px, transparent 12px) top left / 42px 42px no-repeat,
+    linear-gradient(225deg, rgba(197, 154, 54, 0.34) 0 12px, transparent 12px) top right / 42px 42px no-repeat,
+    linear-gradient(45deg, rgba(197, 154, 54, 0.22) 0 12px, transparent 12px) bottom left / 42px 42px no-repeat,
+    linear-gradient(315deg, rgba(197, 154, 54, 0.22) 0 12px, transparent 12px) bottom right / 42px 42px no-repeat;
+  content: "";
+  opacity: 0.62;
+  pointer-events: none;
 }
 
 .calendar-panel {
@@ -877,6 +926,8 @@ button,
 }
 
 .login-shell {
+  position: relative;
+  z-index: 1;
   display: grid;
   width: min(520px, calc(100vw - 32px));
   min-height: 100vh;
@@ -885,6 +936,8 @@ button,
 }
 
 .login-panel {
+  position: relative;
+  overflow: hidden;
   display: grid;
   gap: 22px;
   width: 100%;
@@ -960,12 +1013,16 @@ button,
 }
 
 .stats-shell {
+  position: relative;
+  z-index: 1;
   width: min(980px, calc(100vw - 32px));
   min-height: calc(100vh - 32px);
   margin: 16px auto;
 }
 
 .stats-panel {
+  position: relative;
+  overflow: hidden;
   min-height: calc(100vh - 32px);
   padding: clamp(18px, 3vw, 32px);
   border: 1px solid rgba(13, 55, 109, 0.16);
@@ -1751,6 +1808,26 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
 }
 
 @media (max-width: 720px) {
+  body::before {
+    background-position: center top;
+    opacity: 0.24;
+  }
+
+  .calendar-panel::before,
+  .home-panel::before,
+  .login-panel::before,
+  .stats-panel::before {
+    inset: 8px;
+    opacity: 0.72;
+  }
+
+  .calendar-panel::after,
+  .home-panel::after,
+  .login-panel::after,
+  .stats-panel::after {
+    opacity: 0.34;
+  }
+
   .app-shell,
   .home-shell {
     width: min(100vw - 20px, 640px);
