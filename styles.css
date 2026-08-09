@@ -148,6 +148,20 @@ button,
   border-radius: 8px;
 }
 
+body[data-calendar="social"] .calendar-panel {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.93)),
+    url("assets/page-accent-social.webp") center top / cover no-repeat,
+    rgba(255, 255, 255, 0.94);
+}
+
+body[data-calendar="lodge"] .calendar-panel {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.93)),
+    url("assets/page-accent-lodge.webp") center top / cover no-repeat,
+    rgba(255, 255, 255, 0.94);
+}
+
 .home-panel {
   min-height: calc(100vh - 32px);
   padding: clamp(18px, 3vw, 32px);
@@ -830,7 +844,10 @@ button,
 .next-steps {
   border: 1px solid rgba(13, 55, 109, 0.14);
   border-radius: 8px;
-  background: #ffffff;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.94)),
+    url("assets/page-accent-community.webp") center / cover no-repeat,
+    #ffffff;
 }
 
 .join-intro {
@@ -855,7 +872,10 @@ button,
   padding: clamp(22px, 3vw, 32px);
   border: 1px solid rgba(197, 154, 54, 0.55);
   border-radius: 8px;
-  background: var(--navy-deep);
+  background:
+    linear-gradient(135deg, rgba(7, 31, 63, 0.94), rgba(7, 31, 63, 0.98)),
+    url("assets/page-accent-community.webp") center / cover no-repeat,
+    var(--navy-deep);
   box-shadow: 0 16px 32px rgba(5, 20, 42, 0.14);
 }
 
@@ -936,7 +956,8 @@ button,
 .form-card {
   padding: clamp(12px, 2vw, 18px);
   background:
-    linear-gradient(135deg, rgba(216, 235, 255, 0.5), rgba(255, 255, 255, 0.96)),
+    linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.94)),
+    url("assets/page-accent-community.webp") center / cover no-repeat,
     #ffffff;
 }
 
@@ -1008,7 +1029,10 @@ button,
   padding: clamp(24px, 5vw, 42px);
   border: 1px solid rgba(13, 55, 109, 0.16);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.96);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95)),
+    url("assets/page-accent-community.webp") center / cover no-repeat,
+    rgba(255, 255, 255, 0.96);
   box-shadow: var(--shadow);
 }
 
@@ -1091,7 +1115,10 @@ button,
   padding: clamp(18px, 3vw, 32px);
   border: 1px solid rgba(13, 55, 109, 0.16);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.96);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.91), rgba(255, 255, 255, 0.95)),
+    url("assets/page-accent-community.webp") center top / cover no-repeat,
+    rgba(255, 255, 255, 0.96);
   box-shadow: var(--shadow);
 }
 
@@ -1659,6 +1686,20 @@ body[data-calendar="lodge"] .calendar-grid {
   color: #ffffff;
   background:
     linear-gradient(180deg, rgba(197, 154, 54, 0.2), transparent 42%),
+    linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+}
+
+body[data-calendar="social"] .details-panel {
+  background:
+    linear-gradient(135deg, rgba(7, 31, 63, 0.93), rgba(7, 31, 63, 0.97)),
+    url("assets/page-accent-social.webp") center / cover no-repeat,
+    linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+}
+
+body[data-calendar="lodge"] .details-panel {
+  background:
+    linear-gradient(135deg, rgba(7, 31, 63, 0.93), rgba(7, 31, 63, 0.97)),
+    url("assets/page-accent-lodge.webp") center / cover no-repeat,
     linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
 }
 
