@@ -921,6 +921,7 @@ const detailHost = document.querySelector("#detailHost");
 const detailDescription = document.querySelector("#detailDescription");
 const detailTags = document.querySelector("#detailTags");
 const detailPoster = document.querySelector("#detailPoster");
+const posterLightbox = createPosterLightbox();
 
 let activeDate = selectedCalendar.initialDate;
 let selectedEventId = null;
@@ -1126,6 +1127,9 @@ function selectEvent(eventId) {
   if (event.poster) {
     detailPoster.src = event.poster;
     detailPoster.alt = event.posterAlt || `${event.title} poster`;
+    detailPoster.tabIndex = 0;
+    detailPoster.setAttribute("role", "button");
+    detailPoster.setAttribute("aria-label", `Open larger image for ${event.title}`);
   }
 
   event.tags.forEach((tag) => {
@@ -1191,6 +1195,21 @@ if (socialCategoryFilter) {
   });
 }
 
+if (detailPoster) {
+  detailPoster.addEventListener("click", () => {
+    if (!detailPoster.classList.contains("hidden") && detailPoster.src) {
+      posterLightbox.open(detailPoster.src, detailPoster.alt);
+    }
+  });
+
+  detailPoster.addEventListener("keydown", (event) => {
+    if ((event.key === "Enter" || event.key === " ") && !detailPoster.classList.contains("hidden")) {
+      event.preventDefault();
+      posterLightbox.open(detailPoster.src, detailPoster.alt);
+    }
+  });
+}
+
 renderCalendar();
 
 const initialEventId = decodeURIComponent(window.location.hash.slice(1));
@@ -1201,4 +1220,57 @@ if (initialEvent) {
   renderCalendar();
   selectEvent(initialEvent.id);
 }
+}
+
+function createPosterLightbox() {
+  const lightbox = document.createElement("div");
+  lightbox.className = "poster-lightbox";
+  lightbox.setAttribute("role", "dialog");
+  lightbox.setAttribute("aria-modal", "true");
+  lightbox.setAttribute("aria-label", "Event image preview");
+  lightbox.innerHTML = `
+    <div class="poster-lightbox-frame">
+      <button class="poster-lightbox-close" type="button" aria-label="Close image preview">×</button>
+      <img alt="" />
+    </div>
+  `;
+  document.body.append(lightbox);
+
+  const image = lightbox.querySelector("img");
+  const closeButton = lightbox.querySelector("button");
+  let previousFocus = null;
+
+  function close() {
+    lightbox.classList.remove("is-open");
+    image.removeAttribute("src");
+    document.removeEventListener("keydown", handleKeydown);
+    if (previousFocus) {
+      previousFocus.focus();
+    }
+  }
+
+  function handleKeydown(event) {
+    if (event.key === "Escape") {
+      close();
+    }
+  }
+
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+      close();
+    }
+  });
+
+  closeButton.addEventListener("click", close);
+
+  return {
+    open(src, alt) {
+      previousFocus = document.activeElement;
+      image.src = src;
+      image.alt = alt || "Event image";
+      lightbox.classList.add("is-open");
+      closeButton.focus();
+      document.addEventListener("keydown", handleKeydown);
+    },
+  };
 }

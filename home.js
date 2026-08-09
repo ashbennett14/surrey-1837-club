@@ -3,39 +3,70 @@
   const title = document.querySelector("#homeNextTitle");
   const meta = document.querySelector("#homeNextMeta");
   const link = document.querySelector("#homeNextLink");
+  const list = document.querySelector("#homeNextList");
   const socialEvents = window.surrey1837CalendarData?.socialEvents || [];
 
-  if (!nextEvent || !title || !meta || !link || socialEvents.length === 0) {
+  if (!nextEvent || !title || !meta || !link || !list || socialEvents.length === 0) {
     return;
   }
 
   const today = new Date();
-  const todayKey = [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, "0"),
-    String(today.getDate()).padStart(2, "0"),
-  ].join("-");
+  today.setHours(0, 0, 0, 0);
 
   const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-    weekday: "short",
     day: "numeric",
     month: "short",
-    year: "numeric",
   });
 
   const upcoming = socialEvents
-    .filter((event) => event.date >= todayKey)
-    .sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title))[0];
+    .map((event) => ({
+      ...event,
+      eventDate: parseDate(event.date),
+    }))
+    .filter((event) => event.eventDate >= today)
+    .sort((a, b) => a.eventDate - b.eventDate || a.title.localeCompare(b.title))
+    .slice(0, 3);
 
-  if (!upcoming) {
+  if (upcoming.length === 0) {
     title.textContent = "Upcoming Social Events";
     meta.textContent = "New social events and community activities will appear in the calendar.";
+    list.innerHTML = `
+      <a class="home-next-card" href="social-events.html">
+        <span class="home-next-date"><strong>--</strong>Now</span>
+        <span>
+          <b>No upcoming social events listed</b>
+          <span>Check the Social Events Calendar for updates</span>
+        </span>
+      </a>
+    `;
     return;
   }
 
-  const eventDate = new Date(`${upcoming.date}T00:00:00`);
-  title.textContent = upcoming.title;
-  meta.textContent = `${dateFormatter.format(eventDate)} · ${upcoming.category} · ${upcoming.location}`;
-  link.textContent = "View Event Details";
-  link.href = `social-events.html#${upcoming.id}`;
+  title.textContent = "Next 3 Events";
+  meta.textContent = "A quick look at the next social events and community activities.";
+  link.textContent = "View Social Events";
+  link.href = "social-events.html";
+  list.innerHTML = upcoming.map(renderEvent).join("");
+
+  function renderEvent(event) {
+    const [day, month] = dateFormatter.format(event.eventDate).split(" ");
+
+    return `
+      <a class="home-next-card" href="social-events.html#${event.id}">
+        <span class="home-next-date">
+          <strong>${day}</strong>
+          ${month}
+        </span>
+        <span>
+          <b>${event.title}</b>
+          <span>${event.category} · ${event.location}</span>
+        </span>
+      </a>
+    `;
+  }
+
+  function parseDate(key) {
+    const [year, month, day] = key.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
 })();
