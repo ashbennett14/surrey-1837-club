@@ -16,182 +16,121 @@
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
-    <title>Tyler’s Trial Quest | The Surrey 1837 Club</title>
-    <link rel="stylesheet" href="styles.css?v=tylers-trial-quest" />
+    <title>Tyler's Trial: The Tracing Board | The Surrey 1837 Club</title>
+    <link rel="stylesheet" href="styles.css?v=tracing-board-game" />
     <script src="analytics.js?v=stats" defer></script>
     <script src="motion.js?v=visual-polish" defer></script>
   </head>
   <body class="trial-page">
     <main class="trial-shell">
-      <section class="trial-quest-panel" aria-labelledby="trialQuestTitle">
-        <header class="trial-quest-hero">
+      <section class="trial-quest-panel tracing-game-panel" aria-labelledby="trialQuestTitle">
+        <header class="trial-quest-hero tracing-game-hero">
           <div>
             <p class="section-kicker">Hidden Easter Egg</p>
-            <h1 id="trialQuestTitle">Tyler’s Trial Quest</h1>
+            <h1 id="trialQuestTitle">Tyler's Trial</h1>
             <p>
-              Complete three quiet trials of memory, order, and light. Nothing
-              secret, nothing solemn, just a small challenge for those who found
-              the acacia.
+              Build a quiet tracing board by laying lodge tiles across the floor.
+              Rotate the pieces, connect the West Door to the Eastern Light, and
+              score extra points for thoughtful symbolism along the way.
             </p>
           </div>
           <a class="small-action-link trial-return-link" href="index.html">Return to the 1837 Club</a>
         </header>
 
-        <div class="trial-progress" aria-label="Trial progress">
-          <span class="is-active" data-progress-step="1">Watch the Signs</span>
-          <span data-progress-step="2">Set the Lodge</span>
-          <span data-progress-step="3">Find the Light</span>
-        </div>
-
-        <div class="trial-stats" aria-live="polite">
-          <span>Stage <strong id="trialStageValue">1</strong> of 3</span>
+        <div class="tracing-game-status" aria-live="polite">
           <span>Score <strong id="trialScoreValue">0</strong></span>
           <span>Time <strong id="trialTimeValue">0:00</strong></span>
+          <span>Tiles <strong id="trialTilesValue">0</strong></span>
+          <span>Plan <strong id="trialPlanValue">Open</strong></span>
         </div>
 
-        <section class="trial-stage is-current" data-stage="1" aria-labelledby="watchSignsTitle">
-          <div class="trial-stage-copy">
-            <p class="section-kicker">Stage One</p>
-            <h2 id="watchSignsTitle">Watch the Signs</h2>
+        <section class="tracing-game-layout" aria-label="Tyler's Trial game board">
+          <aside class="tracing-sidebar tracing-instructions">
+            <p class="section-kicker">How to Play</p>
+            <h2>The Tracing Board</h2>
             <p>
-              Follow the illuminated sequence, then repeat it. Pass four rounds
-              to move deeper into the trial.
+              Choose one of the three tiles in your hand. Rotate it if needed,
+              then place it on an empty square connected to the existing plan.
             </p>
-          </div>
-          <div class="trial-memory-board" aria-label="Memory symbols">
-            <button class="quest-symbol" type="button" data-memory-symbol="column" aria-label="Column">
-              <span aria-hidden="true">I</span>
-              Column
-            </button>
-            <button class="quest-symbol" type="button" data-memory-symbol="key" aria-label="Key">
-              <span aria-hidden="true">K</span>
-              Key
-            </button>
-            <button class="quest-symbol" type="button" data-memory-symbol="acacia" aria-label="Acacia">
-              <span aria-hidden="true">A</span>
-              Acacia
-            </button>
-            <button class="quest-symbol" type="button" data-memory-symbol="light" aria-label="Light">
-              <span aria-hidden="true">L</span>
-              Light
-            </button>
-          </div>
-          <p class="trial-status" id="memoryStatus" aria-live="polite">
-            Press start to begin the first trial.
-          </p>
-          <button class="login-button trial-primary-action" type="button" id="memoryStart">
-            Start Stage One
-          </button>
-        </section>
-
-        <section class="trial-stage" data-stage="2" aria-labelledby="setLodgeTitle">
-          <div class="trial-stage-copy">
-            <p class="section-kicker">Stage Two</p>
-            <h2 id="setLodgeTitle">Set the Lodge</h2>
-            <p>
-              Place each symbol where it belongs. Drag them, or tap a symbol and
-              then tap its place.
-            </p>
-          </div>
-          <div class="lodge-setting-board">
-            <div class="lodge-slots" aria-label="Lodge setting positions">
-              <button class="lodge-slot" type="button" data-accepts="light">
-                <span>East</span>
-                <strong>Light</strong>
-              </button>
-              <button class="lodge-slot" type="button" data-accepts="book">
-                <span>Centre</span>
-                <strong>Book</strong>
-              </button>
-              <button class="lodge-slot" type="button" data-accepts="key">
-                <span>Door</span>
-                <strong>Key</strong>
-              </button>
-              <button class="lodge-slot" type="button" data-accepts="acacia">
-                <span>Border</span>
-                <strong>Acacia</strong>
-              </button>
+            <ul class="tracing-rules">
+              <li>Paths must meet cleanly with neighbouring tiles.</li>
+              <li>Reach the Eastern Light to complete the trial.</li>
+              <li>Acacia, books, keys, and columns add bonus points.</li>
+            </ul>
+            <div class="tracing-objectives">
+              <p class="section-kicker">Objectives</p>
+              <div class="objective-item is-active" data-objective="door">
+                Connect from the West Door
+              </div>
+              <div class="objective-item" data-objective="light">
+                Reach the Eastern Light
+              </div>
+              <div class="objective-item" data-objective="symbols">
+                Place three symbol tiles
+              </div>
             </div>
-            <div class="lodge-items" aria-label="Symbols to place">
-              <button class="lodge-item" type="button" draggable="true" data-item="book">Book</button>
-              <button class="lodge-item" type="button" draggable="true" data-item="acacia">Acacia</button>
-              <button class="lodge-item" type="button" draggable="true" data-item="light">Light</button>
-              <button class="lodge-item" type="button" draggable="true" data-item="key">Key</button>
+          </aside>
+
+          <section class="tracing-board-wrap">
+            <div class="tracing-board-head">
+              <div>
+                <p class="section-kicker">Lodge Plan</p>
+                <h2>Lay the Floor</h2>
+              </div>
+              <div class="tracing-actions">
+                <button class="small-action-link trial-secondary-action" type="button" id="rotateTile">
+                  Rotate Tile
+                </button>
+                <button class="small-action-link trial-secondary-action" type="button" id="drawTiles">
+                  Draw New Plans
+                </button>
+                <button class="small-action-link trial-secondary-action" type="button" id="resetGame">
+                  Reset
+                </button>
+              </div>
             </div>
-          </div>
-          <p class="trial-status" id="lodgeStatus" aria-live="polite">
-            Select an item, then choose its correct position.
-          </p>
+
+            <div class="tracing-board" id="tracingBoard" aria-label="Tracing board grid"></div>
+            <p class="trial-status" id="trialMessage" aria-live="polite">
+              Select a tile from your hand to begin.
+            </p>
+          </section>
+
+          <aside class="tracing-sidebar tracing-hand-panel">
+            <p class="section-kicker">Your Hand</p>
+            <h2>Choose a Tile</h2>
+            <div class="tracing-hand" id="tileHand" aria-label="Available tracing board tiles"></div>
+            <div class="tracing-selected-card" id="selectedTileCard">
+              <span>No tile selected</span>
+              <strong>Choose a plan tile</strong>
+            </div>
+          </aside>
         </section>
 
-        <section class="trial-stage" data-stage="3" aria-labelledby="findLightTitle">
-          <div class="trial-stage-copy">
-            <p class="section-kicker">Stage Three</p>
-            <h2 id="findLightTitle">Find the Light</h2>
+        <section class="trial-completion-panel" id="completionPanel" aria-labelledby="trialCompleteTitle" hidden>
+          <div>
+            <p class="section-kicker">Trial Complete</p>
+            <h2 id="trialCompleteTitle">The Light Is Found</h2>
             <p>
-              Read the clue and press the four symbols in the right order.
+              The board is set, the path is clear, and the Tyler's quiet work is
+              complete.
             </p>
-          </div>
-          <div class="light-clue-card">
-            <p>
-              First stand firm. Then honour the evergreen. The door is opened
-              last by what it guards.
-            </p>
-            <div class="light-answer" id="lightAnswer" aria-label="Selected answer sequence"></div>
-          </div>
-          <div class="trial-memory-board light-choice-board" aria-label="Light clue symbols">
-            <button class="quest-symbol" type="button" data-light-symbol="column" aria-label="Column">
-              <span aria-hidden="true">I</span>
-              Column
-            </button>
-            <button class="quest-symbol" type="button" data-light-symbol="acacia" aria-label="Acacia">
-              <span aria-hidden="true">A</span>
-              Acacia
-            </button>
-            <button class="quest-symbol" type="button" data-light-symbol="key" aria-label="Key">
-              <span aria-hidden="true">K</span>
-              Key
-            </button>
-            <button class="quest-symbol" type="button" data-light-symbol="light" aria-label="Light">
-              <span aria-hidden="true">L</span>
-              Light
-            </button>
-          </div>
-          <p class="trial-status" id="lightStatus" aria-live="polite">
-            Choose four signs to complete the trial.
-          </p>
-          <div class="trial-action-row">
-            <button class="login-button trial-primary-action" type="button" id="lightSubmit">
-              Submit Sequence
-            </button>
-            <button class="small-action-link trial-secondary-action" type="button" id="lightReset">
-              Reset
-            </button>
-          </div>
-        </section>
-
-        <section class="trial-stage trial-complete-stage" data-stage="complete" aria-labelledby="trialCompleteTitle">
-          <p class="section-kicker">Trial Complete</p>
-          <h2 id="trialCompleteTitle">You Found the Light</h2>
-          <p>
-            Nicely done. The trial is complete, and the acacia has given up its
-            little secret.
-          </p>
-          <div class="trial-complete-score" aria-live="polite">
-            <span>Final Score <strong id="finalScoreValue">0</strong></span>
-            <span>Time <strong id="finalTimeValue">0:00</strong></span>
-          </div>
-          <div class="trial-action-row">
-            <button class="login-button trial-primary-action" type="button" id="playAgain">
-              Play Again
-            </button>
-            <a class="small-action-link trial-secondary-action" href="index.html">
-              Return to the 1837 Club
-            </a>
+            <div class="trial-complete-score" aria-live="polite">
+              <span>Final Score <strong id="finalScoreValue">0</strong></span>
+              <span>Time <strong id="finalTimeValue">0:00</strong></span>
+            </div>
+            <div class="trial-action-row">
+              <button class="login-button trial-primary-action" type="button" id="playAgain">
+                Play Again
+              </button>
+              <a class="small-action-link trial-secondary-action" href="index.html">
+                Return to the 1837 Club
+              </a>
+            </div>
           </div>
         </section>
       </section>
     </main>
-    <script src="tylers-trial.js?v=tylers-trial-quest"></script>
+    <script src="tylers-trial.js?v=tracing-board-game"></script>
   </body>
 </html>
