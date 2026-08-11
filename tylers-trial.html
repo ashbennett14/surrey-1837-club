@@ -16,121 +16,64 @@
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
-    <title>Tyler's Trial: The Tracing Board | The Surrey 1837 Club</title>
-    <link rel="stylesheet" href="styles.css?v=tracing-board-game" />
+    <title>Tyler's Trial: The Lodge Floor | The Surrey 1837 Club</title>
+    <link rel="stylesheet" href="styles.css?v=lodge-floor-game" />
     <script src="analytics.js?v=stats" defer></script>
     <script src="motion.js?v=visual-polish" defer></script>
   </head>
-  <body class="trial-page">
-    <main class="trial-shell">
-      <section class="trial-quest-panel tracing-game-panel" aria-labelledby="trialQuestTitle">
-        <header class="trial-quest-hero tracing-game-hero">
+  <body class="trial-page lodge-floor-page">
+    <main class="trial-shell lodge-game-shell">
+      <section class="trial-quest-panel lodge-game-panel" aria-labelledby="trialQuestTitle">
+        <header class="trial-quest-hero lodge-game-hero">
           <div>
             <p class="section-kicker">Hidden Easter Egg</p>
             <h1 id="trialQuestTitle">Tyler's Trial</h1>
             <p>
-              Build a quiet tracing board by laying lodge tiles across the floor.
-              Rotate the pieces, connect the West Door to the Eastern Light, and
-              score extra points for thoughtful symbolism along the way.
+              Place lodge-floor tiles, close quiet areas, and collect useful
+              items between rounds. The more carefully you set the floor, the
+              better your score.
             </p>
           </div>
           <a class="small-action-link trial-return-link" href="index.html">Return to the 1837 Club</a>
         </header>
 
-        <div class="tracing-game-status" aria-live="polite">
-          <span>Score <strong id="trialScoreValue">0</strong></span>
-          <span>Time <strong id="trialTimeValue">0:00</strong></span>
-          <span>Tiles <strong id="trialTilesValue">0</strong></span>
-          <span>Plan <strong id="trialPlanValue">Open</strong></span>
-        </div>
-
-        <section class="tracing-game-layout" aria-label="Tyler's Trial game board">
-          <aside class="tracing-sidebar tracing-instructions">
-            <p class="section-kicker">How to Play</p>
-            <h2>The Tracing Board</h2>
-            <p>
-              Choose one of the three tiles in your hand. Rotate it if needed,
-              then place it on an empty square connected to the existing plan.
-            </p>
-            <ul class="tracing-rules">
-              <li>Paths must meet cleanly with neighbouring tiles.</li>
-              <li>Reach the Eastern Light to complete the trial.</li>
-              <li>Acacia, books, keys, and columns add bonus points.</li>
-            </ul>
-            <div class="tracing-objectives">
-              <p class="section-kicker">Objectives</p>
-              <div class="objective-item is-active" data-objective="door">
-                Connect from the West Door
-              </div>
-              <div class="objective-item" data-objective="light">
-                Reach the Eastern Light
-              </div>
-              <div class="objective-item" data-objective="symbols">
-                Place three symbol tiles
-              </div>
-            </div>
-          </aside>
-
-          <section class="tracing-board-wrap">
-            <div class="tracing-board-head">
-              <div>
-                <p class="section-kicker">Lodge Plan</p>
-                <h2>Lay the Floor</h2>
-              </div>
-              <div class="tracing-actions">
-                <button class="small-action-link trial-secondary-action" type="button" id="rotateTile">
-                  Rotate Tile
-                </button>
-                <button class="small-action-link trial-secondary-action" type="button" id="drawTiles">
-                  Draw New Plans
-                </button>
-                <button class="small-action-link trial-secondary-action" type="button" id="resetGame">
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            <div class="tracing-board" id="tracingBoard" aria-label="Tracing board grid"></div>
-            <p class="trial-status" id="trialMessage" aria-live="polite">
-              Select a tile from your hand to begin.
-            </p>
-          </section>
-
-          <aside class="tracing-sidebar tracing-hand-panel">
-            <p class="section-kicker">Your Hand</p>
-            <h2>Choose a Tile</h2>
-            <div class="tracing-hand" id="tileHand" aria-label="Available tracing board tiles"></div>
-            <div class="tracing-selected-card" id="selectedTileCard">
-              <span>No tile selected</span>
-              <strong>Choose a plan tile</strong>
-            </div>
-          </aside>
-        </section>
-
-        <section class="trial-completion-panel" id="completionPanel" aria-labelledby="trialCompleteTitle" hidden>
-          <div>
-            <p class="section-kicker">Trial Complete</p>
-            <h2 id="trialCompleteTitle">The Light Is Found</h2>
-            <p>
-              The board is set, the path is clear, and the Tyler's quiet work is
-              complete.
-            </p>
-            <div class="trial-complete-score" aria-live="polite">
-              <span>Final Score <strong id="finalScoreValue">0</strong></span>
-              <span>Time <strong id="finalTimeValue">0:00</strong></span>
-            </div>
-            <div class="trial-action-row">
-              <button class="login-button trial-primary-action" type="button" id="playAgain">
-                Play Again
-              </button>
-              <a class="small-action-link trial-secondary-action" href="index.html">
-                Return to the 1837 Club
-              </a>
-            </div>
+        <section class="lodge-game-frame" aria-label="Tyler's Trial lodge-floor game">
+          <canvas
+            id="lodgeGameCanvas"
+            class="lodge-game-canvas"
+            width="1280"
+            height="720"
+            aria-label="Interactive tile-placement game board"
+            role="img"
+          >
+            Tyler's Trial is an interactive canvas game. Select one of the three
+            tile choices, rotate it, and place it on the lodge floor.
+          </canvas>
+          <div class="lodge-game-loading" id="lodgeGameLoading" aria-live="polite">
+            Preparing the lodge floor...
           </div>
         </section>
+
+        <div class="lodge-game-controls" aria-label="Game controls">
+          <button class="small-action-link trial-secondary-action" type="button" id="gameRotate">
+            Rotate Tile
+          </button>
+          <button class="small-action-link trial-secondary-action" type="button" id="gameRedraw">
+            Redraw Choices
+          </button>
+          <button class="small-action-link trial-secondary-action" type="button" id="gameRestart">
+            Play Again
+          </button>
+          <a class="small-action-link trial-secondary-action" href="index.html">
+            Return
+          </a>
+        </div>
+
+        <p class="lodge-game-help" id="lodgeGameHelp" aria-live="polite">
+          Choose a tile on the right, rotate it if needed, then place it on the lodge floor.
+        </p>
       </section>
     </main>
-    <script src="tylers-trial.js?v=tracing-board-game"></script>
+    <script src="tylers-trial.js?v=lodge-floor-game"></script>
   </body>
 </html>
