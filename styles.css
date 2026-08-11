@@ -589,8 +589,8 @@ body[data-calendar="chapter"] .detail-date {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 180px;
-  padding: 24px;
+  min-height: 156px;
+  padding: 20px 16px;
   border: 1px solid rgba(13, 55, 109, 0.18);
   border-radius: 8px;
   color: var(--navy-deep);
@@ -638,9 +638,9 @@ body[data-calendar="chapter"] .detail-date {
 .calendar-link-card img {
   position: relative;
   z-index: 1;
-  width: 82px;
-  height: 82px;
-  margin-right: 18px;
+  width: 64px;
+  height: 64px;
+  margin-right: 12px;
   box-shadow: 0 8px 20px rgba(5, 20, 42, 0.12);
   border-radius: 50%;
   object-fit: contain;
@@ -654,12 +654,14 @@ body[data-calendar="chapter"] .detail-date {
 .calendar-link-card span {
   position: relative;
   z-index: 1;
-  max-width: 10ch;
+  max-width: 13ch;
   padding: 5px 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  font-size: clamp(1.05rem, 1.55vw, 1.32rem);
   font-weight: 800;
-  line-height: 1;
+  line-height: 1.08;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .home-next-event,
@@ -2347,6 +2349,12 @@ body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-de
   .motion-ready .reveal-target {
     opacity: 1;
     translate: 0;
+  }
+}
+
+@media (max-width: 1180px) {
+  .calendar-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
