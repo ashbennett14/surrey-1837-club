@@ -735,7 +735,7 @@ body[data-calendar="chapter"] .calendar-panel {
   color: #ffffff;
   background:
     linear-gradient(rgba(7, 31, 63, 0.1), rgba(7, 31, 63, 0.4)),
-    url("assets/tylers-lodge-floor-bg.webp") center / cover fixed no-repeat,
+    url("assets/tylers-lodge-floor-bg-v2.webp") center / cover fixed no-repeat,
     linear-gradient(135deg, #071f3f 0%, #0d376d 62%, #071f3f 100%);
 }
 

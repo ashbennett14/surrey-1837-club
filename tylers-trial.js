@@ -110,8 +110,8 @@
   ];
 
   const assets = {
-    bg: "assets/tylers-lodge-floor-bg.webp",
-    character: "assets/tylers-lodge-character.webp",
+    bg: "assets/tylers-lodge-floor-bg-v2.webp",
+    character: "assets/tylers-lodge-character-v2.webp",
     items: "assets/tylers-lodge-items.webp",
     ui: "assets/tylers-lodge-ui.webp",
   };
@@ -1099,6 +1099,12 @@
     ctx.restore();
   }
 
+  function gradientFill(x, y, w, h, colors) {
+    const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
+    colors.forEach(([stop, color]) => gradient.addColorStop(stop, color));
+    return gradient;
+  }
+
   function label(text, x, y, size, color, weight, align, maxWidth) {
     ctx.save();
     ctx.font = `${weight || 800} ${size}px Inter, Arial, sans-serif`;
@@ -1154,15 +1160,22 @@
 
   function drawLodge() {
     const stage = Math.min(4, Math.floor((state.trial - 1) / 5));
-    panel(384, 26, 512, 86 + stage * 5, "rgba(255,246,223,0.94)", "rgba(201,154,53,0.9)", 18);
-    ctx.fillStyle = palette.navy;
-    ctx.fillRect(430, 82, 420, 20);
+    panel(384, 24, 512, 88 + stage * 5, "rgba(255,246,223,0.9)", "rgba(201,154,53,0.92)", 18);
+    ctx.save();
+    ctx.shadowColor = "rgba(201,154,53,0.35)";
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = gradientFill(430, 78, 420, 24, [[0, palette.navy], [0.5, palette.royal], [1, palette.navy]]);
+    roundRect(430, 78, 420, 24, 8);
+    ctx.fill();
+    ctx.restore();
     for (let i = 0; i < 4 + stage; i += 1) {
       const x = 442 + i * (368 / Math.max(1, 3 + stage));
-      ctx.fillStyle = i % 2 ? palette.royal : palette.crimson;
-      ctx.fillRect(x, 42, 18, 42);
+      ctx.fillStyle = gradientFill(x, 40, 20, 44, [[0, i % 2 ? "#2175bf" : "#b93342"], [1, i % 2 ? "#082b56" : "#5b1018"]]);
+      roundRect(x, 40, 20, 44, 5);
+      ctx.fill();
       ctx.fillStyle = palette.gold;
-      ctx.fillRect(x - 2, 40, 22, 5);
+      roundRect(x - 3, 38, 26, 6, 3);
+      ctx.fill();
     }
     label(["Small Lodge", "Established Lodge", "Masonic Hall", "Provincial Hall", "Grand Temple"][stage], 640, 46, 22, palette.navy, 900, "center");
     label("LODGE ENTRANCE", 640, 82, 12, palette.gold, 900, "center");
@@ -1228,7 +1241,17 @@
 
   function drawBoard() {
     if (state.board.length < GRID) return;
-    panel(board.x - 20, board.y - 20, board.w + 40, board.h + 40, "rgba(255,246,223,0.95)", "rgba(201,154,53,0.96)", 22);
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.42)";
+    ctx.shadowBlur = 28;
+    panel(board.x - 24, board.y - 24, board.w + 48, board.h + 48, "rgba(255,246,223,0.93)", "rgba(201,154,53,0.96)", 22);
+    ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = "rgba(13,55,109,0.34)";
+    ctx.lineWidth = 4;
+    roundRect(board.x - 12, board.y - 12, board.w + 24, board.h + 24, 16);
+    ctx.stroke();
+    ctx.restore();
     for (let row = 0; row < GRID; row += 1) {
       for (let col = 0; col < GRID; col += 1) {
         const x = board.x + col * CELL;
@@ -1237,8 +1260,14 @@
         const selected = state.selected?.row === row && state.selected?.col === col;
         ctx.save();
         roundRect(x + 3, y + 3, CELL - 6, CELL - 6, 10);
-        ctx.fillStyle = cell.path ? "rgba(54,42,31,0.82)" : (row + col) % 2 ? "#eee4ce" : "#fff9eb";
+        ctx.fillStyle = cell.path
+          ? gradientFill(x, y, CELL, CELL, [[0, "rgba(31,26,23,0.92)"], [1, "rgba(82,54,35,0.86)"]])
+          : (row + col) % 2
+            ? gradientFill(x, y, CELL, CELL, [[0, "#f4ead4"], [1, "#ded0ad"]])
+            : gradientFill(x, y, CELL, CELL, [[0, "#fffdf3"], [1, "#efe2c6"]]);
         ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.16)";
+        ctx.fillRect(x + 8, y + 8, CELL - 16, 2);
         ctx.strokeStyle = selected ? palette.gold : "rgba(23,36,58,0.16)";
         ctx.lineWidth = selected ? 5 : 1.5;
         ctx.stroke();
@@ -1299,7 +1328,20 @@
 
   function drawTile(tile, x, y, size, selected, row, col) {
     const def = resources[tile.kind];
-    panel(x, y, size, size, tile.tower ? "rgba(6,26,54,0.9)" : "rgba(255,255,255,0.92)", selected ? palette.gold : "rgba(23,36,58,0.18)", 12);
+    const fill = tile.tower
+      ? gradientFill(x, y, size, size, [[0, "rgba(13,55,109,0.98)"], [0.55, "rgba(6,26,54,0.96)"], [1, "rgba(3,12,24,0.98)"]])
+      : gradientFill(x, y, size, size, [[0, "#ffffff"], [0.62, "#fff6df"], [1, "#e9dcbf"]]);
+    ctx.save();
+    ctx.shadowColor = tile.tower ? "rgba(0,0,0,0.34)" : "rgba(13,55,109,0.16)";
+    ctx.shadowBlur = tile.tower ? 12 : 5;
+    panel(x, y, size, size, fill, selected ? palette.gold : "rgba(23,36,58,0.2)", 12);
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = tile.tower ? 0.2 : 0.11;
+    ctx.fillStyle = def.color;
+    roundRect(x + 5, y + 5, size - 10, size - 10, 10);
+    ctx.fill();
+    ctx.restore();
     if (tile.kind === "tool" && tile.tower) {
       ctx.save();
       ctx.globalAlpha = 0.22 + (Math.sin(clock * 3) + 1) * 0.05;
@@ -1340,10 +1382,13 @@
     const cx = x + size / 2;
     const cy = y + size / 2;
     ctx.save();
+    ctx.shadowColor = tower ? "rgba(201,154,53,0.45)" : "rgba(0,0,0,0.18)";
+    ctx.shadowBlur = tower ? 8 : 3;
     ctx.fillStyle = def.color;
     ctx.strokeStyle = tower ? palette.gold : def.dark;
     ctx.lineWidth = Math.max(2, size * 0.06);
     if (kind === "ashlar") {
+      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#f3eee1"], [1, def.color]]);
       roundRect(x + size * 0.16, y + size * 0.22, size * 0.68, size * 0.56, 6);
       ctx.fill();
       ctx.stroke();
@@ -1355,16 +1400,18 @@
       }
     }
     if (kind === "candle") {
+      ctx.fillStyle = "#f7d36a";
       ctx.fillRect(cx - size * 0.11, y + size * 0.36, size * 0.22, size * 0.42);
       ctx.strokeRect(cx - size * 0.11, y + size * 0.36, size * 0.22, size * 0.42);
       ctx.beginPath();
-      ctx.fillStyle = "#ffef9d";
+      ctx.fillStyle = gradientFill(cx - size * 0.14, y + size * 0.04, size * 0.28, size * 0.4, [[0, "#ffffff"], [0.48, "#ffef9d"], [1, "#f4a62a"]]);
       ctx.ellipse(cx, y + size * 0.25, size * 0.13, size * 0.2, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     }
     if (kind === "tool") {
       ctx.lineCap = "round";
+      ctx.strokeStyle = tower ? palette.lightBlue : def.dark;
       ctx.beginPath();
       ctx.moveTo(x + size * 0.22, y + size * 0.72);
       ctx.lineTo(x + size * 0.78, y + size * 0.26);
@@ -1377,6 +1424,7 @@
       ctx.stroke();
     }
     if (kind === "acacia") {
+      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#92e09a"], [1, def.dark]]);
       ctx.beginPath();
       ctx.moveTo(cx, y + size * 0.78);
       ctx.quadraticCurveTo(cx - size * 0.18, cy, cx, y + size * 0.22);
@@ -1391,6 +1439,7 @@
       }
     }
     if (kind === "gold") {
+      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#ffe79a"], [0.5, def.color], [1, "#8f5a16"]]);
       ctx.beginPath();
       ctx.arc(cx, cy, size * 0.28, 0, Math.PI * 2);
       ctx.fill();
@@ -1415,11 +1464,13 @@
 
   function drawTyler() {
     const x = 150;
-    const y = 256 + (!reducedMotion ? Math.sin(clock * 2) * 3 : 0);
+    const y = 244 + (!reducedMotion ? Math.sin(clock * 2) * 3 : 0);
     if (images.character) {
       ctx.save();
       if (state.tyler.stance === "strike") ctx.filter = "brightness(1.15) saturate(1.15)";
-      ctx.drawImage(images.character, x - 58, y, 160, 212);
+      ctx.shadowColor = "rgba(0,0,0,0.38)";
+      ctx.shadowBlur = 16;
+      ctx.drawImage(images.character, x - 58, y, 160, 240);
       ctx.restore();
     } else {
       ctx.fillStyle = palette.navy;
@@ -1445,13 +1496,24 @@
       const pos = pathPoint(enemy);
       const wobble = !reducedMotion ? Math.sin(clock * 5 + enemy.wobble) * 2 : 0;
       ctx.save();
-      ctx.fillStyle = enemy.type.color;
-      ctx.strokeStyle = palette.cream;
-      ctx.lineWidth = 2;
+      ctx.shadowColor = "rgba(0,0,0,0.38)";
+      ctx.shadowBlur = enemy.type.boss ? 14 : 8;
+      ctx.fillStyle = gradientFill(pos.x - enemy.type.size, pos.y - enemy.type.size, enemy.type.size * 2, enemy.type.size * 2, [[0, enemy.type.color], [1, "#101827"]]);
+      ctx.strokeStyle = enemy.type.boss ? palette.gold : palette.cream;
+      ctx.lineWidth = enemy.type.boss ? 3 : 2;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y + wobble, enemy.type.size, 0, Math.PI * 2);
+      ctx.moveTo(pos.x, pos.y - enemy.type.size - 4 + wobble);
+      ctx.quadraticCurveTo(pos.x + enemy.type.size * 1.1, pos.y - enemy.type.size * 0.2 + wobble, pos.x + enemy.type.size * 0.72, pos.y + enemy.type.size * 0.92 + wobble);
+      ctx.quadraticCurveTo(pos.x, pos.y + enemy.type.size * 1.24 + wobble, pos.x - enemy.type.size * 0.72, pos.y + enemy.type.size * 0.92 + wobble);
+      ctx.quadraticCurveTo(pos.x - enemy.type.size * 1.1, pos.y - enemy.type.size * 0.2 + wobble, pos.x, pos.y - enemy.type.size - 4 + wobble);
+      ctx.closePath();
       ctx.fill();
       ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,0.82)";
+      ctx.beginPath();
+      ctx.arc(pos.x - enemy.type.size * 0.28, pos.y - enemy.type.size * 0.1 + wobble, 2.2, 0, Math.PI * 2);
+      ctx.arc(pos.x + enemy.type.size * 0.28, pos.y - enemy.type.size * 0.1 + wobble, 2.2, 0, Math.PI * 2);
+      ctx.fill();
       if (enemy.type.aura) {
         ctx.strokeStyle = "rgba(168,36,104,0.35)";
         ctx.beginPath();
@@ -1474,7 +1536,9 @@
       const x = shot.x + (target.x - shot.x) * t;
       const y = shot.y + (target.y - shot.y) * t;
       ctx.strokeStyle = resources[shot.kind].color;
-      ctx.lineWidth = shot.kind === "candle" ? 4 : 2;
+      ctx.shadowColor = resources[shot.kind].color;
+      ctx.shadowBlur = shot.kind === "candle" ? 12 : 7;
+      ctx.lineWidth = shot.kind === "candle" ? 5 : 3;
       ctx.beginPath();
       ctx.moveTo(shot.x, shot.y);
       ctx.lineTo(x, y);
