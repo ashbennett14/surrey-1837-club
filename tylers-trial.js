@@ -2,174 +2,160 @@
   const canvas = document.querySelector("#lodgeGameCanvas");
   const loading = document.querySelector("#lodgeGameLoading");
   const help = document.querySelector("#lodgeGameHelp");
-  const rotateButton = document.querySelector("#gameRotate");
-  const redrawButton = document.querySelector("#gameRedraw");
+  const beginButton = document.querySelector("#gameRotate");
+  const alarmButton = document.querySelector("#gameRedraw");
   const restartButton = document.querySelector("#gameRestart");
 
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
-  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
   const W = 1280;
   const H = 720;
-  const size = 7;
-  const board = { x: 360, y: 112, size: 514 };
-  board.cell = board.size / size;
+  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const GRID = 8;
+  const CELL = 64;
+  const board = { x: 386, y: 128, w: GRID * CELL, h: GRID * CELL };
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const palette = {
-    navy: "#071f3f",
-    blue: "#0d376d",
-    lightBlue: "#9ed0ff",
-    gold: "#c59a36",
-    cream: "#fff7e6",
-    red: "#9e1d2f",
-    green: "#4f8a5b",
-    stone: "#c9ced6",
-    ink: "#ffffff",
+    navy: "#061a36",
+    blue: "#0c376e",
+    royal: "#135ca3",
+    lightBlue: "#9fd4ff",
+    gold: "#c99a35",
+    cream: "#fff6df",
+    ivory: "#f5ead2",
+    crimson: "#a82431",
+    green: "#4d9658",
+    mahogany: "#4a2618",
+    ink: "#17243a",
+    white: "#ffffff",
   };
 
-  const zoneColors = {
-    pavement: { label: "Pavement", color: "#f4ecdb", stroke: "#101825", bonus: 0, art: 0 },
-    carpet: { label: "Blue Carpet", color: "#134f8f", stroke: "#d7ebff", bonus: 4, art: 1 },
-    border: { label: "Gold Border", color: "#c59a36", stroke: "#5c3e09", bonus: 8, art: 2 },
-    acacia: { label: "Acacia Green", color: "#4f8a5b", stroke: "#e6f5df", bonus: 10, art: 6 },
-    column: { label: "Column Stone", color: "#c9ced6", stroke: "#26384d", bonus: 6, art: 3 },
-    light: { label: "Warm Light", color: "#f5d36a", stroke: "#5a3f08", bonus: 12, art: 8 },
+  const resources = {
+    ashlar: {
+      label: "Rough Ashlar",
+      short: "Ashlar",
+      color: "#d8d2c2",
+      dark: "#8a8477",
+      tower: ["Lodge Column", "Perfect Column", "Pillar of Strength"],
+      range: [120, 145, 175],
+      damage: [16, 34, 72],
+      rate: [0.92, 0.78, 0.64],
+      icon: "stone",
+    },
+    candle: {
+      label: "Candle",
+      short: "Candle",
+      color: "#f7d36a",
+      dark: "#9c6f1d",
+      tower: ["Lesser Light", "Greater Light", "Blazing Star"],
+      range: [180, 220, 265],
+      damage: [12, 25, 48],
+      rate: [1.15, 0.95, 0.78],
+      icon: "flame",
+    },
+    tool: {
+      label: "Working Tool",
+      short: "Tool",
+      color: "#77b8dc",
+      dark: "#24577b",
+      tower: ["Craftsman's Bench", "Master's Workshop", "Grand Workshop"],
+      range: [112, 135, 160],
+      damage: [6, 12, 22],
+      rate: [0.72, 0.58, 0.46],
+      support: [1.18, 1.28, 1.42],
+      icon: "tool",
+    },
+    acacia: {
+      label: "Acacia",
+      short: "Acacia",
+      color: "#5fb965",
+      dark: "#246431",
+      tower: ["Acacia Hedge", "Acacia Wall", "Evergreen Rampart"],
+      range: [112, 135, 156],
+      damage: [5, 11, 20],
+      rate: [1.0, 0.82, 0.66],
+      slow: [0.62, 0.5, 0.38],
+      icon: "leaf",
+    },
+    gold: {
+      label: "Gold Token",
+      short: "Gold",
+      color: "#d6a43a",
+      dark: "#7f5218",
+      tower: ["Treasurer's Chest", "Grand Chest", "Provincial Treasury"],
+      range: [116, 140, 166],
+      damage: [9, 18, 34],
+      rate: [1.25, 1.05, 0.88],
+      reward: true,
+      icon: "coin",
+    },
   };
+
+  const resourceKeys = Object.keys(resources);
+  const chapters = [
+    { name: "Entered Apprentice", min: 1 },
+    { name: "Fellow Craft", min: 11 },
+    { name: "Master Mason", min: 21 },
+    { name: "The Master's Challenges", min: 31 },
+  ];
 
   const assets = {
     bg: "assets/tylers-lodge-floor-bg.webp",
     character: "assets/tylers-lodge-character.webp",
-    tiles: "assets/tylers-lodge-tiles.webp",
     items: "assets/tylers-lodge-items.webp",
     ui: "assets/tylers-lodge-ui.webp",
   };
+  const images = {};
 
-  const assetImages = {};
-
-  const tileTemplates = [
-    { name: "Pavement Walk", center: "pavement", edges: ["pavement", "carpet", "pavement", "carpet"], score: 7 },
-    { name: "Carpet Run", center: "carpet", edges: ["carpet", "carpet", "carpet", "carpet"], score: 8 },
-    { name: "Gold Corner", center: "border", edges: ["pavement", "border", "border", "pavement"], score: 10 },
-    { name: "Column Base", center: "column", edges: ["column", "pavement", "border", "pavement"], score: 11 },
-    { name: "Acacia Walk", center: "acacia", edges: ["acacia", "border", "acacia", "border"], score: 13 },
-    { name: "Book Table", center: "carpet", edges: ["carpet", "pavement", "border", "pavement"], score: 11 },
-    { name: "Light Point", center: "light", edges: ["light", "border", "light", "border"], score: 14 },
-    { name: "Stone Crossing", center: "column", edges: ["column", "column", "pavement", "pavement"], score: 10 },
-    { name: "Outer Border", center: "border", edges: ["border", "pavement", "border", "pavement"], score: 9 },
-    { name: "Green Corner", center: "acacia", edges: ["border", "acacia", "pavement", "acacia"], score: 12 },
-    { name: "Bright Carpet", center: "light", edges: ["carpet", "light", "carpet", "light"], score: 13 },
-    { name: "Chequer Tile", center: "pavement", edges: ["pavement", "pavement", "column", "column"], score: 9 },
+  const pathCells = [
+    [7, 0], [7, 1], [6, 1], [5, 1], [5, 2], [4, 2], [4, 3],
+    [3, 3], [3, 4], [2, 4], [1, 4], [0, 4],
+  ];
+  const secondPathCells = [
+    [7, 7], [7, 6], [6, 6], [5, 6], [5, 5], [4, 5], [4, 4],
+    [3, 4], [2, 4], [1, 4], [0, 4],
   ];
 
-  const upgrades = [
-    {
-      id: "summons",
-      name: "Summons",
-      desc: "Highlights one strong placement each turn.",
-      sheet: 0,
-      apply: (state) => {
-        state.hints += 1;
-      },
-    },
-    {
-      id: "apron",
-      name: "Apron",
-      desc: "Forgives one illegal placement attempt.",
-      sheet: 1,
-      apply: (state) => {
-        state.apron += 1;
-      },
-    },
-    {
-      id: "gavel",
-      name: "Gavel",
-      desc: "Allows one placed tile to be removed.",
-      sheet: 2,
-      apply: (state) => {
-        state.gavels += 1;
-      },
-    },
-    {
-      id: "book",
-      name: "Book of Constitutions",
-      desc: "Adds one free redraw of all choices.",
-      sheet: 3,
-      apply: (state) => {
-        state.redraws += 1;
-      },
-    },
-    {
-      id: "acacia",
-      name: "Acacia Sprig",
-      desc: "Doubles the next closed area score.",
-      sheet: 4,
-      apply: (state) => {
-        state.acaciaDouble += 1;
-      },
-    },
-    {
-      id: "charity",
-      name: "Charity Jewel",
-      desc: "Adds bonus points to each closed area.",
-      sheet: 5,
-      apply: (state) => {
-        state.charityBonus += 12;
-      },
-    },
-    {
-      id: "key",
-      name: "Tyler's Key",
-      desc: "Unlocks one blocked square next round.",
-      sheet: 6,
-      apply: (state) => {
-        state.keys += 1;
-      },
-    },
-    {
-      id: "column",
-      name: "Column Token",
-      desc: "Allows one placement with a single mismatch.",
-      sheet: 7,
-      apply: (state) => {
-        state.columnTokens += 1;
-      },
-    },
-  ];
+  const enemyTypes = {
+    cowan: { name: "Cowan", color: "#6e70c8", hp: 34, speed: 42, reward: 11, size: 12 },
+    ruffian: { name: "Ruffian", color: "#9b4b37", hp: 90, speed: 27, reward: 22, size: 17 },
+    mischief: { name: "Mischief", color: "#28324d", hp: 46, speed: 55, reward: 15, size: 11 },
+    discord: { name: "Discord", color: "#a82468", hp: 72, speed: 34, reward: 20, size: 14, aura: true },
+    lewis: { name: "Lewis Breaker", color: "#77736a", hp: 230, speed: 22, reward: 75, size: 24, boss: true },
+  };
 
   let state;
   let pointer = { x: -1, y: -1 };
-  let lastFrame = performance.now();
+  let last = performance.now();
   let clock = 0;
 
-  function createState() {
+  function emptyState() {
     return {
-      grid: Array.from({ length: size }, () => Array(size).fill(null)),
-      blocked: new Set(),
-      scoredRegions: new Set(),
-      choices: [],
-      selected: 0,
+      mode: "menu",
+      trial: 1,
       score: 0,
-      round: 1,
-      target: 260,
-      redraws: 2,
-      hints: 1,
-      apron: 0,
-      gavels: 0,
-      keys: 0,
-      acaciaDouble: 0,
-      charityBonus: 0,
-      columnTokens: 0,
-      mode: "playing",
-      message: "Place a tile beside matching colours. Close areas for the big points.",
-      guideMood: "idle",
-      guideUntil: 0,
-      upgradeChoices: [],
-      hover: null,
-      hint: null,
-      floating: [],
-      lastPlaced: null,
+      security: 10,
+      maxSecurity: 10,
+      swaps: 18,
+      selected: null,
+      board: createBoard(),
+      enemies: [],
+      projectiles: [],
+      particles: [],
+      floaters: [],
+      wave: { timer: 0, spawned: 0, total: 0, done: false, bossAnnounced: false },
+      tyler: { charges: 3, guard: 0, alarm: 0, closed: 0, stance: "idle" },
+      attrs: { wisdom: 1, strength: 1, beauty: 1 },
+      stats: { defeated: 0, highest: 0, bestChain: 0, bosses: 0 },
+      message: "Begin the Trial and prepare the Lodge.",
+      chest: null,
+      eventCard: null,
+      transition: 0,
+      shake: 0,
+      highScore: Number(localStorage.getItem("tylersTrialHighScore") || 0),
+      muted: localStorage.getItem("tylersTrialMuted") === "true",
     };
   }
 
@@ -189,455 +175,662 @@
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
 
-  function shuffle(items) {
-    const copy = items.slice();
-    for (let index = copy.length - 1; index > 0; index -= 1) {
-      const target = Math.floor(Math.random() * (index + 1));
-      [copy[index], copy[target]] = [copy[target], copy[index]];
-    }
-    return copy;
-  }
-
-  function choice(items) {
+  function rand(items) {
     return items[Math.floor(Math.random() * items.length)];
   }
 
-  function key(row, col) {
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function cellKey(row, col) {
     return `${row},${col}`;
   }
 
-  function inBounds(row, col) {
-    return row >= 0 && row < size && col >= 0 && col < size;
+  function isPath(row, col) {
+    return pathCells.concat(secondPathCells).some(([r, c]) => r === row && c === col);
   }
 
-  function cloneTile(template) {
-    return {
-      id: Math.random().toString(36).slice(2),
-      name: template.name,
-      center: template.center,
-      edges: template.edges.slice(),
-      rotation: 0,
-      score: template.score,
-    };
+  function isLodgeDoor(row, col) {
+    return row === 0 && (col === 3 || col === 4);
   }
 
-  function refillChoices() {
-    while (state.choices.length < 3) {
-      state.choices.push(cloneTile(choice(tileTemplates)));
-    }
-    state.selected = Math.min(state.selected, state.choices.length - 1);
-    updateHint();
+  function makeTile(kind) {
+    return { kind, level: 0, tower: false, charged: false, id: Math.random().toString(36).slice(2) };
   }
 
-  function startRound() {
-    state.grid = Array.from({ length: size }, () => Array(size).fill(null));
-    state.scoredRegions = new Set();
-    state.choices = [];
-    state.selected = 0;
-    state.lastPlaced = null;
-    state.blocked = makeBlockedSquares();
-    while (state.keys > 0 && state.blocked.size) {
-      state.keys -= 1;
-      state.blocked.delete(choice(Array.from(state.blocked)));
-    }
-    state.mode = "playing";
-    state.message = `Round ${state.round}: reach ${state.target} points or fill the floor.`;
-    state.guideMood = "idle";
-    refillChoices();
-  }
-
-  function makeBlockedSquares() {
-    const blocked = new Set();
-    if (state.round <= 1) return blocked;
-    const candidates = [];
-    for (let row = 0; row < size; row += 1) {
-      for (let col = 0; col < size; col += 1) {
-        if (row >= 2 && row <= 4 && col >= 2 && col <= 4) continue;
-        candidates.push(key(row, col));
+  function createBoard() {
+    const cells = [];
+    for (let row = 0; row < GRID; row += 1) {
+      const line = [];
+      for (let col = 0; col < GRID; col += 1) {
+        if (isPath(row, col) || isLodgeDoor(row, col)) {
+          line.push({ path: true, tile: null });
+          continue;
+        }
+        const blockedKinds = new Set();
+        if (col >= 2 && line[col - 1]?.tile?.kind && line[col - 1]?.tile?.kind === line[col - 2]?.tile?.kind) {
+          blockedKinds.add(line[col - 1].tile.kind);
+        }
+        if (row >= 2 && cells[row - 1]?.[col]?.tile?.kind && cells[row - 1]?.[col]?.tile?.kind === cells[row - 2]?.[col]?.tile?.kind) {
+          blockedKinds.add(cells[row - 1][col].tile.kind);
+        }
+        const options = resourceKeys.filter((kind) => !blockedKinds.has(kind));
+        line.push({ path: false, tile: makeTile(rand(options.length ? options : resourceKeys)) });
       }
+      cells.push(line);
     }
-    shuffle(candidates).slice(0, Math.min(9, state.round + 1)).forEach((cell) => blocked.add(cell));
-    return blocked;
+    return cells;
   }
 
-  function restartGame() {
-    state = createState();
-    startRound();
+  function startGame() {
+    const muted = state?.muted || false;
+    state = emptyState();
+    state.muted = muted;
+    state.board = createBoard();
+    state.mode = "prep";
+    state.message = "Prepare the Lodge: swap adjacent tiles to form three of a kind.";
+    say("Prepare the Lodge. Swap adjacent tiles; three resources become defences.");
   }
 
-  function rotateSelected() {
-    if (state.mode !== "playing") return;
-    const tile = state.choices[state.selected];
-    if (!tile) return;
-    tile.edges = [tile.edges[3], tile.edges[0], tile.edges[1], tile.edges[2]];
-    tile.rotation = (tile.rotation + 90) % 360;
-    say(`${tile.name} rotated.`);
-    updateHint();
+  function beginCombat() {
+    if (state.mode !== "prep") return;
+    state.mode = "combat";
+    state.selected = null;
+    state.wave = makeWave();
+    state.transition = 1.6;
+    say("THE TRIAL BEGINS. Your defences will work automatically.");
+    state.tyler.stance = "ready";
+    knock();
   }
 
-  function redrawChoices(force) {
-    if (state.mode !== "playing") return;
-    if (!force && state.redraws <= 0) {
-      warn("No redraws remain.");
-      return;
+  function makeWave() {
+    const boss = state.trial % 10 === 0;
+    const total = boss ? 1 : 7 + Math.floor(state.trial * 1.7);
+    return { timer: 0.85, spawned: 0, total, done: false, bossAnnounced: boss };
+  }
+
+  function nextTrial() {
+    state.trial += 1;
+    state.mode = "prep";
+    state.swaps = 16 + Math.max(0, state.attrs.beauty - 1) + Math.floor(state.trial / 3);
+    state.enemies = [];
+    state.projectiles = [];
+    state.selected = null;
+    state.tyler.charges = Math.min(4, state.tyler.charges + 1);
+    state.tyler.guard = 0;
+    state.tyler.alarm = 0;
+    state.tyler.closed = 0;
+    refillEmptyTiles();
+    say("THE LODGE IS SECURE. Prepare for the next Trial.");
+    if (state.trial % 5 === 1) {
+      state.eventCard = randomEventCard();
     }
-    if (!force) state.redraws -= 1;
-    state.choices = [cloneTile(choice(tileTemplates)), cloneTile(choice(tileTemplates)), cloneTile(choice(tileTemplates))];
-    state.selected = 0;
-    say("New tile choices drawn.");
-    updateHint();
   }
 
-  function removeWithGavel(row, col) {
-    if (state.gavels <= 0 || !state.grid[row][col]) return false;
-    state.grid[row][col] = null;
-    state.gavels -= 1;
-    state.scoredRegions = new Set();
-    warn("Gavel used. That square is open again.");
-    updateHint();
-    return true;
-  }
-
-  function placementCheck(row, col, tile, useColumn) {
-    if (!tile || !inBounds(row, col)) return { ok: false, reason: "Outside the board." };
-    if (state.blocked.has(key(row, col))) return { ok: false, reason: "That square is locked." };
-    if (state.grid[row][col]) return { ok: false, reason: state.gavels ? "That square is occupied. Click it again to use the gavel." : "That square is occupied." };
-
-    const dirs = [
-      [-1, 0, 0, 2],
-      [0, 1, 1, 3],
-      [1, 0, 2, 0],
-      [0, -1, 3, 1],
+  function randomEventCard() {
+    const cards = [
+      {
+        title: "A Visiting Brother",
+        body: "Gain three additional swaps.",
+        apply: () => { state.swaps += 3; },
+      },
+      {
+        title: "Festive Board",
+        body: "The next Trial begins with Sound the Alarm active.",
+        apply: () => { state.tyler.alarm = 6; },
+      },
+      {
+        title: "The Architect Arrives",
+        body: "One random defence is upgraded.",
+        apply: upgradeRandomTower,
+      },
+      {
+        title: "Provincial Visit",
+        body: "Restore two Lodge Security.",
+        apply: () => { state.security = Math.min(state.maxSecurity, state.security + 2); },
+      },
     ];
-    let neighbours = 0;
-    let matches = 0;
-    let mismatches = 0;
+    return rand(cards);
+  }
 
-    for (const [dr, dc, edgeIndex, oppositeIndex] of dirs) {
-      const nr = row + dr;
-      const nc = col + dc;
-      if (!inBounds(nr, nc)) continue;
-      const neighbour = state.grid[nr][nc];
-      if (!neighbour) continue;
-      neighbours += 1;
-      if (tile.edges[edgeIndex] === neighbour.edges[oppositeIndex]) {
-        matches += 1;
-      } else {
-        mismatches += 1;
+  function refillEmptyTiles() {
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const cell = state.board[row][col];
+        if (!cell.path && !cell.tile) cell.tile = makeTile(rand(resourceKeys));
       }
     }
-
-    if (placedCount() > 0 && neighbours === 0) {
-      return { ok: false, reason: "Tiles must touch the existing floor." };
-    }
-    if (mismatches > 0 && !(useColumn && mismatches === 1)) {
-      return { ok: false, reason: "Neighbouring colours must match." };
-    }
-    if (placedCount() > 0 && matches === 0 && !useColumn) {
-      return { ok: false, reason: "At least one edge must match." };
-    }
-    return { ok: true, matches, usedColumn: useColumn && mismatches === 1 };
   }
 
-  function placeTile(row, col) {
-    if (state.mode !== "playing") return;
-    if (state.grid[row]?.[col]) {
-      removeWithGavel(row, col);
-      return;
-    }
-    const tile = state.choices[state.selected];
-    const legal = placementCheck(row, col, tile, state.columnTokens > 0);
-    if (!legal.ok) {
-      if (state.apron > 0) {
-        state.apron -= 1;
-        warn(`Apron saved the move. ${legal.reason}`);
-        return;
-      }
-      warn(legal.reason);
-      return;
-    }
-
-    if (legal.usedColumn) {
-      state.columnTokens -= 1;
-      float("Column token", row, col, palette.lightBlue);
-    }
-
-    state.grid[row][col] = { ...tile, edges: tile.edges.slice() };
-    state.lastPlaced = { row, col, t: performance.now() };
-    state.choices.splice(state.selected, 1);
-    state.selected = Math.max(0, Math.min(state.selected, state.choices.length - 1));
-    const points = tile.score + legal.matches * 8;
-    state.score += points;
-    float(`+${points}`, row, col, palette.gold);
-    const closures = scoreClosedAreas();
-    if (closures >= 2) {
-      state.score += 60;
-      say("Perfect Working! Multiple areas closed.");
-      state.guideMood = "celebrate";
-    } else if (closures === 1) {
-      state.guideMood = "pleased";
-    } else {
-      state.guideMood = "idle";
-      say("Good fit. Now try to close a coloured area.");
-    }
-    state.guideUntil = performance.now() + 1200;
-    refillChoices();
-    checkProgress();
+  function boardPoint(row, col) {
+    return { x: board.x + col * CELL + CELL / 2, y: board.y + row * CELL + CELL / 2 };
   }
 
-  function placedCount() {
-    return state.grid.flat().filter(Boolean).length;
+  function pathPoint(enemy) {
+    const path = enemy.path;
+    const index = Math.min(path.length - 1, Math.floor(enemy.progress));
+    const next = Math.min(path.length - 1, index + 1);
+    const t = enemy.progress - index;
+    const a = boardPoint(path[index][0], path[index][1]);
+    const b = boardPoint(path[next][0], path[next][1]);
+    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
   }
 
-  function isBoardFull() {
-    return placedCount() + state.blocked.size >= size * size;
-  }
-
-  function regionSignature(cells) {
-    return cells.slice().sort().join("|");
-  }
-
-  function scoreClosedAreas() {
-    const visited = new Set();
-    let closures = 0;
-    const dirs = [
-      [-1, 0],
-      [0, 1],
-      [1, 0],
-      [0, -1],
-    ];
-
-    for (let row = 0; row < size; row += 1) {
-      for (let col = 0; col < size; col += 1) {
-        const tile = state.grid[row][col];
-        const startKey = key(row, col);
-        if (!tile || visited.has(startKey)) continue;
-
-        const zone = tile.center;
-        const queue = [[row, col]];
-        const cells = [];
-        let closed = true;
-        visited.add(startKey);
-
-        while (queue.length) {
-          const [r, c] = queue.shift();
-          const current = state.grid[r][c];
-          cells.push(key(r, c));
-
-          for (const [dr, dc] of dirs) {
-            const nr = r + dr;
-            const nc = c + dc;
-            if (!inBounds(nr, nc)) continue;
-            const neighbour = state.grid[nr][nc];
-            const neighbourKey = key(nr, nc);
-            if (!neighbour) {
-              if (!state.blocked.has(neighbourKey)) closed = false;
-              continue;
-            }
-            if (neighbour.center === zone && !visited.has(neighbourKey)) {
-              visited.add(neighbourKey);
-              queue.push([nr, nc]);
-            }
-          }
-        }
-
-        if (!closed || cells.length < 2) continue;
-        const signature = regionSignature(cells);
-        if (state.scoredRegions.has(signature)) continue;
-
-        state.scoredRegions.add(signature);
-        closures += 1;
-        const zoneBonus = zoneColors[zone].bonus;
-        let points = 40 + cells.length * (18 + zoneBonus) + state.charityBonus;
-        if (state.acaciaDouble > 0) {
-          points *= 2;
-          state.acaciaDouble -= 1;
-        }
-        state.score += points;
-        const [fr, fc] = cells[0].split(",").map(Number);
-        float(`${zoneColors[zone].label} closed +${points}`, fr, fc, zoneColors[zone].color);
-        state.message = `${zoneColors[zone].label} area closed for ${points} points.`;
-      }
-    }
-
-    return closures;
-  }
-
-  function checkProgress() {
-    if (state.score >= state.target || isBoardFull()) {
-      finishRound();
-      return;
-    }
-    if (!hasLegalMove() && state.redraws <= 0 && state.gavels <= 0 && state.columnTokens <= 0) {
-      endGame("No legal moves remain.");
-    } else if (!hasLegalMove()) {
-      warn("No current tile fits. Redraw, use a token, or remove a tile with the gavel.");
-    }
-  }
-
-  function hasLegalMove() {
-    return state.choices.some((tile) => {
-      const probe = { ...tile, edges: tile.edges.slice() };
-      for (let turn = 0; turn < 4; turn += 1) {
-        for (let row = 0; row < size; row += 1) {
-          for (let col = 0; col < size; col += 1) {
-            if (placementCheck(row, col, probe, state.columnTokens > 0).ok) return true;
-          }
-        }
-        probe.edges = [probe.edges[3], probe.edges[0], probe.edges[1], probe.edges[2]];
-      }
-      return false;
-    });
-  }
-
-  function findBestPlacement() {
-    if (state.hints <= 0) return null;
-    const tile = state.choices[state.selected];
-    if (!tile) return null;
-    let best = null;
-    for (let row = 0; row < size; row += 1) {
-      for (let col = 0; col < size; col += 1) {
-        const legal = placementCheck(row, col, tile, state.columnTokens > 0);
-        if (!legal.ok) continue;
-        const centre = 8 - Math.abs(row - 3) - Math.abs(col - 3);
-        const value = legal.matches * 24 + centre;
-        if (!best || value > best.value) best = { row, col, value };
-      }
-    }
-    return best;
-  }
-
-  function updateHint() {
-    state.hint = findBestPlacement();
-  }
-
-  function finishRound() {
-    state.mode = "choose-upgrade";
-    state.score += state.round * 70;
-    state.upgradeChoices = shuffle(upgrades).slice(0, 3);
-    state.guideMood = "celebrate";
-    say("Round complete. Choose one item for the next working.");
-  }
-
-  function chooseUpgrade(index) {
-    if (state.mode !== "choose-upgrade") return;
-    const upgrade = state.upgradeChoices[index];
-    if (!upgrade) return;
-    upgrade.apply(state);
-    state.round += 1;
-    state.target += 160 + state.round * 45;
-    state.redraws = Math.max(1, 3 - Math.floor(state.round / 2));
-    startRound();
-  }
-
-  function endGame(reason) {
-    state.mode = "game-over";
-    state.guideMood = "warning";
-    say(`${reason} Final score: ${state.score}.`);
-  }
-
-  function say(text) {
-    state.message = text;
-    if (help) help.textContent = text;
-  }
-
-  function warn(text) {
-    state.guideMood = "warning";
-    state.guideUntil = performance.now() + 1200;
-    say(text);
-  }
-
-  function float(text, row, col, color) {
-    state.floating.push({
-      text,
-      x: board.x + col * board.cell + board.cell / 2,
-      y: board.y + row * board.cell + 12,
-      color,
-      life: 1,
-    });
-  }
-
-  function updateFloating(dt) {
-    state.floating = state.floating
-      .map((item) => ({ ...item, y: item.y - dt * 40, life: item.life - dt * 0.68 }))
-      .filter((item) => item.life > 0);
+  function rectHit(rect, point) {
+    return point.x >= rect.x && point.x <= rect.x + rect.w && point.y >= rect.y && point.y <= rect.y + rect.h;
   }
 
   function canvasPoint(event) {
     const rect = canvas.getBoundingClientRect();
     const source = event.touches ? event.touches[0] : event;
-    return {
-      x: ((source.clientX - rect.left) / rect.width) * W,
-      y: ((source.clientY - rect.top) / rect.height) * H,
-    };
+    return { x: ((source.clientX - rect.left) / rect.width) * W, y: ((source.clientY - rect.top) / rect.height) * H };
   }
 
-  function boardHit(point) {
-    if (point.x < board.x || point.y < board.y || point.x > board.x + board.size || point.y > board.y + board.size) {
-      return null;
+  function hitCell(point) {
+    if (point.x < board.x || point.y < board.y || point.x > board.x + board.w || point.y > board.y + board.h) return null;
+    const col = Math.floor((point.x - board.x) / CELL);
+    const row = Math.floor((point.y - board.y) / CELL);
+    if (row < 0 || row >= GRID || col < 0 || col >= GRID) return null;
+    return { row, col };
+  }
+
+  function adjacent(a, b) {
+    return Math.abs(a.row - b.row) + Math.abs(a.col - b.col) === 1;
+  }
+
+  function swapCells(a, b) {
+    const ca = state.board[a.row][a.col];
+    const cb = state.board[b.row][b.col];
+    if (ca.path || cb.path || !ca.tile || !cb.tile) return;
+    [ca.tile, cb.tile] = [cb.tile, ca.tile];
+    state.swaps -= 1;
+    particle(boardPoint(a.row, a.col), palette.gold, 18);
+    particle(boardPoint(b.row, b.col), palette.lightBlue, 18);
+    say("Tiles swapped. Matches may build or strengthen your defences.");
+    const chain = resolveMatches(false);
+    if (chain === 0) say("No match this time. Positioning still matters.");
+    if (state.swaps <= 0) beginCombat();
+  }
+
+  function findMatches() {
+    const matches = [];
+    for (let row = 0; row < GRID; row += 1) {
+      let run = [];
+      for (let col = 0; col < GRID; col += 1) {
+        const tile = state.board[row][col].tile;
+        const marker = tile ? `${tile.kind}-${tile.level}-${tile.tower ? "t" : "r"}` : "";
+        const prev = run.length ? run[run.length - 1].marker : null;
+        if (marker && marker === prev) run.push({ row, col, marker });
+        else {
+          if (run.length >= 3) matches.push(run);
+          run = marker ? [{ row, col, marker }] : [];
+        }
+      }
+      if (run.length >= 3) matches.push(run);
     }
-    return {
-      row: Math.floor((point.y - board.y) / board.cell),
-      col: Math.floor((point.x - board.x) / board.cell),
-    };
+    for (let col = 0; col < GRID; col += 1) {
+      let run = [];
+      for (let row = 0; row < GRID; row += 1) {
+        const tile = state.board[row][col].tile;
+        const marker = tile ? `${tile.kind}-${tile.level}-${tile.tower ? "t" : "r"}` : "";
+        const prev = run.length ? run[run.length - 1].marker : null;
+        if (marker && marker === prev) run.push({ row, col, marker });
+        else {
+          if (run.length >= 3) matches.push(run);
+          run = marker ? [{ row, col, marker }] : [];
+        }
+      }
+      if (run.length >= 3) matches.push(run);
+    }
+    return matches;
   }
 
-  function handRects() {
-    return [0, 1, 2].map((index) => ({ index, x: 936, y: 132 + index * 148, w: 288, h: 126 }));
+  function resolveMatches(silent) {
+    let chains = 0;
+    let guard = 0;
+    while (guard < 8) {
+      guard += 1;
+      const raw = findMatches();
+      if (!raw.length) break;
+      chains += 1;
+      const used = new Set();
+      raw.forEach((group) => {
+        const cells = group.filter((cell) => !used.has(cellKey(cell.row, cell.col)));
+        if (cells.length < 3) return;
+        cells.forEach((cell) => used.add(cellKey(cell.row, cell.col)));
+        mergeGroup(cells);
+      });
+      collapseBoard();
+    }
+    state.stats.bestChain = Math.max(state.stats.bestChain, chains);
+    if (!silent && chains > 0) {
+      const harmony = chains > 2 ? "SUBLIME HARMONY" : chains > 1 ? "PERFECT HARMONY" : "HARMONY";
+      floatText(harmony, board.x + board.w / 2, board.y - 28, palette.gold, 28);
+      state.score += chains * 30;
+    }
+    return chains;
   }
 
-  function upgradeRects() {
-    return [0, 1, 2].map((index) => ({ index, x: 300 + index * 230, y: 318, w: 204, h: 246 }));
+  function mergeGroup(cells) {
+    const anchor = cells[Math.floor(cells.length / 2)];
+    const tile = state.board[anchor.row][anchor.col].tile;
+    if (!tile) return;
+    const next = { kind: tile.kind, level: tile.level, tower: true, charged: cells.length >= 4, id: Math.random().toString(36).slice(2) };
+    if (tile.tower) next.level = Math.min(2, tile.level + 1);
+    state.board[anchor.row][anchor.col].tile = next;
+    state.stats.highest = Math.max(state.stats.highest, next.level + 1);
+    cells.forEach((cell) => {
+      if (cell.row === anchor.row && cell.col === anchor.col) return;
+      state.board[cell.row][cell.col].tile = null;
+    });
+    const point = boardPoint(anchor.row, anchor.col);
+    const definition = resources[next.kind];
+    const label = next.tower ? definition.tower[next.level] : definition.label;
+    state.score += 25 + cells.length * 10 + next.level * 35;
+    particle(point, definition.color, cells.length >= 5 ? 42 : 26);
+    floatText(label, point.x, point.y - 18, definition.color, 17);
+    if (next.kind === "gold" && next.tower) openChest();
+  }
+
+  function collapseBoard() {
+    for (let col = 0; col < GRID; col += 1) {
+      const stack = [];
+      for (let row = GRID - 1; row >= 0; row -= 1) {
+        const cell = state.board[row][col];
+        if (!cell.path && cell.tile) stack.push(cell.tile);
+      }
+      for (let row = GRID - 1; row >= 0; row -= 1) {
+        const cell = state.board[row][col];
+        if (cell.path) continue;
+        cell.tile = stack.shift() || makeTile(rand(resourceKeys));
+      }
+    }
+  }
+
+  function openChest() {
+    const rewards = [
+      () => { state.swaps += 3; say("Treasurer's Chest: +3 swaps."); },
+      () => { state.security = Math.min(state.maxSecurity, state.security + 1); say("Treasurer's Chest: Lodge Security restored."); },
+      () => { upgradeRandomTower(); say("Treasurer's Chest: one defence upgraded."); },
+      () => { shuffleBoard(); say("Treasurer's Chest: the board has been refreshed."); },
+    ];
+    state.chest = 1.4;
+    rand(rewards)();
+  }
+
+  function shuffleBoard() {
+    const tiles = [];
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const cell = state.board[row][col];
+        if (!cell.path && cell.tile) tiles.push(cell.tile);
+      }
+    }
+    for (let index = tiles.length - 1; index > 0; index -= 1) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [tiles[index], tiles[target]] = [tiles[target], tiles[index]];
+    }
+    let cursor = 0;
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const cell = state.board[row][col];
+        if (!cell.path && cell.tile) {
+          cell.tile = tiles[cursor];
+          cursor += 1;
+        }
+      }
+    }
+  }
+
+  function upgradeRandomTower() {
+    const towers = [];
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const tile = state.board[row][col].tile;
+        if (tile?.tower && tile.level < 2) towers.push({ row, col, tile });
+      }
+    }
+    const pick = rand(towers);
+    if (!pick) return;
+    pick.tile.level += 1;
+    particle(boardPoint(pick.row, pick.col), palette.gold, 34);
+  }
+
+  function spawnEnemy() {
+    const boss = state.trial % 10 === 0;
+    const pool = boss ? ["lewis"] : state.trial > 6 ? ["cowan", "cowan", "ruffian", "mischief", "discord"] : state.trial > 3 ? ["cowan", "cowan", "ruffian", "mischief"] : ["cowan", "cowan", "ruffian"];
+    const type = enemyTypes[rand(pool)];
+    const hpScale = 1 + state.trial * 0.15;
+    const path = Math.random() > 0.52 ? pathCells : secondPathCells;
+    state.enemies.push({
+      type,
+      hp: type.hp * hpScale,
+      maxHp: type.hp * hpScale,
+      progress: 0,
+      path,
+      slow: 1,
+      wobble: Math.random() * Math.PI * 2,
+      id: Math.random().toString(36).slice(2),
+    });
+  }
+
+  function updateCombat(dt) {
+    state.wave.timer -= dt;
+    if (state.wave.spawned < state.wave.total && state.wave.timer <= 0) {
+      state.wave.spawned += 1;
+      spawnEnemy();
+      state.wave.timer = Math.max(0.35, 1.15 - state.trial * 0.035);
+    }
+
+    updateTowers(dt);
+    updateProjectiles(dt);
+    updateEnemies(dt);
+
+    if (state.wave.spawned >= state.wave.total && !state.enemies.length && state.mode === "combat") {
+      state.score += state.trial * 65 + state.security * 15 + state.swaps * 8;
+      nextTrial();
+    }
+  }
+
+  function updateTowers(dt) {
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const tile = state.board[row][col].tile;
+        if (!tile?.tower) continue;
+        const def = resources[tile.kind];
+        tile.cooldown = Math.max(0, (tile.cooldown || 0) - dt);
+        if (tile.kind === "tool") continue;
+        const speedBoost = nearbySupport(row, col) * (state.tyler.alarm > 0 ? 1.55 : 1);
+        if (tile.cooldown > 0) continue;
+        const origin = boardPoint(row, col);
+        const target = nearestEnemy(origin, def.range[tile.level] * (1 + state.attrs.wisdom * 0.03));
+        if (!target) continue;
+        tile.cooldown = def.rate[tile.level] / speedBoost;
+        const damage = def.damage[tile.level] * (1 + state.attrs.strength * 0.05) * (tile.charged ? 1.22 : 1);
+        fireProjectile(origin, target, tile.kind, damage);
+      }
+    }
+  }
+
+  function nearbySupport(row, col) {
+    let boost = 1;
+    for (let r = Math.max(0, row - 1); r <= Math.min(GRID - 1, row + 1); r += 1) {
+      for (let c = Math.max(0, col - 1); c <= Math.min(GRID - 1, col + 1); c += 1) {
+        const tile = state.board[r][c].tile;
+        if (tile?.tower && tile.kind === "tool") boost = Math.max(boost, resources.tool.support[tile.level]);
+      }
+    }
+    return boost;
+  }
+
+  function nearestEnemy(origin, range) {
+    let best = null;
+    state.enemies.forEach((enemy) => {
+      const pos = pathPoint(enemy);
+      const distance = Math.hypot(pos.x - origin.x, pos.y - origin.y);
+      if (distance <= range && (!best || enemy.progress > best.enemy.progress)) best = { enemy, pos, distance };
+    });
+    return best?.enemy || null;
+  }
+
+  function fireProjectile(origin, enemy, kind, damage) {
+    const def = resources[kind];
+    if (kind === "acacia") enemy.slow = Math.min(enemy.slow, def.slow[Math.min(2, Math.max(0, Math.floor(damage / 12)))]);
+    state.projectiles.push({ x: origin.x, y: origin.y, enemy, kind, damage, life: 0.42 });
+    particle(origin, def.color, 8);
+  }
+
+  function updateProjectiles(dt) {
+    state.projectiles = state.projectiles.filter((shot) => {
+      shot.life -= dt;
+      if (shot.life <= 0 || !state.enemies.includes(shot.enemy)) {
+        if (state.enemies.includes(shot.enemy)) damageEnemy(shot.enemy, shot.damage, shot.kind);
+        return false;
+      }
+      return true;
+    });
+  }
+
+  function damageEnemy(enemy, amount, kind) {
+    enemy.hp -= amount;
+    const pos = pathPoint(enemy);
+    floatText(`-${Math.round(amount)}`, pos.x, pos.y - 18, resources[kind].color, 14);
+    if (enemy.hp <= 0) {
+      state.score += enemy.type.reward;
+      state.stats.defeated += 1;
+      if (enemy.type.boss) state.stats.bosses += 1;
+      particle(pos, enemy.type.color, enemy.type.boss ? 50 : 22);
+      state.enemies = state.enemies.filter((item) => item !== enemy);
+    }
+  }
+
+  function updateEnemies(dt) {
+    state.enemies.slice().forEach((enemy) => {
+      const speed = enemy.type.speed * enemy.slow * (state.tyler.closed > 0 ? 0 : 1);
+      enemy.progress += (speed * dt) / CELL;
+      enemy.slow = Math.min(1, enemy.slow + dt * 0.22);
+      if (enemy.progress >= enemy.path.length - 1) reachDoor(enemy);
+    });
+  }
+
+  function reachDoor(enemy) {
+    const pos = pathPoint(enemy);
+    if (state.tyler.guard > 0 || state.tyler.charges > 0) {
+      if (state.tyler.charges > 0) state.tyler.charges -= 1;
+      state.tyler.stance = "strike";
+      particle(pos, palette.gold, 30);
+      state.score += Math.round(enemy.type.reward * 0.7);
+      state.enemies = state.enemies.filter((item) => item !== enemy);
+      say("The Tyler turned one away at the door.");
+      return;
+    }
+    state.security -= enemy.type.boss ? 3 : 1;
+    state.shake = 0.35;
+    state.enemies = state.enemies.filter((item) => item !== enemy);
+    say("An enemy reached the Lodge. Security reduced.");
+    if (state.security <= 0) gameOver();
+  }
+
+  function useAbility(id) {
+    if (state.mode !== "combat") return;
+    if (id === "sword") {
+      if (state.tyler.charges <= 0 || !state.enemies.length) {
+        say("Tyler's Sword is not ready.");
+        return;
+      }
+      const enemy = state.enemies.reduce((best, item) => (item.progress > best.progress ? item : best), state.enemies[0]);
+      state.tyler.charges -= 1;
+      state.tyler.stance = "strike";
+      damageEnemy(enemy, enemy.hp + 1, "gold");
+      say("Tyler's Sword turned away the nearest threat.");
+    }
+    if (id === "guard") {
+      if (state.tyler.guard > 0) return;
+      state.tyler.guard = 5;
+      state.tyler.stance = "guard";
+      say("Guard the Door: no enemy may enter for five seconds.");
+    }
+    if (id === "alarm") {
+      if (state.tyler.alarm > 0) return;
+      state.tyler.alarm = 7;
+      say("Sound the Alarm: all defences work faster.");
+    }
+    if (id === "close") {
+      if (state.tyler.closed > 0) return;
+      state.tyler.closed = 4;
+      say("Close the Lodge: the doors are protected.");
+    }
+  }
+
+  function updateTimers(dt) {
+    state.tyler.guard = Math.max(0, state.tyler.guard - dt);
+    state.tyler.alarm = Math.max(0, state.tyler.alarm - dt);
+    state.tyler.closed = Math.max(0, state.tyler.closed - dt);
+    state.transition = Math.max(0, state.transition - dt);
+    state.shake = Math.max(0, state.shake - dt);
+    if (state.chest) state.chest = Math.max(0, state.chest - dt);
+    state.floaters = state.floaters.map((f) => ({ ...f, y: f.y - dt * 34, life: f.life - dt * 0.7 })).filter((f) => f.life > 0);
+    state.particles = state.particles.map((p) => ({
+      ...p,
+      x: p.x + p.vx * dt,
+      y: p.y + p.vy * dt,
+      life: p.life - dt,
+      r: p.r * (1 - dt * 0.15),
+    })).filter((p) => p.life > 0);
+  }
+
+  function gameOver() {
+    state.mode = "game-over";
+    say("THE LODGE HAS BEEN BREACHED");
+    state.highScore = Math.max(state.highScore, state.score);
+    localStorage.setItem("tylersTrialHighScore", String(state.highScore));
+  }
+
+  function chapterName() {
+    return chapters.reduce((active, chapter) => (state.trial >= chapter.min ? chapter : active), chapters[0]).name;
+  }
+
+  function say(message) {
+    state.message = message;
+    if (help) help.textContent = message;
+  }
+
+  function floatText(text, x, y, color, size) {
+    state.floaters.push({ text, x, y, color, size, life: 1 });
+  }
+
+  function particle(origin, color, count) {
+    if (reducedMotion) return;
+    for (let i = 0; i < count; i += 1) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 30 + Math.random() * 90;
+      state.particles.push({
+        x: origin.x,
+        y: origin.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        r: 2 + Math.random() * 4,
+        color,
+        life: 0.45 + Math.random() * 0.55,
+      });
+    }
+  }
+
+  function knock() {
+    if (state.muted) return;
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audio = new AudioContext();
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = 145;
+      gain.gain.setValueAtTime(0.0001, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.08, audio.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.16);
+      osc.connect(gain).connect(audio.destination);
+      osc.start();
+      osc.stop(audio.currentTime + 0.18);
+    } catch {
+      // Audio is decorative only.
+    }
+  }
+
+  function buttonRects() {
+    return [
+      { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1018, y: 602, w: 190, h: 48 },
+      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 508, w: 150, h: 42 },
+      { id: "guard", label: "GUARD", x: 214, y: 508, w: 122, h: 42 },
+      { id: "alarm", label: "ALARM", x: 54, y: 558, w: 122, h: 42 },
+      { id: "close", label: "CLOSE", x: 186, y: 558, w: 122, h: 42 },
+    ];
+  }
+
+  function menuRects() {
+    return [
+      { id: "begin", label: "BEGIN THE TRIAL", x: 505, y: 330, w: 270, h: 56 },
+      { id: "how", label: "HOW TO PLAY", x: 505, y: 400, w: 270, h: 50 },
+      { id: "achievements", label: "ACHIEVEMENTS", x: 505, y: 462, w: 270, h: 50 },
+      { id: "settings", label: state.muted ? "SOUND: OFF" : "SOUND: ON", x: 505, y: 524, w: 270, h: 50 },
+      { id: "return", label: "RETURN TO LODGE", x: 505, y: 586, w: 270, h: 50 },
+    ];
+  }
+
+  function handlePointer(point) {
+    pointer = point;
+    if (state.eventCard) {
+      if (rectHit({ x: 477, y: 484, w: 326, h: 54 }, point)) {
+        state.eventCard.apply();
+        state.eventCard = null;
+      }
+      return;
+    }
+    if (state.mode === "menu" || state.mode === "how" || state.mode === "achievements") {
+      if (state.mode !== "menu" && rectHit({ x: 505, y: 552, w: 270, h: 50 }, point)) {
+        state.mode = "menu";
+        return;
+      }
+      const hit = menuRects().find((rect) => rectHit(rect, point));
+      if (!hit) return;
+      if (hit.id === "begin") startGame();
+      if (hit.id === "how") state.mode = state.mode === "how" ? "menu" : "how";
+      if (hit.id === "achievements") state.mode = state.mode === "achievements" ? "menu" : "achievements";
+      if (hit.id === "settings") {
+        state.muted = !state.muted;
+        localStorage.setItem("tylersTrialMuted", String(state.muted));
+      }
+      if (hit.id === "return") window.location.href = "index.html";
+      return;
+    }
+    if (state.mode === "game-over") {
+      if (rectHit({ x: 440, y: 538, w: 190, h: 54 }, point)) startGame();
+      if (rectHit({ x: 650, y: 538, w: 190, h: 54 }, point)) window.location.href = "index.html";
+      return;
+    }
+    const button = buttonRects().find((rect) => rectHit(rect, point));
+    if (button) {
+      if (button.id === "begin" && state.mode === "prep") beginCombat();
+      if (button.id !== "begin") useAbility(button.id);
+      return;
+    }
+    if (state.mode !== "prep") return;
+    const cell = hitCell(point);
+    if (!cell) return;
+    const boardCell = state.board[cell.row][cell.col];
+    if (boardCell.path || !boardCell.tile) return;
+    if (!state.selected) {
+      state.selected = cell;
+      return;
+    }
+    if (state.selected.row === cell.row && state.selected.col === cell.col) {
+      state.selected = null;
+      return;
+    }
+    if (adjacent(state.selected, cell) && state.swaps > 0) {
+      swapCells(state.selected, cell);
+      state.selected = null;
+    } else {
+      state.selected = cell;
+    }
   }
 
   function onPointerMove(event) {
     pointer = canvasPoint(event);
-    state.hover = boardHit(pointer);
-  }
-
-  function onPointerLeave() {
-    pointer = { x: -1, y: -1 };
-    state.hover = null;
   }
 
   function onPointerDown(event) {
-    const point = canvasPoint(event);
-    pointer = point;
-
-    if (state.mode === "choose-upgrade") {
-      const hit = upgradeRects().find((rect) => point.x >= rect.x && point.x <= rect.x + rect.w && point.y >= rect.y && point.y <= rect.y + rect.h);
-      if (hit) chooseUpgrade(hit.index);
-      return;
-    }
-
-    if (state.mode === "game-over") {
-      if (point.x >= 462 && point.x <= 620 && point.y >= 520 && point.y <= 578) restartGame();
-      if (point.x >= 650 && point.x <= 842 && point.y >= 520 && point.y <= 578) window.location.href = "index.html";
-      return;
-    }
-
-    const handHit = handRects().find((rect) => point.x >= rect.x && point.x <= rect.x + rect.w && point.y >= rect.y && point.y <= rect.y + rect.h);
-    if (handHit) {
-      state.selected = handHit.index;
-      say(`${state.choices[state.selected].name} selected.`);
-      updateHint();
-      return;
-    }
-
-    const cell = boardHit(point);
-    if (cell) placeTile(cell.row, cell.col);
+    handlePointer(canvasPoint(event));
   }
 
-  function drawImageCover(img, x, y, w, h, alpha) {
+  function drawCover(img, x, y, w, h, alpha) {
     if (!img) return;
     ctx.save();
     ctx.globalAlpha = alpha ?? 1;
     const scale = Math.max(w / img.width, h / img.height);
     const sw = w / scale;
     const sh = h / scale;
-    const sx = (img.width - sw) / 2;
-    const sy = (img.height - sh) / 2;
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
     ctx.restore();
   }
 
@@ -657,285 +850,435 @@
     ctx.fillStyle = fill;
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = stroke || "rgba(197, 154, 54, 0.62)";
+    ctx.strokeStyle = stroke || "rgba(201,154,53,0.62)";
     ctx.stroke();
     ctx.restore();
   }
 
-  function text(content, x, y, sizePx, color, weight, align, maxWidth) {
+  function label(text, x, y, size, color, weight, align, maxWidth) {
     ctx.save();
-    ctx.font = `${weight || 800} ${sizePx}px Inter, Arial, sans-serif`;
+    ctx.font = `${weight || 800} ${size}px Inter, Arial, sans-serif`;
     ctx.fillStyle = color;
     ctx.textAlign = align || "left";
     ctx.textBaseline = "top";
-    ctx.fillText(content, x, y, maxWidth);
+    ctx.fillText(text, x, y, maxWidth);
     ctx.restore();
   }
 
-  function wrapText(content, x, y, maxWidth, lineHeight, sizePx, color) {
-    const words = content.split(" ");
-    let line = "";
+  function wrap(text, x, y, w, line, size, color, weight) {
+    const words = text.split(" ");
+    let current = "";
     let currentY = y;
     ctx.save();
-    ctx.font = `800 ${sizePx}px Inter, Arial, sans-serif`;
+    ctx.font = `${weight || 800} ${size}px Inter, Arial, sans-serif`;
     ctx.fillStyle = color;
     ctx.textBaseline = "top";
     words.forEach((word) => {
-      const test = `${line}${word} `;
-      if (ctx.measureText(test).width > maxWidth && line) {
-        ctx.fillText(line.trim(), x, currentY);
-        line = `${word} `;
-        currentY += lineHeight;
-      } else {
-        line = test;
-      }
+      const test = `${current}${word} `;
+      if (ctx.measureText(test).width > w && current) {
+        ctx.fillText(current.trim(), x, currentY);
+        current = `${word} `;
+        currentY += line;
+      } else current = test;
     });
-    ctx.fillText(line.trim(), x, currentY);
+    ctx.fillText(current.trim(), x, currentY);
     ctx.restore();
   }
 
-  function drawItemIcon(item, x, y, w, h) {
-    const img = assetImages.items;
-    if (!img) return;
-    const columns = 4;
-    const rows = 2;
-    const sw = img.width / columns;
-    const sh = img.height / rows;
-    const sx = (item.sheet % columns) * sw;
-    const sy = Math.floor(item.sheet / columns) * sh;
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
-  }
-
-  function drawTileTexture(tile, x, y, tileSize) {
-    const img = assetImages.tiles;
-    if (!img) return;
-    const zone = zoneColors[tile.center];
-    const columns = 4;
-    const rows = 3;
-    const sw = img.width / columns;
-    const sh = img.height / rows;
-    const sx = (zone.art % columns) * sw;
-    const sy = Math.floor(zone.art / columns) * sh;
+  function drawGame() {
+    const shakeX = state.shake > 0 && !reducedMotion ? (Math.random() - 0.5) * 8 : 0;
     ctx.save();
-    roundRect(x, y, tileSize, tileSize, 12);
-    ctx.clip();
-    ctx.translate(x + tileSize / 2, y + tileSize / 2);
-    ctx.rotate((tile.rotation * Math.PI) / 180);
-    ctx.drawImage(img, sx, sy, sw, sh, -tileSize / 2, -tileSize / 2, tileSize, tileSize);
+    ctx.translate(shakeX, 0);
+    drawCover(images.bg, 0, 0, W, H, 1);
+    ctx.fillStyle = "rgba(4, 13, 29, 0.18)";
+    ctx.fillRect(0, 0, W, H);
+    drawLodge();
+    drawTopBar();
+    drawSidePanels();
+    drawBoard();
+    drawTyler();
+    drawEnemies();
+    drawProjectiles();
+    drawParticles();
+    drawFloaters();
+    drawTransition();
+    drawEventCard();
+    if (state.mode === "menu" || state.mode === "how" || state.mode === "achievements") drawMenu();
+    if (state.mode === "game-over") drawGameOver();
     ctx.restore();
   }
 
-  function drawTile(tile, x, y, tileSize, options) {
-    const opts = options || {};
-    const zone = zoneColors[tile.center];
-    ctx.save();
-    if (opts.alpha) ctx.globalAlpha = opts.alpha;
-    panel(x, y, tileSize, tileSize, "rgba(255, 247, 230, 0.95)", opts.selected ? palette.gold : "rgba(7, 31, 63, 0.2)", 12);
-    drawTileTexture(tile, x + 4, y + 4, tileSize - 8);
-    ctx.fillStyle = zone.color;
-    roundRect(x + tileSize * 0.27, y + tileSize * 0.27, tileSize * 0.46, tileSize * 0.46, 8);
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = zone.stroke;
-    ctx.stroke();
-
-    const edge = tileSize * 0.12;
-    tile.edges.forEach((edgeName, index) => {
-      ctx.fillStyle = zoneColors[edgeName].color;
-      if (index === 0) ctx.fillRect(x + edge, y + 5, tileSize - edge * 2, edge);
-      if (index === 1) ctx.fillRect(x + tileSize - edge - 5, y + edge, edge, tileSize - edge * 2);
-      if (index === 2) ctx.fillRect(x + edge, y + tileSize - edge - 5, tileSize - edge * 2, edge);
-      if (index === 3) ctx.fillRect(x + 5, y + edge, edge, tileSize - edge * 2);
-    });
-
-    if (opts.preview) {
-      ctx.fillStyle = opts.legal ? "rgba(158, 208, 255, 0.36)" : "rgba(158, 29, 47, 0.28)";
-      roundRect(x, y, tileSize, tileSize, 12);
-      ctx.fill();
+  function drawLodge() {
+    const stage = Math.min(4, Math.floor((state.trial - 1) / 5));
+    panel(384, 26, 512, 86 + stage * 5, "rgba(255,246,223,0.94)", "rgba(201,154,53,0.9)", 18);
+    ctx.fillStyle = palette.navy;
+    ctx.fillRect(430, 82, 420, 20);
+    for (let i = 0; i < 4 + stage; i += 1) {
+      const x = 442 + i * (368 / Math.max(1, 3 + stage));
+      ctx.fillStyle = i % 2 ? palette.royal : palette.crimson;
+      ctx.fillRect(x, 42, 18, 42);
+      ctx.fillStyle = palette.gold;
+      ctx.fillRect(x - 2, 40, 22, 5);
     }
+    label(["Small Lodge", "Established Lodge", "Masonic Hall", "Provincial Hall", "Grand Temple"][stage], 640, 46, 22, palette.navy, 900, "center");
+    label("LODGE ENTRANCE", 640, 82, 12, palette.gold, 900, "center");
+  }
 
-    if (opts.pulse) {
+  function drawTopBar() {
+    panel(28, 20, 1224, 56, "rgba(6,26,54,0.9)", "rgba(201,154,53,0.65)", 18);
+    label(`TRIAL ${roman(state.trial)}`, 56, 38, 20, palette.cream, 900);
+    label(chapterName(), 188, 40, 14, palette.lightBlue, 900);
+    label(`SWAPS ${state.swaps}`, 460, 38, 18, palette.gold, 900, "center");
+    label(`SECURITY ${state.security}/${state.maxSecurity}`, 642, 38, 18, palette.cream, 900, "center");
+    label(`SCORE ${state.score}`, 842, 38, 18, palette.lightBlue, 900, "center");
+    label(`W ${state.attrs.wisdom} | S ${state.attrs.strength} | B ${state.attrs.beauty}`, 1100, 38, 16, palette.gold, 900, "center");
+  }
+
+  function drawSidePanels() {
+    panel(30, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
+    label("The Tyler", 58, 120, 22, palette.lightBlue, 900);
+    wrap(state.message, 58, 154, 254, 20, 14, palette.cream);
+    label("Abilities", 58, 468, 16, palette.gold, 900);
+    buttonRects().slice(1).forEach((button) => drawButton(button, state.mode !== "combat"));
+
+    panel(926, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
+    label("Defence Guide", 954, 120, 22, palette.lightBlue, 900);
+    resourceKeys.forEach((keyName, index) => {
+      const y = 160 + index * 72;
+      const def = resources[keyName];
+      drawIcon(keyName, 962, y, 46, 46, 0, false);
+      label(def.short, 1020, y + 2, 15, palette.cream, 900);
+      label(def.tower[0], 1020, y + 24, 12, def.color, 900);
+    });
+    drawButton(buttonRects()[0], state.mode !== "prep");
+    label("Coverage beats panic. Merging creates power but leaves gaps.", 954, 545, 13, "rgba(255,255,255,0.78)", 800, "left", 248);
+  }
+
+  function drawButton(rect, disabled) {
+    const hover = rectHit(rect, pointer);
+    panel(rect.x, rect.y, rect.w, rect.h, disabled ? "rgba(255,246,223,0.48)" : hover ? "rgba(255,246,223,1)" : "rgba(255,246,223,0.9)", hover ? palette.lightBlue : "rgba(201,154,53,0.76)", 14);
+    label(rect.label, rect.x + rect.w / 2, rect.y + 14, 13, disabled ? "rgba(23,36,58,0.45)" : palette.navy, 900, "center");
+  }
+
+  function drawBoard() {
+    if (state.board.length < GRID) return;
+    panel(board.x - 20, board.y - 20, board.w + 40, board.h + 40, "rgba(255,246,223,0.95)", "rgba(201,154,53,0.96)", 22);
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const x = board.x + col * CELL;
+        const y = board.y + row * CELL;
+        const cell = state.board[row][col];
+        const selected = state.selected?.row === row && state.selected?.col === col;
+        ctx.save();
+        roundRect(x + 3, y + 3, CELL - 6, CELL - 6, 10);
+        ctx.fillStyle = cell.path ? "rgba(54,42,31,0.82)" : (row + col) % 2 ? "#eee4ce" : "#fff9eb";
+        ctx.fill();
+        ctx.strokeStyle = selected ? palette.gold : "rgba(23,36,58,0.16)";
+        ctx.lineWidth = selected ? 5 : 1.5;
+        ctx.stroke();
+        ctx.restore();
+        if (cell.path) drawPathMark(x, y, row, col);
+        if (cell.tile) drawTile(cell.tile, x + 6, y + 6, CELL - 12, selected);
+      }
+    }
+  }
+
+  function drawPathMark(x, y, row, col) {
+    ctx.save();
+    ctx.fillStyle = (row + col) % 2 ? "#0d1725" : "#f6f1e6";
+    ctx.globalAlpha = 0.28;
+    ctx.fillRect(x + 8, y + 8, 20, 20);
+    ctx.fillRect(x + 36, y + 36, 20, 20);
+    ctx.restore();
+  }
+
+  function drawTile(tile, x, y, size, selected) {
+    const def = resources[tile.kind];
+    panel(x, y, size, size, tile.tower ? "rgba(6,26,54,0.9)" : "rgba(255,255,255,0.92)", selected ? palette.gold : "rgba(23,36,58,0.18)", 12);
+    drawIcon(tile.kind, x + 8, y + 8, size - 16, size - 16, tile.level, tile.tower);
+    if (tile.tower) {
+      label(roman(tile.level + 1), x + size - 14, y + 7, 12, palette.gold, 900, "center");
+      if (tile.charged) {
+        ctx.strokeStyle = palette.lightBlue;
+        ctx.lineWidth = 3;
+        roundRect(x + 4, y + 4, size - 8, size - 8, 10);
+        ctx.stroke();
+      }
+    }
+    ctx.fillStyle = def.color;
+    ctx.globalAlpha = 0.16;
+    ctx.fillRect(x + 5, y + size - 10, size - 10, 5);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawIcon(kind, x, y, size, level, tower) {
+    const def = resources[kind];
+    const cx = x + size / 2;
+    const cy = y + size / 2;
+    ctx.save();
+    ctx.fillStyle = def.color;
+    ctx.strokeStyle = tower ? palette.gold : def.dark;
+    ctx.lineWidth = Math.max(2, size * 0.06);
+    if (kind === "ashlar") {
+      roundRect(x + size * 0.16, y + size * 0.22, size * 0.68, size * 0.56, 6);
+      ctx.fill();
+      ctx.stroke();
+      for (let i = 0; i < 4; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(x + size * (0.28 + i * 0.12), y + size * 0.35);
+        ctx.lineTo(x + size * (0.2 + i * 0.12), y + size * 0.62);
+        ctx.stroke();
+      }
+    }
+    if (kind === "candle") {
+      ctx.fillRect(cx - size * 0.11, y + size * 0.36, size * 0.22, size * 0.42);
+      ctx.strokeRect(cx - size * 0.11, y + size * 0.36, size * 0.22, size * 0.42);
+      ctx.beginPath();
+      ctx.fillStyle = "#ffef9d";
+      ctx.ellipse(cx, y + size * 0.25, size * 0.13, size * 0.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    if (kind === "tool") {
+      ctx.beginPath();
+      ctx.moveTo(x + size * 0.22, y + size * 0.72);
+      ctx.lineTo(x + size * 0.78, y + size * 0.26);
+      ctx.moveTo(x + size * 0.22, y + size * 0.26);
+      ctx.lineTo(x + size * 0.78, y + size * 0.72);
+      ctx.stroke();
+      ctx.fillStyle = def.color;
+      ctx.fillRect(cx - size * 0.2, cy - size * 0.05, size * 0.4, size * 0.1);
+    }
+    if (kind === "acacia") {
+      ctx.beginPath();
+      ctx.moveTo(cx, y + size * 0.78);
+      ctx.quadraticCurveTo(cx - size * 0.18, cy, cx, y + size * 0.22);
+      ctx.quadraticCurveTo(cx + size * 0.18, cy, cx, y + size * 0.78);
+      ctx.fill();
+      ctx.stroke();
+      for (let i = 0; i < 4; i += 1) {
+        ctx.beginPath();
+        ctx.arc(cx - size * 0.12, y + size * (0.34 + i * 0.1), size * 0.06, 0, Math.PI * 2);
+        ctx.arc(cx + size * 0.12, y + size * (0.38 + i * 0.1), size * 0.06, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    if (kind === "gold") {
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.28, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size * 0.14);
+      ctx.lineTo(cx + size * 0.13, cy + size * 0.1);
+      ctx.lineTo(cx - size * 0.13, cy + size * 0.1);
+      ctx.closePath();
+      ctx.strokeStyle = palette.cream;
+      ctx.stroke();
+    }
+    if (tower) {
       ctx.strokeStyle = palette.gold;
-      ctx.lineWidth = 5;
-      roundRect(x + 2, y + 2, tileSize - 4, tileSize - 4, 10);
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * (0.38 + level * 0.05), 0, Math.PI * 2);
       ctx.stroke();
     }
     ctx.restore();
   }
 
-  function drawBoard() {
-    panel(board.x - 18, board.y - 18, board.size + 36, board.size + 36, "rgba(255, 247, 230, 0.92)", "rgba(197, 154, 54, 0.95)", 20);
-    for (let row = 0; row < size; row += 1) {
-      for (let col = 0; col < size; col += 1) {
-        const x = board.x + col * board.cell;
-        const y = board.y + row * board.cell;
-        const cell = key(row, col);
-        const tile = state.grid[row][col];
-        const hover = state.hover?.row === row && state.hover?.col === col;
-        const hinted = state.hint?.row === row && state.hint?.col === col;
-        const blocked = state.blocked.has(cell);
+  function drawTyler() {
+    const x = 150;
+    const y = 282 + (!reducedMotion ? Math.sin(clock * 2) * 3 : 0);
+    if (images.character) {
+      ctx.save();
+      if (state.tyler.stance === "strike") ctx.filter = "brightness(1.15) saturate(1.15)";
+      ctx.drawImage(images.character, x - 70, y - 8, 190, 250);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = palette.navy;
+      ctx.fillRect(x, y, 42, 112);
+    }
+    ctx.strokeStyle = palette.gold;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(x + 94, y + 74);
+    ctx.lineTo(x + 148, y + 156);
+    ctx.stroke();
+    if (state.tyler.guard > 0 || state.tyler.closed > 0) {
+      ctx.strokeStyle = "rgba(159,212,255,0.8)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(x + 65, y + 110, 78, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
 
-        ctx.save();
-        roundRect(x + 3, y + 3, board.cell - 6, board.cell - 6, 9);
-        ctx.fillStyle = (row + col) % 2 ? "rgba(7, 31, 63, 0.13)" : "rgba(255, 255, 255, 0.7)";
-        ctx.fill();
-        ctx.strokeStyle = "rgba(7, 31, 63, 0.14)";
+  function drawEnemies() {
+    state.enemies.forEach((enemy) => {
+      const pos = pathPoint(enemy);
+      const wobble = !reducedMotion ? Math.sin(clock * 5 + enemy.wobble) * 2 : 0;
+      ctx.save();
+      ctx.fillStyle = enemy.type.color;
+      ctx.strokeStyle = palette.cream;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y + wobble, enemy.type.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      if (enemy.type.aura) {
+        ctx.strokeStyle = "rgba(168,36,104,0.35)";
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 32, 0, Math.PI * 2);
         ctx.stroke();
-        if (blocked) {
-          ctx.fillStyle = "rgba(7, 31, 63, 0.78)";
-          ctx.fill();
-          text("LOCK", x + board.cell / 2, y + board.cell / 2 - 8, 12, palette.gold, 900, "center");
-        }
-        if (hinted && state.mode === "playing") {
-          ctx.strokeStyle = palette.gold;
-          ctx.lineWidth = 4;
-          ctx.stroke();
-        }
-        ctx.restore();
-
-        if (tile) {
-          const pulse = state.lastPlaced?.row === row && state.lastPlaced?.col === col && performance.now() - state.lastPlaced.t < 450;
-          drawTile(tile, x + 5, y + 5, board.cell - 10, { pulse });
-        } else if (hover && state.mode === "playing" && state.choices[state.selected] && !blocked) {
-          const candidate = state.choices[state.selected];
-          const legal = placementCheck(row, col, candidate, state.columnTokens > 0).ok;
-          drawTile(candidate, x + 5, y + 5, board.cell - 10, { preview: true, legal, alpha: 0.76 });
-        }
       }
-    }
+      ctx.fillStyle = palette.crimson;
+      ctx.fillRect(pos.x - 18, pos.y - enemy.type.size - 13, 36, 5);
+      ctx.fillStyle = palette.green;
+      ctx.fillRect(pos.x - 18, pos.y - enemy.type.size - 13, 36 * Math.max(0, enemy.hp / enemy.maxHp), 5);
+      ctx.restore();
+    });
   }
 
-  function drawHand() {
-    panel(920, 98, 330, 552, "rgba(7, 31, 63, 0.84)", "rgba(197, 154, 54, 0.5)", 20);
-    text("Tile Choices", 946, 122, 20, palette.lightBlue, 900);
-    text("1-3 select / R rotates", 946, 150, 13, "rgba(255,255,255,0.72)", 800);
-    handRects().forEach((rect) => {
-      const tile = state.choices[rect.index];
-      if (!tile) return;
-      const selected = rect.index === state.selected;
-      panel(rect.x, rect.y, rect.w, rect.h, selected ? "rgba(216,235,255,0.98)" : "rgba(255,247,230,0.9)", selected ? palette.gold : "rgba(197,154,54,0.48)", 16);
-      drawTile(tile, rect.x + 14, rect.y + 14, 94, { selected });
-      text(tile.name, rect.x + 122, rect.y + 22, 17, palette.navy, 900, "left", 146);
-      text(zoneColors[tile.center].label, rect.x + 122, rect.y + 50, 12, palette.blue, 900, "left", 148);
-      text(tile.edges.map((edge) => edge[0].toUpperCase()).join("  "), rect.x + 122, rect.y + 76, 14, palette.gold, 900);
-      text(`Key ${rect.index + 1}`, rect.x + rect.w - 40, rect.y + rect.h - 28, 12, palette.navy, 900, "center");
+  function drawProjectiles() {
+    state.projectiles.forEach((shot) => {
+      if (!state.enemies.includes(shot.enemy)) return;
+      const target = pathPoint(shot.enemy);
+      const t = 1 - shot.life / 0.42;
+      const x = shot.x + (target.x - shot.x) * t;
+      const y = shot.y + (target.y - shot.y) * t;
+      ctx.strokeStyle = resources[shot.kind].color;
+      ctx.lineWidth = shot.kind === "candle" ? 4 : 2;
+      ctx.beginPath();
+      ctx.moveTo(shot.x, shot.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.fillStyle = resources[shot.kind].color;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
     });
+  }
 
-    const inventory = [
-      ["Redraw", state.redraws],
-      ["Apron", state.apron],
-      ["Gavel", state.gavels],
-      ["Column", state.columnTokens],
-      ["Acacia x2", state.acaciaDouble],
-      ["Charity", state.charityBonus],
+  function drawParticles() {
+    state.particles.forEach((p) => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  function drawFloaters() {
+    state.floaters.forEach((f) => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, f.life);
+      label(f.text, f.x, f.y, f.size, f.color, 900, "center", 360);
+      ctx.restore();
+    });
+  }
+
+  function drawTransition() {
+    if (state.transition <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = Math.min(0.88, state.transition);
+    ctx.fillStyle = "rgba(3,12,24,0.62)";
+    ctx.fillRect(0, 0, W, H);
+    label("THE TRIAL BEGINS", W / 2, H / 2 - 36, 44, palette.gold, 900, "center");
+    label(`Trial ${roman(state.trial)}`, W / 2, H / 2 + 18, 22, palette.cream, 900, "center");
+    ctx.restore();
+  }
+
+  function drawEventCard() {
+    if (!state.eventCard) return;
+    ctx.fillStyle = "rgba(3,12,24,0.7)";
+    ctx.fillRect(0, 0, W, H);
+    panel(376, 190, 528, 380, "rgba(255,246,223,0.98)", "rgba(201,154,53,0.9)", 24);
+    label(state.eventCard.title, 640, 238, 34, palette.navy, 900, "center");
+    wrap(state.eventCard.body, 468, 304, 344, 28, 18, palette.blue);
+    drawButton({ x: 477, y: 484, w: 326, h: 54, label: "ACCEPT AND CONTINUE" }, false);
+  }
+
+  function drawMenu() {
+    ctx.fillStyle = "rgba(3,12,24,0.72)";
+    ctx.fillRect(0, 0, W, H);
+    panel(330, 90, 620, 580, "rgba(6,26,54,0.94)", "rgba(201,154,53,0.88)", 26);
+    label("TYLER'S TRIAL", 640, 136, 54, palette.cream, 900, "center");
+    label("A Masonic Puzzle of Wisdom, Strength & Beauty", 640, 202, 18, palette.lightBlue, 900, "center");
+    if (state.mode === "how") {
+      wrap("Swap adjacent resource tiles during preparation. Three matching resources build a defence. Three matching defences merge into a stronger one. When the Trial begins, your defences automatically turn away disorder before it reaches the Lodge.", 430, 288, 420, 24, 16, palette.cream);
+    } else if (state.mode === "achievements") {
+      wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 430, 288, 420, 24, 16, palette.cream);
+    } else {
+      menuRects().forEach((rect) => drawButton(rect, false));
+    }
+    if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 505, y: 552, w: 270, h: 50 }, false);
+    label("An independent Masonic-themed game. Not affiliated with the United Grand Lodge of England.", 640, 642, 11, "rgba(255,255,255,0.66)", 800, "center");
+  }
+
+  function drawGameOver() {
+    ctx.fillStyle = "rgba(3,12,24,0.78)";
+    ctx.fillRect(0, 0, W, H);
+    panel(330, 130, 620, 500, "rgba(6,26,54,0.96)", "rgba(201,154,53,0.9)", 26);
+    label("THE LODGE HAS BEEN BREACHED", 640, 174, 30, palette.gold, 900, "center");
+    const lines = [
+      `Trials Survived: ${Math.max(0, state.trial - 1)}`,
+      `Enemies Turned Away: ${state.stats.defeated}`,
+      `Highest Structure: Level ${state.stats.highest || 1}`,
+      `Best Harmony Chain: ${state.stats.bestChain}`,
+      `Bosses Defeated: ${state.stats.bosses}`,
+      `Final Score: ${state.score}`,
+      `High Score: ${state.highScore}`,
     ];
-    inventory.forEach((item, index) => {
-      const x = 946 + (index % 2) * 142;
-      const y = 594 + Math.floor(index / 2) * 18;
-      text(`${item[0]} ${item[1]}`, x, y, 12, "rgba(255,255,255,0.82)", 900);
+    lines.forEach((line, index) => label(line, 468, 242 + index * 34, 18, index >= 5 ? palette.gold : palette.cream, 900));
+    drawButton({ x: 440, y: 538, w: 190, h: 54, label: "TRY AGAIN" }, false);
+    drawButton({ x: 650, y: 538, w: 190, h: 54, label: "RETURN" }, false);
+  }
+
+  function roman(number) {
+    const numerals = [
+      [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+    ];
+    let value = number;
+    let result = "";
+    numerals.forEach(([amount, symbol]) => {
+      while (value >= amount) {
+        result += symbol;
+        value -= amount;
+      }
     });
+    return result;
   }
 
-  function drawGuide() {
-    panel(34, 98, 292, 552, "rgba(7, 31, 63, 0.84)", "rgba(197, 154, 54, 0.5)", 20);
-    text("Light Blue Guide", 60, 122, 18, palette.lightBlue, 900);
-    panel(60, 154, 240, 126, "rgba(255, 247, 230, 0.96)", "rgba(197,154,54,0.74)", 18);
-    wrapText(state.message, 82, 176, 196, 20, 14, palette.navy);
-    if (assetImages.character) {
-      ctx.save();
-      if (state.guideMood === "warning") ctx.filter = "saturate(1.2) hue-rotate(-18deg)";
-      if (state.guideMood === "pleased" || state.guideMood === "celebrate") ctx.filter = "saturate(1.2) brightness(1.08)";
-      const bounce = !reducedMotion && state.guideMood === "celebrate" ? Math.sin(clock * 8) * 6 : 0;
-      ctx.drawImage(assetImages.character, 42, 310 + bounce, 248, 310);
-      ctx.restore();
+  function update(dt) {
+    updateTimers(dt);
+    if (state.mode === "combat") updateCombat(dt);
+    updateDomControls();
+  }
+
+  function updateDomControls() {
+    if (beginButton) {
+      beginButton.textContent = state.mode === "prep" ? "Begin Trial" : state.mode === "menu" ? "Begin Trial" : "Trial Running";
+      beginButton.disabled = !["menu", "prep"].includes(state.mode);
     }
-  }
-
-  function drawHeader() {
-    panel(26, 22, 1228, 58, "rgba(4, 17, 34, 0.86)", "rgba(197, 154, 54, 0.65)", 18);
-    text("Tyler's Trial: Lodge Floor", 52, 37, 24, palette.ink, 900);
-    text(`Score ${state.score}`, 604, 40, 18, palette.gold, 900, "center");
-    text(`Target ${state.target}`, 752, 40, 18, palette.cream, 900, "center");
-    text(`Round ${state.round}`, 902, 40, 18, palette.lightBlue, 900, "center");
-    text(`${placedCount()}/${size * size - state.blocked.size} Tiles`, 1088, 40, 18, palette.green, 900, "center");
-  }
-
-  function drawFloating() {
-    state.floating.forEach((item) => {
-      ctx.save();
-      ctx.globalAlpha = item.life;
-      text(item.text, item.x, item.y, 18, item.color, 900, "center", 220);
-      ctx.restore();
-    });
-  }
-
-  function drawItemIcon(item, x, y, w, h) {
-    const img = assetImages.items;
-    if (!img) return;
-    const columns = 4;
-    const rows = 2;
-    const sw = img.width / columns;
-    const sh = img.height / rows;
-    const sx = (item.sheet % columns) * sw;
-    const sy = Math.floor(item.sheet / columns) * sh;
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
-  }
-
-  function drawOverlay() {
-    if (state.mode === "choose-upgrade") {
-      ctx.fillStyle = "rgba(3, 12, 24, 0.72)";
-      ctx.fillRect(0, 0, W, H);
-      panel(246, 164, 788, 442, "rgba(7,31,63,0.96)", "rgba(197,154,54,0.92)", 24);
-      text("Round Complete", 640, 198, 38, palette.cream, 900, "center");
-      text("Choose one item for the next working", 640, 244, 16, palette.lightBlue, 900, "center");
-      upgradeRects().forEach((rect) => {
-        const upgrade = state.upgradeChoices[rect.index];
-        const hover = pointer.x >= rect.x && pointer.x <= rect.x + rect.w && pointer.y >= rect.y && pointer.y <= rect.y + rect.h;
-        panel(rect.x, rect.y, rect.w, rect.h, hover ? "rgba(255,247,230,0.99)" : "rgba(255,247,230,0.9)", hover ? palette.lightBlue : "rgba(197,154,54,0.76)", 18);
-        drawItemIcon(upgrade, rect.x + 44, rect.y + 26, 116, 90);
-        text(upgrade.name, rect.x + rect.w / 2, rect.y + 132, 16, palette.navy, 900, "center", rect.w - 18);
-        wrapText(upgrade.desc, rect.x + 28, rect.y + 168, rect.w - 56, 19, 14, palette.blue);
-      });
+    if (alarmButton) {
+      alarmButton.disabled = state.mode !== "combat";
     }
-
-    if (state.mode === "game-over") {
-      ctx.fillStyle = "rgba(3, 12, 24, 0.78)";
-      ctx.fillRect(0, 0, W, H);
-      panel(330, 188, 620, 416, "rgba(7,31,63,0.96)", "rgba(197,154,54,0.94)", 24);
-      text("Trial Complete", 640, 230, 42, palette.cream, 900, "center");
-      text(`Final Score ${state.score}`, 640, 294, 24, palette.gold, 900, "center");
-      text(`Round ${state.round}`, 640, 330, 18, palette.lightBlue, 900, "center");
-      wrapText(state.message, 450, 380, 380, 23, 16, "rgba(255,255,255,0.84)");
-      drawButton(462, 520, 158, 58, "Play Again");
-      drawButton(650, 520, 192, 58, "Return");
-    }
-  }
-
-  function drawButton(x, y, w, h, label) {
-    panel(x, y, w, h, "rgba(255,247,230,0.96)", "rgba(197,154,54,0.86)", 16);
-    text(label, x + w / 2, y + 19, 15, palette.navy, 900, "center");
   }
 
   function render(now) {
-    const dt = Math.min(0.05, (now - lastFrame) / 1000);
-    lastFrame = now;
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
     if (!reducedMotion) clock += dt;
-    updateFloating(dt);
-    drawImageCover(assetImages.bg, 0, 0, W, H, 1);
-    ctx.fillStyle = "rgba(3, 12, 24, 0.16)";
-    ctx.fillRect(0, 0, W, H);
-    drawHeader();
-    drawGuide();
-    drawBoard();
-    drawHand();
-    drawFloating();
-    drawOverlay();
+    update(dt);
+    drawGame();
     requestAnimationFrame(render);
   }
 
   function installEvents() {
     canvas.addEventListener("mousemove", onPointerMove);
-    canvas.addEventListener("mouseleave", onPointerLeave);
     canvas.addEventListener("mousedown", onPointerDown);
     canvas.addEventListener("touchstart", (event) => {
       event.preventDefault();
@@ -945,71 +1288,67 @@
       event.preventDefault();
       onPointerMove(event);
     }, { passive: false });
-    rotateButton?.addEventListener("click", rotateSelected);
-    redrawButton?.addEventListener("click", () => redrawChoices(false));
-    restartButton?.addEventListener("click", restartGame);
-
+    beginButton?.addEventListener("click", () => {
+      if (state.mode === "menu") startGame();
+      else if (state.mode === "prep") beginCombat();
+    });
+    alarmButton?.addEventListener("click", () => useAbility("alarm"));
+    restartButton?.addEventListener("click", startGame);
     document.addEventListener("keydown", (event) => {
-      const pressed = event.key.toLowerCase();
-      if (pressed === "escape") {
-        window.location.href = "index.html";
-        return;
-      }
-      if (pressed === "r") rotateSelected();
-      if (pressed === "b") redrawChoices(false);
-      if (["1", "2", "3"].includes(pressed) && state.mode === "playing") {
-        const index = Number(pressed) - 1;
-        if (state.choices[index]) {
-          state.selected = index;
-          updateHint();
-          say(`${state.choices[index].name} selected.`);
-        }
-      }
-      if (pressed === " " && state.mode === "playing") {
+      const key = event.key.toLowerCase();
+      if (key === "escape") window.location.href = "index.html";
+      if (key === " " && state.mode === "prep") {
         event.preventDefault();
-        const move = findBestPlacement();
-        if (move) placeTile(move.row, move.col);
+        beginCombat();
       }
+      if (key === "1") useAbility("sword");
+      if (key === "2") useAbility("guard");
+      if (key === "3") useAbility("alarm");
+      if (key === "4") useAbility("close");
     });
   }
 
   function exposeDebugApi() {
     window.tylersTrialDebug = {
       getState: () => ({
-        score: state.score,
-        round: state.round,
         mode: state.mode,
-        target: state.target,
-        placed: placedCount(),
-        choices: state.choices.map((tile) => tile.name),
-        hint: state.hint,
+        trial: state.trial,
+        score: state.score,
+        security: state.security,
+        swaps: state.swaps,
+        enemies: state.enemies.length,
+        towers: state.board.flat().filter((cell) => cell.tile?.tower).length,
+        highScore: state.highScore,
       }),
-      placeFirstLegal: () => {
-        const move = findBestPlacement();
-        if (!move) return false;
-        placeTile(move.row, move.col);
-        return true;
+      begin: startGame,
+      forceMatch: () => {
+        state.mode = "prep";
+        state.board[1][0].tile = makeTile("ashlar");
+        state.board[1][1].tile = makeTile("ashlar");
+        state.board[1][2].tile = makeTile("ashlar");
+        resolveMatches(false);
       },
-      forceRoundComplete: () => finishRound(),
-      chooseUpgrade: (index = 0) => chooseUpgrade(index),
-      forceNoMoves: () => {
-        state.redraws = 0;
-        state.gavels = 0;
-        state.columnTokens = 0;
-        state.choices = [];
-        checkProgress();
+      beginCombat,
+      clearWave: () => {
+        state.enemies = [];
+        state.wave.spawned = state.wave.total;
+      },
+      damageLodge: () => {
+        state.security = 1;
+        state.tyler.charges = 0;
+        state.tyler.guard = 0;
+        state.tyler.closed = 0;
+        reachDoor({ type: enemyTypes.ruffian, path: pathCells, progress: pathCells.length - 1 });
       },
     };
   }
 
   async function init() {
     resizeCanvas();
-    const entries = await Promise.all(Object.entries(assets).map(async ([name, src]) => [name, await loadImage(src)]));
-    entries.forEach(([name, img]) => {
-      assetImages[name] = img;
-    });
+    state = emptyState();
+    const loaded = await Promise.all(Object.entries(assets).map(async ([key, src]) => [key, await loadImage(src)]));
+    loaded.forEach(([key, img]) => { images[key] = img; });
     loading?.setAttribute("hidden", "");
-    restartGame();
     installEvents();
     exposeDebugApi();
     requestAnimationFrame(render);
