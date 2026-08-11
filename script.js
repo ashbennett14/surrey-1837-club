@@ -879,9 +879,19 @@ const lodgeEvents = [
   },
 ];
 
+const chapterEvents = lodgeEvents
+  .filter((event) => event.degree === "Royal Arch")
+  .map((event) => ({
+    ...event,
+    id: event.id.startsWith("chapter-") ? event.id : `chapter-${event.id}`,
+    type: "chapter",
+  }));
+const craftLodgeEvents = lodgeEvents.filter((event) => event.degree !== "Royal Arch");
+
 window.surrey1837CalendarData = {
   socialEvents,
-  lodgeEvents,
+  lodgeEvents: craftLodgeEvents,
+  chapterEvents,
 };
 
 if (document.querySelector("#calendarGrid")) {
@@ -894,7 +904,11 @@ const calendarConfig = {
     initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
   },
   lodge: {
-    events: lodgeEvents,
+    events: craftLodgeEvents,
+    initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
+  },
+  chapter: {
+    events: chapterEvents,
     initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
   },
 };
@@ -974,14 +988,14 @@ function matchesActiveFilters(event) {
     !activeSocialCategory ||
     event.category === activeSocialCategory;
   const matchesType =
-    calendarType !== "lodge" ||
+    (calendarType !== "lodge" && calendarType !== "chapter") ||
     !activeMeetingType ||
     (event.degree || "")
       .split(" & ")
       .map((degree) => degree.trim())
       .includes(activeMeetingType);
   const matchesLocation =
-    calendarType !== "lodge" ||
+    (calendarType !== "lodge" && calendarType !== "chapter") ||
     !activeMeetingLocation || event.location === activeMeetingLocation;
 
   return matchesCategory && matchesType && matchesLocation;
@@ -998,6 +1012,12 @@ function getEmptyMessage() {
     return activeSocialCategory
       ? "No events match this category this month. Try another category or move to a different month."
       : "No social events are listed for this month. Try moving to the next month.";
+  }
+
+  if (calendarType === "chapter") {
+    return activeMeetingType || activeMeetingLocation
+      ? "No chapter meetings match these filters this month. Try changing the type or location."
+      : "No chapter meetings are listed for this month. Try moving to the next month.";
   }
 
   if (activeMeetingType || activeMeetingLocation) {
@@ -1021,7 +1041,7 @@ function renderCalendar() {
   });
 
   monthLabel.textContent = monthFormatter.format(activeDate);
-  const countLabel = calendarType === "lodge" ? "meeting" : "event";
+  const countLabel = calendarType === "social" ? "event" : "meeting";
   eventCount.textContent =
     `${monthlyEvents.length} ${countLabel}${monthlyEvents.length === 1 ? "" : "s"}`;
   if (calendarEmptyMessage) {
@@ -1062,8 +1082,9 @@ function renderCalendar() {
     const list = cell.querySelector(".event-list");
 
     dayEvents.forEach((event) => {
+      const isMeetingEvent = event.type === "lodge" || event.type === "chapter";
       const button = document.createElement("button");
-      button.className = event.type === "lodge" ? "event-pill lodge-event" : "event-pill";
+      button.className = isMeetingEvent ? "event-pill lodge-event" : "event-pill";
       button.type = "button";
       button.dataset.eventId = event.id;
       button.dataset.type = event.type;
@@ -1074,7 +1095,7 @@ function renderCalendar() {
       }
       button.setAttribute("aria-pressed", event.id === selectedEventId ? "true" : "false");
 
-      if (event.type === "lodge") {
+      if (isMeetingEvent) {
         button.innerHTML = `
           <span class="lodge-event-name">${event.lodgeName}</span>
           <span class="lodge-event-number">No. ${event.lodgeNumber}</span>

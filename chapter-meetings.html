@@ -12,32 +12,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Find Surrey lodge meetings open to visitors, with lodge names, numbers, locations and meeting types for Light Blue Freemasons."
+      content="Find Surrey Royal Arch chapter meetings open to visitors, with chapter names, numbers, locations and meeting types for Light Blue Freemasons."
     />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#071f3f" />
-    <link rel="canonical" href="https://1837-club.com/lodge-meetings.html" />
+    <link rel="canonical" href="https://1837-club.com/chapter-meetings.html" />
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Lodge Meeting Calendar | The Surrey 1837 Club" />
+    <meta property="og:title" content="Chapter Meetings Calendar | The Surrey 1837 Club" />
     <meta
       property="og:description"
-      content="A visitor-friendly calendar of Surrey lodge meetings, locations and degree types for Light Blue Freemasons."
+      content="A visitor-friendly calendar of Surrey Royal Arch chapter meetings and locations for Light Blue Freemasons."
     />
     <meta property="og:image" content="https://1837-club.com/assets/surrey-1837-club-badge.png" />
-    <meta property="og:url" content="https://1837-club.com/lodge-meetings.html" />
+    <meta property="og:url" content="https://1837-club.com/chapter-meetings.html" />
     <meta property="og:site_name" content="The Surrey 1837 Club" />
     <meta name="twitter:card" content="summary" />
-    <title>Lodge Meeting Calendar | The Surrey 1837 Club</title>
+    <title>Chapter Meetings Calendar | The Surrey 1837 Club</title>
     <link rel="stylesheet" href="styles.css?v=chapter-red" />
     <script src="auth.js?v=login-gate"></script>
     <script src="analytics.js?v=stats" defer></script>
     <script src="motion.js?v=visual-polish" defer></script>
   </head>
-  <body data-calendar="lodge">
+  <body data-calendar="chapter">
     <main class="app-shell">
       <section class="calendar-panel" aria-label="1837 Club calendar">
         <div class="brand-strip" aria-label="1837 Club">
@@ -58,22 +58,22 @@
         <nav class="page-nav" aria-label="Site pages">
           <a href="index.html">Home</a>
           <a href="social-events.html">Social Events</a>
-          <a href="lodge-meetings.html" aria-current="page">Lodge Meetings</a>
-          <a href="chapter-meetings.html">Chapter Meetings</a>
+          <a href="lodge-meetings.html">Lodge Meetings</a>
+          <a href="chapter-meetings.html" aria-current="page">Chapter Meetings</a>
           <a href="join-the-community.html">Join the Community</a>
         </nav>
 
-        <section class="page-hero page-hero-lodge" aria-label="Lodge Meetings introduction">
+        <section class="page-hero page-hero-chapter" aria-label="Chapter Meetings introduction">
           <div>
-            <p class="section-kicker">Visiting Programme</p>
-            <h2>Plan your next lodge visit across Surrey</h2>
-            <p>Filter meetings by ceremony type or location, then choose a meeting for details.</p>
+            <p class="section-kicker">Royal Arch Programme</p>
+            <h2>Plan your next chapter visit across Surrey</h2>
+            <p>Filter chapter meetings by meeting type or location, then choose a meeting for details.</p>
           </div>
         </section>
 
         <header class="calendar-header">
           <div>
-            <h1>Lodge Meeting Calendar</h1>
+            <h1>Chapter Meetings Calendar</h1>
           </div>
           <div class="calendar-actions" aria-label="Calendar navigation">
             <button class="icon-button" id="prevMonth" type="button" aria-label="Previous month">
@@ -95,11 +95,7 @@
                 <span>Type</span>
                 <select id="meetingTypeFilter">
                   <option value="">All types</option>
-                  <option value="Installation">Installation</option>
-                  <option value="Initiation">Initiation</option>
-                  <option value="Passing">Passing</option>
-                  <option value="Raising">Raising</option>
-                  <option value="Other">Other</option>
+                  <option value="Royal Arch">Royal Arch</option>
                 </select>
               </label>
               <label class="meeting-filter" for="meetingLocationFilter">
@@ -128,9 +124,9 @@
 
       <aside class="details-panel" id="detailsPanel" aria-live="polite">
         <div id="emptyState" class="empty-state">
-          <p class="kicker">Lodge Meetings</p>
+          <p class="kicker">Chapter Meetings</p>
           <h2>Choose a meeting to see the details</h2>
-          <p>Select a lodge meeting to view the lodge name, number, location, meeting type, and contact route.</p>
+          <p>Select a chapter meeting to view the chapter name, number, location, meeting type, and contact route.</p>
         </div>
         <article class="event-details hidden" id="eventDetails">
           <p class="detail-date" id="detailDate"></p>
@@ -146,7 +142,7 @@
               <dd id="detailLocation"></dd>
             </div>
             <div>
-              <dt>Lodge Name</dt>
+              <dt>Chapter Name</dt>
               <dd id="detailHost"></dd>
             </div>
           </dl>

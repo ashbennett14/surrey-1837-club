@@ -9,6 +9,9 @@
   --navy-deep: #071f3f;
   --light-blue: #d8ebff;
   --badge-red: #e62227;
+  --chapter-red: #9e1b32;
+  --chapter-red-deep: #4f0d1b;
+  --chapter-red-soft: #fff2f3;
   --gold: #c59a36;
   --shadow: 0 24px 60px rgba(5, 20, 42, 0.16);
   --motion-fast: 160ms ease;
@@ -51,6 +54,29 @@ body::before {
   content: "";
   opacity: 0.42;
   pointer-events: none;
+}
+
+body[data-calendar="chapter"] {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(158, 27, 50, 0.045) 0,
+      rgba(158, 27, 50, 0.045) 1px,
+      transparent 1px,
+      transparent 78px
+    ),
+    radial-gradient(circle at 18% 8%, rgba(158, 27, 50, 0.16), transparent 28%),
+    linear-gradient(135deg, #f4dfe3 0%, #ffffff 48%, #f8eef1 100%);
+}
+
+body[data-calendar="chapter"]::before {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.68)),
+    linear-gradient(135deg, rgba(158, 27, 50, 0.28), rgba(79, 13, 27, 0.16)),
+    url("assets/ornate-masonic-background.webp") center / cover no-repeat;
+  background-blend-mode: normal, color, normal;
+  opacity: 0.38;
 }
 
 button {
@@ -155,11 +181,22 @@ body[data-calendar="social"] .calendar-panel {
     rgba(255, 255, 255, 0.94);
 }
 
-body[data-calendar="lodge"] .calendar-panel {
+body[data-calendar="lodge"] .calendar-panel,
+body[data-calendar="chapter"] .calendar-panel {
   background:
     linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.93)),
     url("assets/page-accent-lodge.webp") center top / cover no-repeat,
     rgba(255, 255, 255, 0.94);
+}
+
+body[data-calendar="chapter"] .calendar-panel {
+  border-color: rgba(158, 27, 50, 0.18);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.91), rgba(255, 255, 255, 0.94)),
+    linear-gradient(135deg, rgba(158, 27, 50, 0.28), rgba(79, 13, 27, 0.14)),
+    url("assets/page-accent-lodge.webp") center top / cover no-repeat,
+    rgba(255, 255, 255, 0.94);
+  background-blend-mode: normal, color, normal, normal;
 }
 
 .home-panel {
@@ -221,6 +258,17 @@ body[data-calendar="lodge"] .calendar-panel {
   background:
     linear-gradient(90deg, rgba(197, 154, 54, 0.2), transparent 44%),
     linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+}
+
+body[data-calendar="chapter"] .brand-strip {
+  border-color: rgba(197, 154, 54, 0.58);
+  background:
+    linear-gradient(90deg, rgba(197, 154, 54, 0.18), transparent 44%),
+    linear-gradient(135deg, var(--chapter-red) 0%, var(--chapter-red-deep) 100%);
+}
+
+body[data-calendar="chapter"] .brand-strip:hover {
+  box-shadow: 0 14px 32px rgba(79, 13, 27, 0.18);
 }
 
 .brand-strip,
@@ -327,6 +375,12 @@ body[data-calendar="lodge"] .calendar-panel {
   border-color: rgba(230, 34, 39, 0.38);
   color: #ffffff;
   background: var(--navy);
+}
+
+body[data-calendar="chapter"] .page-nav a[aria-current="page"],
+body[data-calendar="chapter"] .page-nav a:hover {
+  border-color: rgba(158, 27, 50, 0.46);
+  background: var(--chapter-red);
 }
 
 .page-nav a:hover {
@@ -476,6 +530,32 @@ body[data-calendar="lodge"] .calendar-panel {
   --hero-art: url("assets/hero-lodge-meetings.webp");
 }
 
+.page-hero-chapter {
+  --hero-art: url("assets/hero-lodge-meetings.webp");
+}
+
+body[data-calendar="chapter"] .page-hero {
+  border-color: rgba(158, 27, 50, 0.18);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.76)),
+    linear-gradient(135deg, rgba(158, 27, 50, 0.32), rgba(79, 13, 27, 0.14)),
+    var(--hero-art) center / cover no-repeat,
+    #ffffff;
+  background-blend-mode: normal, color, normal, normal;
+}
+
+body[data-calendar="chapter"] .page-hero h2,
+body[data-calendar="chapter"] h1,
+body[data-calendar="chapter"] .month-bar h2 {
+  color: var(--chapter-red-deep);
+}
+
+body[data-calendar="chapter"] .section-kicker,
+body[data-calendar="chapter"] .empty-state .kicker,
+body[data-calendar="chapter"] .detail-date {
+  color: #f2c56f;
+}
+
 .page-hero-community {
   --hero-art: url("assets/hero-join-community.webp");
   margin-bottom: 20px;
@@ -499,7 +579,7 @@ body[data-calendar="lodge"] .calendar-panel {
 
 .calendar-links {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -773,6 +853,7 @@ body[data-calendar="lodge"] .calendar-panel {
 
 .social-card,
 .lodge-card,
+.chapter-card,
 .join-card {
   background: #ffffff;
 }
@@ -782,6 +863,10 @@ body[data-calendar="lodge"] .calendar-panel {
 }
 
 .lodge-card {
+  --card-art: url("assets/home-card-lodge.webp");
+}
+
+.chapter-card {
   --card-art: url("assets/home-card-lodge.webp");
 }
 
@@ -1492,6 +1577,13 @@ h1 {
   box-shadow: 0 10px 20px rgba(5, 20, 42, 0.1);
 }
 
+body[data-calendar="chapter"] .icon-button:hover,
+body[data-calendar="chapter"] .text-button:hover,
+body[data-calendar="chapter"] .event-pill:hover {
+  border-color: rgba(158, 27, 50, 0.5);
+  background: var(--chapter-red-soft);
+}
+
 .month-bar {
   margin: 30px 0 16px;
   padding-top: 18px;
@@ -1593,7 +1685,8 @@ h1 {
   gap: 8px;
 }
 
-body[data-calendar="lodge"] .calendar-grid {
+body[data-calendar="lodge"] .calendar-grid,
+body[data-calendar="chapter"] .calendar-grid {
   align-items: start;
 }
 
@@ -1871,6 +1964,26 @@ body[data-calendar="lodge"] .calendar-grid {
   outline-offset: 1px;
 }
 
+body[data-calendar="chapter"] .day-cell.today {
+  border-color: rgba(158, 27, 50, 0.68);
+  box-shadow: inset 0 0 0 1px rgba(158, 27, 50, 0.16);
+}
+
+body[data-calendar="chapter"] .today .day-number::after {
+  background: var(--chapter-red);
+}
+
+body[data-calendar="chapter"] .lodge-event {
+  border-left-color: var(--chapter-red);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 242, 243, 0.9)),
+    #fff7f7;
+}
+
+body[data-calendar="chapter"] .lodge-event[aria-pressed="true"] {
+  outline-color: rgba(158, 27, 50, 0.42);
+}
+
 .event-time {
   display: block;
   margin-top: 3px;
@@ -1903,11 +2016,21 @@ body[data-calendar="social"] .details-panel {
     linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
 }
 
-body[data-calendar="lodge"] .details-panel {
+body[data-calendar="lodge"] .details-panel,
+body[data-calendar="chapter"] .details-panel {
   background:
     linear-gradient(135deg, rgba(7, 31, 63, 0.93), rgba(7, 31, 63, 0.97)),
     url("assets/page-accent-lodge.webp") center / cover no-repeat,
     linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+}
+
+body[data-calendar="chapter"] .details-panel {
+  background:
+    linear-gradient(135deg, rgba(79, 13, 27, 0.94), rgba(47, 7, 16, 0.97)),
+    linear-gradient(135deg, rgba(158, 27, 50, 0.34), rgba(79, 13, 27, 0.2)),
+    url("assets/page-accent-lodge.webp") center / cover no-repeat,
+    linear-gradient(135deg, var(--chapter-red) 0%, var(--chapter-red-deep) 100%);
+  background-blend-mode: normal, color, normal, normal;
 }
 
 .club-mark {
@@ -1950,8 +2073,17 @@ body[data-calendar="social"] .empty-state {
   --empty-art: url("assets/empty-social-events.webp");
 }
 
-body[data-calendar="lodge"] .empty-state {
+body[data-calendar="lodge"] .empty-state,
+body[data-calendar="chapter"] .empty-state {
   --empty-art: url("assets/empty-lodge-meetings.webp");
+}
+
+body[data-calendar="chapter"] .empty-state {
+  background:
+    linear-gradient(135deg, rgba(79, 13, 27, 0.86), rgba(47, 7, 16, 0.94)),
+    linear-gradient(135deg, rgba(158, 27, 50, 0.34), rgba(79, 13, 27, 0.16)),
+    var(--empty-art) center / cover no-repeat;
+  background-blend-mode: normal, color, normal;
 }
 
 .empty-state::after {
@@ -2117,7 +2249,8 @@ dd {
   box-shadow: 0 22px 40px rgba(3, 12, 25, 0.3);
 }
 
-body[data-calendar="lodge"] .event-poster {
+body[data-calendar="lodge"] .event-poster,
+body[data-calendar="chapter"] .event-poster {
   justify-self: start;
   width: 118px;
   aspect-ratio: 1;
@@ -2186,7 +2319,8 @@ body[data-calendar="lodge"] .event-poster {
   border-color: #ffffff;
 }
 
-body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail-row {
+body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail-row,
+body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-detail-row {
   display: none;
 }
 
@@ -2424,23 +2558,27 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
   }
 
   body[data-calendar="social"] .weekday-row,
-  body[data-calendar="lodge"] .weekday-row {
+  body[data-calendar="lodge"] .weekday-row,
+  body[data-calendar="chapter"] .weekday-row {
     display: none;
   }
 
   body[data-calendar="social"] .calendar-grid,
-  body[data-calendar="lodge"] .calendar-grid {
+  body[data-calendar="lodge"] .calendar-grid,
+  body[data-calendar="chapter"] .calendar-grid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
 
   body[data-calendar="social"] .day-cell,
-  body[data-calendar="lodge"] .day-cell {
+  body[data-calendar="lodge"] .day-cell,
+  body[data-calendar="chapter"] .day-cell {
     display: none;
   }
 
   body[data-calendar="social"] .day-cell:has(.event-pill),
-  body[data-calendar="lodge"] .day-cell:has(.event-pill) {
+  body[data-calendar="lodge"] .day-cell:has(.event-pill),
+  body[data-calendar="chapter"] .day-cell:has(.event-pill) {
     display: grid;
     grid-template-columns: 46px minmax(0, 1fr);
     align-items: stretch;
@@ -2449,7 +2587,8 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
   }
 
   body[data-calendar="social"] .day-number,
-  body[data-calendar="lodge"] .day-number {
+  body[data-calendar="lodge"] .day-number,
+  body[data-calendar="chapter"] .day-number {
     align-items: flex-start;
     justify-content: center;
     padding-top: 2px;
@@ -2457,7 +2596,8 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
   }
 
   body[data-calendar="social"] .event-list,
-  body[data-calendar="lodge"] .event-list {
+  body[data-calendar="lodge"] .event-list,
+  body[data-calendar="chapter"] .event-list {
     min-width: 0;
     margin: 0;
     padding-left: 10px;
@@ -2495,23 +2635,28 @@ body[data-calendar="lodge"] .event-details[data-event-type="lodge"] .time-detail
     padding: 10px;
   }
 
-  body[data-calendar="lodge"] .lodge-event {
+  body[data-calendar="lodge"] .lodge-event,
+  body[data-calendar="chapter"] .lodge-event {
     min-height: 0;
     padding: 10px;
     gap: 6px;
   }
 
-  body[data-calendar="lodge"] .lodge-event-name {
+  body[data-calendar="lodge"] .lodge-event-name,
+  body[data-calendar="chapter"] .lodge-event-name {
     font-size: 0.95rem;
     line-height: 1.15;
   }
 
   body[data-calendar="lodge"] .lodge-event-number,
-  body[data-calendar="lodge"] .lodge-event-location {
+  body[data-calendar="lodge"] .lodge-event-location,
+  body[data-calendar="chapter"] .lodge-event-number,
+  body[data-calendar="chapter"] .lodge-event-location {
     font-size: 0.78rem;
   }
 
-  body[data-calendar="lodge"] .degree-badge {
+  body[data-calendar="lodge"] .degree-badge,
+  body[data-calendar="chapter"] .degree-badge {
     padding: 6px 10px;
     font-size: 0.68rem;
   }
