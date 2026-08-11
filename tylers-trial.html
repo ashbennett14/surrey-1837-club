@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZXL9CHXXT3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZXL9CHXXT3');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#071f3f" />
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <title>Tyler’s Trial Quest | The Surrey 1837 Club</title>
+    <link rel="stylesheet" href="styles.css?v=tylers-trial-quest" />
+    <script src="analytics.js?v=stats" defer></script>
+    <script src="motion.js?v=visual-polish" defer></script>
+  </head>
+  <body class="trial-page">
+    <main class="trial-shell">
+      <section class="trial-quest-panel" aria-labelledby="trialQuestTitle">
+        <header class="trial-quest-hero">
+          <div>
+            <p class="section-kicker">Hidden Easter Egg</p>
+            <h1 id="trialQuestTitle">Tyler’s Trial Quest</h1>
+            <p>
+              Complete three quiet trials of memory, order, and light. Nothing
+              secret, nothing solemn, just a small challenge for those who found
+              the acacia.
+            </p>
+          </div>
+          <a class="small-action-link trial-return-link" href="index.html">Return to the 1837 Club</a>
+        </header>
+
+        <div class="trial-progress" aria-label="Trial progress">
+          <span class="is-active" data-progress-step="1">Watch the Signs</span>
+          <span data-progress-step="2">Set the Lodge</span>
+          <span data-progress-step="3">Find the Light</span>
+        </div>
+
+        <div class="trial-stats" aria-live="polite">
+          <span>Stage <strong id="trialStageValue">1</strong> of 3</span>
+          <span>Score <strong id="trialScoreValue">0</strong></span>
+          <span>Time <strong id="trialTimeValue">0:00</strong></span>
+        </div>
+
+        <section class="trial-stage is-current" data-stage="1" aria-labelledby="watchSignsTitle">
+          <div class="trial-stage-copy">
+            <p class="section-kicker">Stage One</p>
+            <h2 id="watchSignsTitle">Watch the Signs</h2>
+            <p>
+              Follow the illuminated sequence, then repeat it. Pass four rounds
+              to move deeper into the trial.
+            </p>
+          </div>
+          <div class="trial-memory-board" aria-label="Memory symbols">
+            <button class="quest-symbol" type="button" data-memory-symbol="column" aria-label="Column">
+              <span aria-hidden="true">I</span>
+              Column
+            </button>
+            <button class="quest-symbol" type="button" data-memory-symbol="key" aria-label="Key">
+              <span aria-hidden="true">K</span>
+              Key
+            </button>
+            <button class="quest-symbol" type="button" data-memory-symbol="acacia" aria-label="Acacia">
+              <span aria-hidden="true">A</span>
+              Acacia
+            </button>
+            <button class="quest-symbol" type="button" data-memory-symbol="light" aria-label="Light">
+              <span aria-hidden="true">L</span>
+              Light
+            </button>
+          </div>
+          <p class="trial-status" id="memoryStatus" aria-live="polite">
+            Press start to begin the first trial.
+          </p>
+          <button class="login-button trial-primary-action" type="button" id="memoryStart">
+            Start Stage One
+          </button>
+        </section>
+
+        <section class="trial-stage" data-stage="2" aria-labelledby="setLodgeTitle">
+          <div class="trial-stage-copy">
+            <p class="section-kicker">Stage Two</p>
+            <h2 id="setLodgeTitle">Set the Lodge</h2>
+            <p>
+              Place each symbol where it belongs. Drag them, or tap a symbol and
+              then tap its place.
+            </p>
+          </div>
+          <div class="lodge-setting-board">
+            <div class="lodge-slots" aria-label="Lodge setting positions">
+              <button class="lodge-slot" type="button" data-accepts="light">
+                <span>East</span>
+                <strong>Light</strong>
+              </button>
+              <button class="lodge-slot" type="button" data-accepts="book">
+                <span>Centre</span>
+                <strong>Book</strong>
+              </button>
+              <button class="lodge-slot" type="button" data-accepts="key">
+                <span>Door</span>
+                <strong>Key</strong>
+              </button>
+              <button class="lodge-slot" type="button" data-accepts="acacia">
+                <span>Border</span>
+                <strong>Acacia</strong>
+              </button>
+            </div>
+            <div class="lodge-items" aria-label="Symbols to place">
+              <button class="lodge-item" type="button" draggable="true" data-item="book">Book</button>
+              <button class="lodge-item" type="button" draggable="true" data-item="acacia">Acacia</button>
+              <button class="lodge-item" type="button" draggable="true" data-item="light">Light</button>
+              <button class="lodge-item" type="button" draggable="true" data-item="key">Key</button>
+            </div>
+          </div>
+          <p class="trial-status" id="lodgeStatus" aria-live="polite">
+            Select an item, then choose its correct position.
+          </p>
+        </section>
+
+        <section class="trial-stage" data-stage="3" aria-labelledby="findLightTitle">
+          <div class="trial-stage-copy">
+            <p class="section-kicker">Stage Three</p>
+            <h2 id="findLightTitle">Find the Light</h2>
+            <p>
+              Read the clue and press the four symbols in the right order.
+            </p>
+          </div>
+          <div class="light-clue-card">
+            <p>
+              First stand firm. Then honour the evergreen. The door is opened
+              last by what it guards.
+            </p>
+            <div class="light-answer" id="lightAnswer" aria-label="Selected answer sequence"></div>
+          </div>
+          <div class="trial-memory-board light-choice-board" aria-label="Light clue symbols">
+            <button class="quest-symbol" type="button" data-light-symbol="column" aria-label="Column">
+              <span aria-hidden="true">I</span>
+              Column
+            </button>
+            <button class="quest-symbol" type="button" data-light-symbol="acacia" aria-label="Acacia">
+              <span aria-hidden="true">A</span>
+              Acacia
+            </button>
+            <button class="quest-symbol" type="button" data-light-symbol="key" aria-label="Key">
+              <span aria-hidden="true">K</span>
+              Key
+            </button>
+            <button class="quest-symbol" type="button" data-light-symbol="light" aria-label="Light">
+              <span aria-hidden="true">L</span>
+              Light
+            </button>
+          </div>
+          <p class="trial-status" id="lightStatus" aria-live="polite">
+            Choose four signs to complete the trial.
+          </p>
+          <div class="trial-action-row">
+            <button class="login-button trial-primary-action" type="button" id="lightSubmit">
+              Submit Sequence
+            </button>
+            <button class="small-action-link trial-secondary-action" type="button" id="lightReset">
+              Reset
+            </button>
+          </div>
+        </section>
+
+        <section class="trial-stage trial-complete-stage" data-stage="complete" aria-labelledby="trialCompleteTitle">
+          <p class="section-kicker">Trial Complete</p>
+          <h2 id="trialCompleteTitle">You Found the Light</h2>
+          <p>
+            Nicely done. The trial is complete, and the acacia has given up its
+            little secret.
+          </p>
+          <div class="trial-complete-score" aria-live="polite">
+            <span>Final Score <strong id="finalScoreValue">0</strong></span>
+            <span>Time <strong id="finalTimeValue">0:00</strong></span>
+          </div>
+          <div class="trial-action-row">
+            <button class="login-button trial-primary-action" type="button" id="playAgain">
+              Play Again
+            </button>
+            <a class="small-action-link trial-secondary-action" href="index.html">
+              Return to the 1837 Club
+            </a>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="tylers-trial.js?v=tylers-trial-quest"></script>
+  </body>
+</html>
