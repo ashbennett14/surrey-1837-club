@@ -94,6 +94,14 @@
   };
 
   const resourceKeys = Object.keys(resources);
+  const defenceGuide = {
+    ashlar: "Balanced medium-range defence. Reliable damage and good coverage.",
+    candle: "Long-range golden ray attack. Reaches far but fires steadily.",
+    tool: "Boosts nearby defences' attack speed. Does not attack directly.",
+    acacia: "Slows enemies on the path while adding light chip damage.",
+    gold: "Reward structure. Builds Treasurer's Chests for bonuses and tactical refreshes.",
+  };
+  const localLeaderboardKey = "tylersTrialLocalScores";
   const chapters = [
     { name: "Entered Apprentice", min: 1 },
     { name: "Fellow Craft", min: 11 },
@@ -130,6 +138,7 @@
   let pointer = { x: -1, y: -1 };
   let last = performance.now();
   let clock = 0;
+  let leaderboardUi;
 
   function emptyState() {
     return {
@@ -145,6 +154,7 @@
       projectiles: [],
       particles: [],
       floaters: [],
+      supportPulses: [],
       wave: { timer: 0, spawned: 0, total: 0, done: false, bossAnnounced: false },
       tyler: { charges: 3, guard: 0, alarm: 0, closed: 0, stance: "idle" },
       attrs: { wisdom: 1, strength: 1, beauty: 1 },
@@ -152,6 +162,8 @@
       message: "Begin the Trial and prepare the Lodge.",
       chest: null,
       eventCard: null,
+      inspect: null,
+      leaderboardOpen: false,
       transition: 0,
       shake: 0,
       highScore: Number(localStorage.getItem("tylersTrialHighScore") || 0),
@@ -229,6 +241,7 @@
     state.muted = muted;
     state.board = createBoard();
     state.mode = "prep";
+    hideLeaderboard();
     state.message = "Prepare the Lodge: swap adjacent tiles to form three of a kind.";
     say("Prepare the Lodge. Swap adjacent tiles; three resources become defences.");
   }
@@ -348,7 +361,7 @@
     particle(boardPoint(a.row, a.col), palette.gold, 18);
     particle(boardPoint(b.row, b.col), palette.lightBlue, 18);
     say("Tiles swapped. Matches may build or strengthen your defences.");
-    const chain = resolveMatches(false);
+    const chain = resolveMatches(false, [a, b]);
     if (chain === 0) say("No match this time. Positioning still matters.");
     if (state.swaps <= 0) beginCombat();
   }
@@ -386,22 +399,32 @@
     return matches;
   }
 
-  function resolveMatches(silent) {
+  function resolveMatches(silent, seedCells) {
     let chains = 0;
     let guard = 0;
+    let activeCells = seedCells?.length ? new Set(seedCells.map((cell) => cellKey(cell.row, cell.col))) : null;
     while (guard < 8) {
       guard += 1;
-      const raw = findMatches();
+      let raw = findMatches();
+      if (activeCells) raw = raw.filter((group) => group.some((cell) => activeCells.has(cellKey(cell.row, cell.col))));
       if (!raw.length) break;
       chains += 1;
       const used = new Set();
+      const clearedCells = [];
+      const nextActive = new Set();
       raw.forEach((group) => {
         const cells = group.filter((cell) => !used.has(cellKey(cell.row, cell.col)));
         if (cells.length < 3) return;
         cells.forEach((cell) => used.add(cellKey(cell.row, cell.col)));
-        mergeGroup(cells);
+        const result = mergeGroup(cells);
+        result.cleared.forEach((cell) => {
+          clearedCells.push(cell);
+          nextActive.add(cellKey(cell.row, cell.col));
+        });
+        nextActive.add(cellKey(result.anchor.row, result.anchor.col));
       });
-      collapseBoard();
+      refillClearedCells(clearedCells);
+      activeCells = nextActive.size ? nextActive : null;
     }
     state.stats.bestChain = Math.max(state.stats.bestChain, chains);
     if (!silent && chains > 0) {
@@ -415,14 +438,16 @@
   function mergeGroup(cells) {
     const anchor = cells[Math.floor(cells.length / 2)];
     const tile = state.board[anchor.row][anchor.col].tile;
-    if (!tile) return;
+    if (!tile) return { anchor, cleared: [] };
     const next = { kind: tile.kind, level: tile.level, tower: true, charged: cells.length >= 4, id: Math.random().toString(36).slice(2) };
     if (tile.tower) next.level = Math.min(2, tile.level + 1);
     state.board[anchor.row][anchor.col].tile = next;
     state.stats.highest = Math.max(state.stats.highest, next.level + 1);
+    const cleared = [];
     cells.forEach((cell) => {
       if (cell.row === anchor.row && cell.col === anchor.col) return;
       state.board[cell.row][cell.col].tile = null;
+      cleared.push(cell);
     });
     const point = boardPoint(anchor.row, anchor.col);
     const definition = resources[next.kind];
@@ -431,21 +456,18 @@
     particle(point, definition.color, cells.length >= 5 ? 42 : 26);
     floatText(label, point.x, point.y - 18, definition.color, 17);
     if (next.kind === "gold" && next.tower) openChest();
+    return { anchor, cleared };
   }
 
-  function collapseBoard() {
-    for (let col = 0; col < GRID; col += 1) {
-      const stack = [];
-      for (let row = GRID - 1; row >= 0; row -= 1) {
-        const cell = state.board[row][col];
-        if (!cell.path && cell.tile) stack.push(cell.tile);
-      }
-      for (let row = GRID - 1; row >= 0; row -= 1) {
-        const cell = state.board[row][col];
-        if (cell.path) continue;
-        cell.tile = stack.shift() || makeTile(rand(resourceKeys));
-      }
-    }
+  function refillClearedCells(cells) {
+    const unique = new Map();
+    cells.forEach((cell) => unique.set(cellKey(cell.row, cell.col), cell));
+    unique.forEach((cell) => {
+      const boardCell = state.board[cell.row]?.[cell.col];
+      if (!boardCell || boardCell.path || boardCell.tile) return;
+      boardCell.tile = makeTile(rand(resourceKeys));
+      particle(boardPoint(cell.row, cell.col), "rgba(255,246,223,0.95)", 8);
+    });
   }
 
   function openChest() {
@@ -541,7 +563,8 @@
         const def = resources[tile.kind];
         tile.cooldown = Math.max(0, (tile.cooldown || 0) - dt);
         if (tile.kind === "tool") continue;
-        const speedBoost = nearbySupport(row, col) * (state.tyler.alarm > 0 ? 1.55 : 1);
+        const supportBoost = nearbySupport(row, col);
+        const speedBoost = supportBoost * (state.tyler.alarm > 0 ? 1.55 : 1);
         if (tile.cooldown > 0) continue;
         const origin = boardPoint(row, col);
         const target = nearestEnemy(origin, def.range[tile.level] * (1 + state.attrs.wisdom * 0.03));
@@ -549,6 +572,15 @@
         tile.cooldown = def.rate[tile.level] / speedBoost;
         const damage = def.damage[tile.level] * (1 + state.attrs.strength * 0.05) * (tile.charged ? 1.22 : 1);
         fireProjectile(origin, target, tile.kind, damage);
+        if (supportBoost > 1) {
+          tile.supportFlash = 0.45;
+          state.supportPulses.push({ row, col, life: 0.65, boost: supportBoost });
+          if ((tile.boostNotice || 0) <= 0) {
+            floatText("Bench boost", origin.x, origin.y - 30, palette.lightBlue, 12);
+            tile.boostNotice = 2.2;
+          }
+        }
+        tile.boostNotice = Math.max(0, (tile.boostNotice || 0) - dt);
       }
     }
   }
@@ -562,6 +594,10 @@
       }
     }
     return boost;
+  }
+
+  function isSupportedTower(row, col) {
+    return nearbySupport(row, col) > 1;
   }
 
   function nearestEnemy(origin, range) {
@@ -670,6 +706,15 @@
     state.transition = Math.max(0, state.transition - dt);
     state.shake = Math.max(0, state.shake - dt);
     if (state.chest) state.chest = Math.max(0, state.chest - dt);
+    state.supportPulses = state.supportPulses
+      .map((pulse) => ({ ...pulse, life: pulse.life - dt }))
+      .filter((pulse) => pulse.life > 0);
+    state.board.forEach((line) => line.forEach((cell) => {
+      if (cell.tile) {
+        cell.tile.supportFlash = Math.max(0, (cell.tile.supportFlash || 0) - dt);
+        cell.tile.boostNotice = Math.max(0, (cell.tile.boostNotice || 0) - dt);
+      }
+    }));
     state.floaters = state.floaters.map((f) => ({ ...f, y: f.y - dt * 34, life: f.life - dt * 0.7 })).filter((f) => f.life > 0);
     state.particles = state.particles.map((p) => ({
       ...p,
@@ -685,6 +730,202 @@
     say("THE LODGE HAS BEEN BREACHED");
     state.highScore = Math.max(state.highScore, state.score);
     localStorage.setItem("tylersTrialHighScore", String(state.highScore));
+    showLeaderboard();
+  }
+
+  function setupLeaderboardUi() {
+    const frame = document.querySelector(".lodge-game-frame");
+    if (!frame || leaderboardUi) return;
+    const panelEl = document.createElement("section");
+    panelEl.className = "tylers-score-panel";
+    panelEl.setAttribute("hidden", "");
+    panelEl.setAttribute("aria-live", "polite");
+    panelEl.innerHTML = `
+      <div class="tylers-score-card">
+        <div class="tylers-score-head">
+          <div>
+            <p class="section-kicker">All-Time High Scores</p>
+            <h2>Record Your Trial</h2>
+          </div>
+          <button class="tylers-score-close" type="button" aria-label="Close high score panel">x</button>
+        </div>
+        <form class="tylers-score-form">
+          <label>
+            First name <span aria-hidden="true">*</span>
+            <input name="first_name" type="text" maxlength="24" autocomplete="given-name" required />
+          </label>
+          <label>
+            Lodge name
+            <input name="lodge_name" type="text" maxlength="60" autocomplete="organization" />
+          </label>
+          <label>
+            Lodge number
+            <input name="lodge_number" type="text" maxlength="10" inputmode="numeric" />
+          </label>
+          <button type="submit">Submit Score</button>
+        </form>
+        <p class="tylers-score-status"></p>
+        <ol class="tylers-score-list"></ol>
+      </div>
+    `;
+    frame.appendChild(panelEl);
+    leaderboardUi = {
+      panel: panelEl,
+      form: panelEl.querySelector(".tylers-score-form"),
+      list: panelEl.querySelector(".tylers-score-list"),
+      status: panelEl.querySelector(".tylers-score-status"),
+      close: panelEl.querySelector(".tylers-score-close"),
+    };
+    leaderboardUi.close.addEventListener("click", hideLeaderboard);
+    leaderboardUi.form.addEventListener("submit", submitLeaderboardScore);
+  }
+
+  function getSupabaseConfig() {
+    const config = window.TYLERS_TRIAL_SUPABASE || {};
+    const url = String(config.url || "").replace(/\/$/, "");
+    const anonKey = String(config.anonKey || "");
+    if (!url || !anonKey || !/^https:\/\/.+\.supabase\.co$/i.test(url)) return null;
+    return { url, anonKey };
+  }
+
+  function showLeaderboard() {
+    setupLeaderboardUi();
+    if (!leaderboardUi) return;
+    state.leaderboardOpen = true;
+    leaderboardUi.panel.removeAttribute("hidden");
+    leaderboardUi.form.hidden = false;
+    leaderboardUi.form.reset();
+    leaderboardUi.status.textContent = getSupabaseConfig()
+      ? "Submit your score to the shared board."
+      : "Online leaderboard unavailable. Scores are being saved on this device.";
+    loadLeaderboardScores();
+  }
+
+  function hideLeaderboard() {
+    if (!leaderboardUi) return;
+    state.leaderboardOpen = false;
+    leaderboardUi.panel.setAttribute("hidden", "");
+  }
+
+  function scorePayload(formData) {
+    const firstName = String(formData.get("first_name") || "").trim().replace(/\s+/g, " ");
+    const lodgeName = String(formData.get("lodge_name") || "").trim().replace(/\s+/g, " ");
+    const lodgeNumber = String(formData.get("lodge_number") || "").trim().replace(/[^\dA-Za-z]/g, "");
+    if (!firstName) throw new Error("Please enter your first name.");
+    return {
+      first_name: firstName.slice(0, 24),
+      lodge_name: lodgeName ? lodgeName.slice(0, 60) : null,
+      lodge_number: lodgeNumber ? lodgeNumber.slice(0, 10) : null,
+      score: Math.max(0, Math.round(state.score)),
+      trials_survived: Math.max(0, state.trial - 1),
+      enemies_defeated: state.stats.defeated,
+      highest_structure: state.stats.highest || 1,
+    };
+  }
+
+  async function submitLeaderboardScore(event) {
+    event.preventDefault();
+    if (!leaderboardUi) return;
+    let payload;
+    try {
+      payload = scorePayload(new FormData(leaderboardUi.form));
+    } catch (error) {
+      leaderboardUi.status.textContent = error.message;
+      return;
+    }
+    leaderboardUi.form.hidden = true;
+    leaderboardUi.status.textContent = "Saving score...";
+    const config = getSupabaseConfig();
+    if (!config) {
+      saveLocalScore(payload);
+      leaderboardUi.status.textContent = "Online leaderboard unavailable. Your score is saved on this device.";
+      await loadLeaderboardScores();
+      return;
+    }
+    try {
+      const response = await fetch(`${config.url}/rest/v1/tylers_trial_scores`, {
+        method: "POST",
+        headers: {
+          apikey: config.anonKey,
+          Authorization: `Bearer ${config.anonKey}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("Supabase rejected the score.");
+      leaderboardUi.status.textContent = "Score submitted to the all-time board.";
+      await loadLeaderboardScores();
+    } catch {
+      saveLocalScore(payload);
+      leaderboardUi.status.textContent = "Online leaderboard unavailable. Your score is saved on this device.";
+      await loadLeaderboardScores();
+    }
+  }
+
+  async function loadLeaderboardScores() {
+    if (!leaderboardUi) return;
+    const config = getSupabaseConfig();
+    if (!config) {
+      renderLeaderboard(loadLocalScores());
+      return;
+    }
+    try {
+      const response = await fetch(`${config.url}/rest/v1/tylers_trial_scores?select=first_name,lodge_name,lodge_number,score,trials_survived,enemies_defeated,highest_structure,created_at&order=score.desc,created_at.asc&limit=10`, {
+        headers: {
+          apikey: config.anonKey,
+          Authorization: `Bearer ${config.anonKey}`,
+        },
+      });
+      if (!response.ok) throw new Error("Leaderboard unavailable.");
+      const scores = await response.json();
+      renderLeaderboard(scores);
+    } catch {
+      leaderboardUi.status.textContent = "Online leaderboard unavailable. Showing scores saved on this device.";
+      renderLeaderboard(loadLocalScores());
+    }
+  }
+
+  function saveLocalScore(entry) {
+    const scores = loadLocalScores();
+    scores.push({ ...entry, created_at: new Date().toISOString() });
+    scores.sort((a, b) => b.score - a.score || new Date(a.created_at) - new Date(b.created_at));
+    localStorage.setItem(localLeaderboardKey, JSON.stringify(scores.slice(0, 10)));
+  }
+
+  function loadLocalScores() {
+    try {
+      return JSON.parse(localStorage.getItem(localLeaderboardKey) || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function renderLeaderboard(scores) {
+    if (!leaderboardUi) return;
+    if (!scores.length) {
+      leaderboardUi.list.innerHTML = "<li>No scores yet. Yours can be first.</li>";
+      return;
+    }
+    leaderboardUi.list.innerHTML = scores.slice(0, 10).map((score, index) => {
+      const lodge = [score.lodge_name, score.lodge_number ? `No. ${score.lodge_number}` : ""].filter(Boolean).join(" ");
+      return `
+        <li>
+          <span class="score-rank">${index + 1}</span>
+          <span class="score-name">${escapeHtml(score.first_name)}${lodge ? `<small>${escapeHtml(lodge)}</small>` : ""}</span>
+          <span class="score-value">${Number(score.score || 0).toLocaleString()}</span>
+        </li>
+      `;
+    }).join("");
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   function chapterName() {
@@ -740,10 +981,10 @@
   function buttonRects() {
     return [
       { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1018, y: 602, w: 190, h: 48 },
-      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 508, w: 150, h: 42 },
-      { id: "guard", label: "GUARD", x: 214, y: 508, w: 122, h: 42 },
-      { id: "alarm", label: "ALARM", x: 54, y: 558, w: 122, h: 42 },
-      { id: "close", label: "CLOSE", x: 186, y: 558, w: 122, h: 42 },
+      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 534, w: 132, h: 42 },
+      { id: "guard", label: "GUARD", x: 198, y: 534, w: 112, h: 42 },
+      { id: "alarm", label: "ALARM", x: 54, y: 584, w: 112, h: 42 },
+      { id: "close", label: "CLOSE", x: 178, y: 584, w: 112, h: 42 },
     ];
   }
 
@@ -797,6 +1038,7 @@
     if (state.mode !== "prep") return;
     const cell = hitCell(point);
     if (!cell) return;
+    state.inspect = cell;
     const boardCell = state.board[cell.row][cell.col];
     if (boardCell.path || !boardCell.tile) return;
     if (!state.selected) {
@@ -817,6 +1059,8 @@
 
   function onPointerMove(event) {
     pointer = canvasPoint(event);
+    const cell = hitCell(pointer);
+    if (cell) state.inspect = cell;
   }
 
   function onPointerDown(event) {
@@ -938,20 +1182,42 @@
     panel(30, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
     label("The Tyler", 58, 120, 22, palette.lightBlue, 900);
     wrap(state.message, 58, 154, 254, 20, 14, palette.cream);
-    label("Abilities", 58, 468, 16, palette.gold, 900);
+    drawInspectCard(58, 404, 252, 102);
+    label("Abilities", 58, 510, 16, palette.gold, 900);
     buttonRects().slice(1).forEach((button) => drawButton(button, state.mode !== "combat"));
 
     panel(926, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
     label("Defence Guide", 954, 120, 22, palette.lightBlue, 900);
     resourceKeys.forEach((keyName, index) => {
-      const y = 160 + index * 72;
+      const y = 156 + index * 78;
       const def = resources[keyName];
-      drawIcon(keyName, 962, y, 46, 46, 0, false);
-      label(def.short, 1020, y + 2, 15, palette.cream, 900);
-      label(def.tower[0], 1020, y + 24, 12, def.color, 900);
+      const hover = rectHit({ x: 954, y: y - 4, w: 268, h: 70 }, pointer);
+      panel(954, y - 4, 268, 70, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 12);
+      drawIcon(keyName, 965, y + 8, 42, 0, false);
+      label(`${def.short} / ${def.tower[0]}`, 1018, y + 5, 13, palette.cream, 900, "left", 182);
+      wrap(defenceGuide[keyName], 1018, y + 25, 178, 13, 10.5, "rgba(255,255,255,0.76)", 800);
     });
     drawButton(buttonRects()[0], state.mode !== "prep");
-    label("Coverage beats panic. Merging creates power but leaves gaps.", 954, 545, 13, "rgba(255,255,255,0.78)", 800, "left", 248);
+    label("Match, build, merge, defend. Tool benches support nearby towers.", 954, 557, 13, "rgba(255,255,255,0.78)", 800, "left", 248);
+  }
+
+  function drawInspectCard(x, y, w, h) {
+    const cell = state.inspect || hitCell(pointer);
+    panel(x, y, w, h, "rgba(255,255,255,0.07)", "rgba(159,212,255,0.22)", 12);
+    label("Inspect", x + 14, y + 12, 13, palette.gold, 900);
+    if (!cell) {
+      wrap("Hover or tap a tile to see what it does.", x + 14, y + 36, w - 28, 15, 11, "rgba(255,255,255,0.74)", 800);
+      return;
+    }
+    const tile = state.board[cell.row]?.[cell.col]?.tile;
+    if (!tile) {
+      wrap("Path or Lodge entrance. Keep threats away from here.", x + 14, y + 36, w - 28, 15, 11, "rgba(255,255,255,0.74)", 800);
+      return;
+    }
+    const def = resources[tile.kind];
+    const name = tile.tower ? def.tower[tile.level] : def.label;
+    label(name, x + 14, y + 34, 13, def.color, 900, "left", w - 28);
+    wrap(tile.tower ? defenceGuide[tile.kind] : "Resource tile. Match three to build this defence.", x + 14, y + 54, w - 28, 14, 10.5, "rgba(255,255,255,0.76)", 800);
   }
 
   function drawButton(rect, disabled) {
@@ -978,9 +1244,48 @@
         ctx.stroke();
         ctx.restore();
         if (cell.path) drawPathMark(x, y, row, col);
-        if (cell.tile) drawTile(cell.tile, x + 6, y + 6, CELL - 12, selected);
+        if (cell.tile?.tower) drawTowerRange(cell.tile, row, col);
+        if (cell.tile) drawTile(cell.tile, x + 6, y + 6, CELL - 12, selected, row, col);
       }
     }
+    drawSupportPulses();
+  }
+
+  function drawTowerRange(tile, row, col) {
+    const def = resources[tile.kind];
+    const point = boardPoint(row, col);
+    const inspected = state.inspect?.row === row && state.inspect?.col === col;
+    const supported = tile.kind !== "tool" && isSupportedTower(row, col);
+    if (!inspected && tile.kind !== "tool" && !supported && !(tile.supportFlash > 0)) return;
+    ctx.save();
+    ctx.globalAlpha = tile.kind === "tool" ? 0.16 : inspected ? 0.14 : 0.09;
+    ctx.strokeStyle = tile.kind === "tool" ? palette.lightBlue : supported ? palette.gold : def.color;
+    ctx.lineWidth = tile.kind === "tool" ? 3 : 2;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, def.range[tile.level], 0, Math.PI * 2);
+    ctx.stroke();
+    if (tile.kind === "tool") {
+      ctx.globalAlpha = 0.08 + (Math.sin(clock * 3) + 1) * 0.03;
+      ctx.fillStyle = palette.lightBlue;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, def.range[tile.level], 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawSupportPulses() {
+    state.supportPulses.forEach((pulse) => {
+      const point = boardPoint(pulse.row, pulse.col);
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, pulse.life);
+      ctx.strokeStyle = palette.lightBlue;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 24 + (1 - pulse.life) * 24, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
   }
 
   function drawPathMark(x, y, row, col) {
@@ -992,12 +1297,31 @@
     ctx.restore();
   }
 
-  function drawTile(tile, x, y, size, selected) {
+  function drawTile(tile, x, y, size, selected, row, col) {
     const def = resources[tile.kind];
     panel(x, y, size, size, tile.tower ? "rgba(6,26,54,0.9)" : "rgba(255,255,255,0.92)", selected ? palette.gold : "rgba(23,36,58,0.18)", 12);
-    drawIcon(tile.kind, x + 8, y + 8, size - 16, size - 16, tile.level, tile.tower);
+    if (tile.kind === "tool" && tile.tower) {
+      ctx.save();
+      ctx.globalAlpha = 0.22 + (Math.sin(clock * 3) + 1) * 0.05;
+      ctx.fillStyle = palette.lightBlue;
+      roundRect(x + 3, y + 3, size - 6, size - 6, 10);
+      ctx.fill();
+      ctx.restore();
+    }
+    drawIcon(tile.kind, x + 8, y + 8, size - 16, tile.level, tile.tower);
     if (tile.tower) {
       label(roman(tile.level + 1), x + size - 14, y + 7, 12, palette.gold, 900, "center");
+      if (tile.kind !== "tool" && isSupportedTower(row, col)) {
+        ctx.save();
+        ctx.fillStyle = palette.lightBlue;
+        ctx.strokeStyle = palette.navy;
+        ctx.lineWidth = 1.5;
+        roundRect(x + 6, y + size - 18, 34, 13, 5);
+        ctx.fill();
+        ctx.stroke();
+        label("SPD", x + 23, y + size - 15.5, 8, palette.navy, 900, "center");
+        ctx.restore();
+      }
       if (tile.charged) {
         ctx.strokeStyle = palette.lightBlue;
         ctx.lineWidth = 3;
@@ -1040,6 +1364,7 @@
       ctx.stroke();
     }
     if (kind === "tool") {
+      ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(x + size * 0.22, y + size * 0.72);
       ctx.lineTo(x + size * 0.78, y + size * 0.26);
@@ -1047,7 +1372,9 @@
       ctx.lineTo(x + size * 0.78, y + size * 0.72);
       ctx.stroke();
       ctx.fillStyle = def.color;
-      ctx.fillRect(cx - size * 0.2, cy - size * 0.05, size * 0.4, size * 0.1);
+      roundRect(cx - size * 0.24, cy - size * 0.08, size * 0.48, size * 0.16, 4);
+      ctx.fill();
+      ctx.stroke();
     }
     if (kind === "acacia") {
       ctx.beginPath();
@@ -1088,11 +1415,11 @@
 
   function drawTyler() {
     const x = 150;
-    const y = 282 + (!reducedMotion ? Math.sin(clock * 2) * 3 : 0);
+    const y = 256 + (!reducedMotion ? Math.sin(clock * 2) * 3 : 0);
     if (images.character) {
       ctx.save();
       if (state.tyler.stance === "strike") ctx.filter = "brightness(1.15) saturate(1.15)";
-      ctx.drawImage(images.character, x - 70, y - 8, 190, 250);
+      ctx.drawImage(images.character, x - 58, y, 160, 212);
       ctx.restore();
     } else {
       ctx.fillStyle = palette.navy;
@@ -1101,14 +1428,14 @@
     ctx.strokeStyle = palette.gold;
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(x + 94, y + 74);
-    ctx.lineTo(x + 148, y + 156);
+    ctx.moveTo(x + 82, y + 64);
+    ctx.lineTo(x + 130, y + 134);
     ctx.stroke();
     if (state.tyler.guard > 0 || state.tyler.closed > 0) {
       ctx.strokeStyle = "rgba(159,212,255,0.8)";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(x + 65, y + 110, 78, 0, Math.PI * 2);
+      ctx.arc(x + 52, y + 98, 66, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
@@ -1208,7 +1535,7 @@
     label("TYLER'S TRIAL", 640, 136, 54, palette.cream, 900, "center");
     label("A Masonic Puzzle of Wisdom, Strength & Beauty", 640, 202, 18, palette.lightBlue, 900, "center");
     if (state.mode === "how") {
-      wrap("Swap adjacent resource tiles during preparation. Three matching resources build a defence. Three matching defences merge into a stronger one. When the Trial begins, your defences automatically turn away disorder before it reaches the Lodge.", 430, 288, 420, 24, 16, palette.cream);
+      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. During combat, towers defend automatically while Tyler abilities buy time. Tools do not attack: place them beside towers to make those towers fire faster. Gold Chests can reward swaps, repairs, upgrades, or a deliberate board refresh.", 430, 278, 420, 23, 15, palette.cream);
     } else if (state.mode === "achievements") {
       wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 430, 288, 420, 24, 16, palette.cream);
     } else {
@@ -1320,14 +1647,36 @@
         towers: state.board.flat().filter((cell) => cell.tile?.tower).length,
         highScore: state.highScore,
       }),
+      snapshotBoard: () => state.board.map((line) => line.map((cell) => {
+        if (cell.path) return "path";
+        if (!cell.tile) return "empty";
+        return `${cell.tile.kind}-${cell.tile.level}-${cell.tile.tower ? "tower" : "resource"}`;
+      })),
       begin: startGame,
       forceMatch: () => {
         state.mode = "prep";
         state.board[1][0].tile = makeTile("ashlar");
         state.board[1][1].tile = makeTile("ashlar");
         state.board[1][2].tile = makeTile("ashlar");
-        resolveMatches(false);
+        resolveMatches(false, [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 }]);
       },
+      forceToolSupport: () => {
+        state.mode = "combat";
+        state.board[2][2].tile = { ...makeTile("tool"), tower: true, level: 1 };
+        state.board[2][3].tile = { ...makeTile("ashlar"), tower: true, level: 1, cooldown: 0 };
+        state.enemies = [{
+          type: enemyTypes.cowan,
+          hp: 80,
+          maxHp: 80,
+          progress: 7.2,
+          path: pathCells,
+          slow: 1,
+          wobble: 0,
+          id: "debug-enemy",
+        }];
+        return nearbySupport(2, 3);
+      },
+      supportAt: nearbySupport,
       beginCombat,
       clearWave: () => {
         state.enemies = [];
@@ -1346,6 +1695,7 @@
   async function init() {
     resizeCanvas();
     state = emptyState();
+    setupLeaderboardUi();
     const loaded = await Promise.all(Object.entries(assets).map(async ([key, src]) => [key, await loadImage(src)]));
     loaded.forEach(([key, img]) => { images[key] = img; });
     loading?.setAttribute("hidden", "");
