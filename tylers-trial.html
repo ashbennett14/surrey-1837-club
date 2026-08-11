@@ -29,8 +29,8 @@
             <p class="section-kicker">Hidden Easter Egg</p>
             <h1 id="trialQuestTitle">Tyler's Trial</h1>
             <p>
-              Guide the Light Blue around the lodge room, collect the right
-              items, and set each station before time runs out.
+              Place colourful lodge-floor tiles, close matching areas, and
+              choose useful items between rounds.
             </p>
           </div>
           <a class="small-action-link trial-return-link" href="index.html">Return to the 1837 Club</a>
@@ -45,8 +45,8 @@
             aria-label="Interactive tile-placement game board"
             role="img"
           >
-            Tyler's Trial is an interactive canvas game. Move the character,
-            collect items, and carry them to the matching lodge-room station.
+            Tyler's Trial is an interactive canvas game. Select one of three
+            tile choices, rotate it, and place it on the lodge floor.
           </canvas>
           <div class="lodge-game-loading" id="lodgeGameLoading" aria-live="polite">
             Preparing the lodge floor...
@@ -55,10 +55,10 @@
 
         <div class="lodge-game-controls" aria-label="Game controls">
           <button class="small-action-link trial-secondary-action" type="button" id="gameRotate">
-            Call Guide
+            Rotate Tile
           </button>
           <button class="small-action-link trial-secondary-action" type="button" id="gameRedraw">
-            Drop Item
+            Redraw Choices
           </button>
           <button class="small-action-link trial-secondary-action" type="button" id="gameRestart">
             Play Again
@@ -69,10 +69,10 @@
         </div>
 
         <p class="lodge-game-help" id="lodgeGameHelp" aria-live="polite">
-          Use the arrow keys, WASD, or click/tap the floor to move. Pick up an item and carry it to its glowing station.
+          Select a tile, rotate it if needed, then place it beside matching colours to close lodge-room areas.
         </p>
       </section>
     </main>
-    <script src="tylers-trial.js?v=lodge-room-quest"></script>
+    <script src="tylers-trial.js?v=tile-roguelike"></script>
   </body>
 </html>

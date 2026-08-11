@@ -2,8 +2,8 @@
   const canvas = document.querySelector("#lodgeGameCanvas");
   const loading = document.querySelector("#lodgeGameLoading");
   const help = document.querySelector("#lodgeGameHelp");
-  const guideButton = document.querySelector("#gameRotate");
-  const dropButton = document.querySelector("#gameRedraw");
+  const rotateButton = document.querySelector("#gameRotate");
+  const redrawButton = document.querySelector("#gameRedraw");
   const restartButton = document.querySelector("#gameRestart");
 
   if (!canvas) return;
@@ -12,7 +12,9 @@
   const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
   const W = 1280;
   const H = 720;
-  const floorBounds = { x: 205, y: 210, w: 870, h: 420 };
+  const size = 7;
+  const board = { x: 360, y: 112, size: 514 };
+  board.cell = board.size / size;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const palette = {
@@ -21,182 +23,154 @@
     lightBlue: "#9ed0ff",
     gold: "#c59a36",
     cream: "#fff7e6",
-    green: "#4f8a5b",
     red: "#9e1d2f",
+    green: "#4f8a5b",
+    stone: "#c9ced6",
     ink: "#ffffff",
+  };
+
+  const zoneColors = {
+    pavement: { label: "Pavement", color: "#f4ecdb", stroke: "#101825", bonus: 0, art: 0 },
+    carpet: { label: "Blue Carpet", color: "#134f8f", stroke: "#d7ebff", bonus: 4, art: 1 },
+    border: { label: "Gold Border", color: "#c59a36", stroke: "#5c3e09", bonus: 8, art: 2 },
+    acacia: { label: "Acacia Green", color: "#4f8a5b", stroke: "#e6f5df", bonus: 10, art: 6 },
+    column: { label: "Column Stone", color: "#c9ced6", stroke: "#26384d", bonus: 6, art: 3 },
+    light: { label: "Warm Light", color: "#f5d36a", stroke: "#5a3f08", bonus: 12, art: 8 },
   };
 
   const assets = {
     bg: "assets/tylers-lodge-floor-bg.webp",
     character: "assets/tylers-lodge-character.webp",
+    tiles: "assets/tylers-lodge-tiles.webp",
     items: "assets/tylers-lodge-items.webp",
     ui: "assets/tylers-lodge-ui.webp",
   };
 
   const assetImages = {};
 
-  const itemDefs = [
-    {
-      id: "summons",
-      name: "Summons",
-      station: "Secretary's Desk",
-      clue: "Take the summons to the desk.",
-      sheet: 0,
-      color: "#9ed0ff",
-    },
-    {
-      id: "apron",
-      name: "Apron",
-      station: "Preparation Bench",
-      clue: "Place the apron neatly on the bench.",
-      sheet: 1,
-      color: "#d8ebff",
-    },
-    {
-      id: "gavel",
-      name: "Gavel",
-      station: "Master's Pedestal",
-      clue: "Return the gavel to the main pedestal.",
-      sheet: 2,
-      color: "#d4a83e",
-    },
-    {
-      id: "book",
-      name: "Book of Constitutions",
-      station: "Book Stand",
-      clue: "Carry the book to the book stand.",
-      sheet: 3,
-      color: "#fff7e6",
-    },
-    {
-      id: "acacia",
-      name: "Acacia Sprig",
-      station: "Acacia Vase",
-      clue: "Set the acacia sprig in the vase.",
-      sheet: 4,
-      color: "#70b36d",
-    },
-    {
-      id: "charity",
-      name: "Charity Jewel",
-      station: "Charity Table",
-      clue: "Put the charity jewel on the charity table.",
-      sheet: 5,
-      color: "#f5d46a",
-    },
-    {
-      id: "key",
-      name: "Tyler's Key",
-      station: "West Door",
-      clue: "Return the key to the West Door.",
-      sheet: 6,
-      color: "#c59a36",
-    },
-    {
-      id: "column",
-      name: "Column Token",
-      station: "Twin Columns",
-      clue: "Place the column token between the columns.",
-      sheet: 7,
-      color: "#b9dcff",
-    },
-  ];
-
-  const stationLayout = [
-    { id: "summons", x: 900, y: 244 },
-    { id: "apron", x: 274, y: 478 },
-    { id: "gavel", x: 640, y: 270 },
-    { id: "book", x: 912, y: 508 },
-    { id: "acacia", x: 995, y: 318 },
-    { id: "charity", x: 336, y: 314 },
-    { id: "key", x: 218, y: 600 },
-    { id: "column", x: 640, y: 188 },
-  ];
-
-  const itemSpawns = [
-    { x: 392, y: 546 },
-    { x: 760, y: 574 },
-    { x: 510, y: 324 },
-    { x: 826, y: 365 },
-    { x: 574, y: 606 },
-    { x: 708, y: 438 },
-    { x: 466, y: 438 },
-    { x: 930, y: 604 },
+  const tileTemplates = [
+    { name: "Pavement Walk", center: "pavement", edges: ["pavement", "carpet", "pavement", "carpet"], score: 7 },
+    { name: "Carpet Run", center: "carpet", edges: ["carpet", "carpet", "carpet", "carpet"], score: 8 },
+    { name: "Gold Corner", center: "border", edges: ["pavement", "border", "border", "pavement"], score: 10 },
+    { name: "Column Base", center: "column", edges: ["column", "pavement", "border", "pavement"], score: 11 },
+    { name: "Acacia Walk", center: "acacia", edges: ["acacia", "border", "acacia", "border"], score: 13 },
+    { name: "Book Table", center: "carpet", edges: ["carpet", "pavement", "border", "pavement"], score: 11 },
+    { name: "Light Point", center: "light", edges: ["light", "border", "light", "border"], score: 14 },
+    { name: "Stone Crossing", center: "column", edges: ["column", "column", "pavement", "pavement"], score: 10 },
+    { name: "Outer Border", center: "border", edges: ["border", "pavement", "border", "pavement"], score: 9 },
+    { name: "Green Corner", center: "acacia", edges: ["border", "acacia", "pavement", "acacia"], score: 12 },
+    { name: "Bright Carpet", center: "light", edges: ["carpet", "light", "carpet", "light"], score: 13 },
+    { name: "Chequer Tile", center: "pavement", edges: ["pavement", "pavement", "column", "column"], score: 9 },
   ];
 
   const upgrades = [
     {
-      id: "pace",
-      name: "Light Blue Pace",
-      desc: "Move faster next round.",
-      sheet: 1,
-      apply: (state) => {
-        state.speedBonus += 24;
-      },
-    },
-    {
-      id: "steward",
-      name: "Steward's Eye",
-      desc: "Stations glow from further away.",
+      id: "summons",
+      name: "Summons",
+      desc: "Highlights one strong placement each turn.",
       sheet: 0,
       apply: (state) => {
-        state.stationGlow += 14;
+        state.hints += 1;
       },
     },
     {
-      id: "charity",
-      name: "Charity Boost",
-      desc: "Each delivery scores more.",
-      sheet: 5,
+      id: "apron",
+      name: "Apron",
+      desc: "Forgives one illegal placement attempt.",
+      sheet: 1,
       apply: (state) => {
-        state.deliveryBonus += 25;
+        state.apron += 1;
+      },
+    },
+    {
+      id: "gavel",
+      name: "Gavel",
+      desc: "Allows one placed tile to be removed.",
+      sheet: 2,
+      apply: (state) => {
+        state.gavels += 1;
+      },
+    },
+    {
+      id: "book",
+      name: "Book of Constitutions",
+      desc: "Adds one free redraw of all choices.",
+      sheet: 3,
+      apply: (state) => {
+        state.redraws += 1;
       },
     },
     {
       id: "acacia",
-      name: "Acacia Calm",
-      desc: "Adds extra time next round.",
+      name: "Acacia Sprig",
+      desc: "Doubles the next closed area score.",
       sheet: 4,
       apply: (state) => {
-        state.extraTime += 8;
+        state.acaciaDouble += 1;
+      },
+    },
+    {
+      id: "charity",
+      name: "Charity Jewel",
+      desc: "Adds bonus points to each closed area.",
+      sheet: 5,
+      apply: (state) => {
+        state.charityBonus += 12;
+      },
+    },
+    {
+      id: "key",
+      name: "Tyler's Key",
+      desc: "Unlocks one blocked square next round.",
+      sheet: 6,
+      apply: (state) => {
+        state.keys += 1;
+      },
+    },
+    {
+      id: "column",
+      name: "Column Token",
+      desc: "Allows one placement with a single mismatch.",
+      sheet: 7,
+      apply: (state) => {
+        state.columnTokens += 1;
       },
     },
   ];
 
   let state;
   let pointer = { x: -1, y: -1 };
-  let keys = new Set();
   let lastFrame = performance.now();
-  let t = 0;
+  let clock = 0;
 
   function createState() {
     return {
-      player: { x: 640, y: 588, targetX: 640, targetY: 588, speed: 214 },
-      items: [],
-      stations: [],
-      carried: null,
+      grid: Array.from({ length: size }, () => Array(size).fill(null)),
+      blocked: new Set(),
+      scoredRegions: new Set(),
+      choices: [],
+      selected: 0,
       score: 0,
       round: 1,
-      delivered: 0,
-      totalThisRound: 6,
-      timeLeft: 72,
-      speedBonus: 0,
-      stationGlow: 0,
-      deliveryBonus: 0,
-      extraTime: 0,
-      message: "Walk the floor, collect an item, and carry it to its glowing station.",
+      target: 260,
+      redraws: 2,
+      hints: 1,
+      apron: 0,
+      gavels: 0,
+      keys: 0,
+      acaciaDouble: 0,
+      charityBonus: 0,
+      columnTokens: 0,
       mode: "playing",
+      message: "Place a tile beside matching colours. Close areas for the big points.",
+      guideMood: "idle",
+      guideUntil: 0,
       upgradeChoices: [],
+      hover: null,
+      hint: null,
       floating: [],
-      guidePulse: null,
+      lastPlaced: null,
     };
-  }
-
-  function resizeCanvas() {
-    canvas.width = W * DPR;
-    canvas.height = H * DPR;
-    canvas.style.aspectRatio = `${W} / ${H}`;
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
 
   function loadImage(src) {
@@ -208,6 +182,13 @@
     });
   }
 
+  function resizeCanvas() {
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.aspectRatio = `${W} / ${H}`;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
   function shuffle(items) {
     const copy = items.slice();
     for (let index = copy.length - 1; index > 0; index -= 1) {
@@ -217,43 +198,66 @@
     return copy;
   }
 
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
+  function choice(items) {
+    return items[Math.floor(Math.random() * items.length)];
   }
 
-  function distance(a, b) {
-    return Math.hypot(a.x - b.x, a.y - b.y);
+  function key(row, col) {
+    return `${row},${col}`;
   }
 
-  function say(text) {
-    state.message = text;
-    if (help) help.textContent = text;
+  function inBounds(row, col) {
+    return row >= 0 && row < size && col >= 0 && col < size;
+  }
+
+  function cloneTile(template) {
+    return {
+      id: Math.random().toString(36).slice(2),
+      name: template.name,
+      center: template.center,
+      edges: template.edges.slice(),
+      rotation: 0,
+      score: template.score,
+    };
+  }
+
+  function refillChoices() {
+    while (state.choices.length < 3) {
+      state.choices.push(cloneTile(choice(tileTemplates)));
+    }
+    state.selected = Math.min(state.selected, state.choices.length - 1);
+    updateHint();
   }
 
   function startRound() {
-    const selection = shuffle(itemDefs).slice(0, Math.min(8, state.totalThisRound + state.round - 1));
-    const spawnSelection = shuffle(itemSpawns);
-    state.items = selection.map((item, index) => ({
-      ...item,
-      x: spawnSelection[index].x,
-      y: spawnSelection[index].y,
-      collected: false,
-      delivered: false,
-      bob: Math.random() * Math.PI * 2,
-    }));
-    state.stations = selection.map((item) => {
-      const layout = stationLayout.find((station) => station.id === item.id);
-      return { ...item, x: layout.x, y: layout.y, r: 38 };
-    });
-    state.carried = null;
-    state.delivered = 0;
-    state.timeLeft = 68 + state.extraTime + Math.max(0, 4 - state.round) * 4;
+    state.grid = Array.from({ length: size }, () => Array(size).fill(null));
+    state.scoredRegions = new Set();
+    state.choices = [];
+    state.selected = 0;
+    state.lastPlaced = null;
+    state.blocked = makeBlockedSquares();
+    while (state.keys > 0 && state.blocked.size) {
+      state.keys -= 1;
+      state.blocked.delete(choice(Array.from(state.blocked)));
+    }
     state.mode = "playing";
-    state.player.x = 640;
-    state.player.y = 588;
-    state.player.targetX = 640;
-    state.player.targetY = 588;
-    say(`Round ${state.round}: set ${selection.length} lodge-room items before time runs out.`);
+    state.message = `Round ${state.round}: reach ${state.target} points or fill the floor.`;
+    state.guideMood = "idle";
+    refillChoices();
+  }
+
+  function makeBlockedSquares() {
+    const blocked = new Set();
+    if (state.round <= 1) return blocked;
+    const candidates = [];
+    for (let row = 0; row < size; row += 1) {
+      for (let col = 0; col < size; col += 1) {
+        if (row >= 2 && row <= 4 && col >= 2 && col <= 4) continue;
+        candidates.push(key(row, col));
+      }
+    }
+    shuffle(candidates).slice(0, Math.min(9, state.round + 1)).forEach((cell) => blocked.add(cell));
+    return blocked;
   }
 
   function restartGame() {
@@ -261,150 +265,302 @@
     startRound();
   }
 
+  function rotateSelected() {
+    if (state.mode !== "playing") return;
+    const tile = state.choices[state.selected];
+    if (!tile) return;
+    tile.edges = [tile.edges[3], tile.edges[0], tile.edges[1], tile.edges[2]];
+    tile.rotation = (tile.rotation + 90) % 360;
+    say(`${tile.name} rotated.`);
+    updateHint();
+  }
+
+  function redrawChoices(force) {
+    if (state.mode !== "playing") return;
+    if (!force && state.redraws <= 0) {
+      warn("No redraws remain.");
+      return;
+    }
+    if (!force) state.redraws -= 1;
+    state.choices = [cloneTile(choice(tileTemplates)), cloneTile(choice(tileTemplates)), cloneTile(choice(tileTemplates))];
+    state.selected = 0;
+    say("New tile choices drawn.");
+    updateHint();
+  }
+
+  function removeWithGavel(row, col) {
+    if (state.gavels <= 0 || !state.grid[row][col]) return false;
+    state.grid[row][col] = null;
+    state.gavels -= 1;
+    state.scoredRegions = new Set();
+    warn("Gavel used. That square is open again.");
+    updateHint();
+    return true;
+  }
+
+  function placementCheck(row, col, tile, useColumn) {
+    if (!tile || !inBounds(row, col)) return { ok: false, reason: "Outside the board." };
+    if (state.blocked.has(key(row, col))) return { ok: false, reason: "That square is locked." };
+    if (state.grid[row][col]) return { ok: false, reason: state.gavels ? "That square is occupied. Click it again to use the gavel." : "That square is occupied." };
+
+    const dirs = [
+      [-1, 0, 0, 2],
+      [0, 1, 1, 3],
+      [1, 0, 2, 0],
+      [0, -1, 3, 1],
+    ];
+    let neighbours = 0;
+    let matches = 0;
+    let mismatches = 0;
+
+    for (const [dr, dc, edgeIndex, oppositeIndex] of dirs) {
+      const nr = row + dr;
+      const nc = col + dc;
+      if (!inBounds(nr, nc)) continue;
+      const neighbour = state.grid[nr][nc];
+      if (!neighbour) continue;
+      neighbours += 1;
+      if (tile.edges[edgeIndex] === neighbour.edges[oppositeIndex]) {
+        matches += 1;
+      } else {
+        mismatches += 1;
+      }
+    }
+
+    if (placedCount() > 0 && neighbours === 0) {
+      return { ok: false, reason: "Tiles must touch the existing floor." };
+    }
+    if (mismatches > 0 && !(useColumn && mismatches === 1)) {
+      return { ok: false, reason: "Neighbouring colours must match." };
+    }
+    if (placedCount() > 0 && matches === 0 && !useColumn) {
+      return { ok: false, reason: "At least one edge must match." };
+    }
+    return { ok: true, matches, usedColumn: useColumn && mismatches === 1 };
+  }
+
+  function placeTile(row, col) {
+    if (state.mode !== "playing") return;
+    if (state.grid[row]?.[col]) {
+      removeWithGavel(row, col);
+      return;
+    }
+    const tile = state.choices[state.selected];
+    const legal = placementCheck(row, col, tile, state.columnTokens > 0);
+    if (!legal.ok) {
+      if (state.apron > 0) {
+        state.apron -= 1;
+        warn(`Apron saved the move. ${legal.reason}`);
+        return;
+      }
+      warn(legal.reason);
+      return;
+    }
+
+    if (legal.usedColumn) {
+      state.columnTokens -= 1;
+      float("Column token", row, col, palette.lightBlue);
+    }
+
+    state.grid[row][col] = { ...tile, edges: tile.edges.slice() };
+    state.lastPlaced = { row, col, t: performance.now() };
+    state.choices.splice(state.selected, 1);
+    state.selected = Math.max(0, Math.min(state.selected, state.choices.length - 1));
+    const points = tile.score + legal.matches * 8;
+    state.score += points;
+    float(`+${points}`, row, col, palette.gold);
+    const closures = scoreClosedAreas();
+    if (closures >= 2) {
+      state.score += 60;
+      say("Perfect Working! Multiple areas closed.");
+      state.guideMood = "celebrate";
+    } else if (closures === 1) {
+      state.guideMood = "pleased";
+    } else {
+      state.guideMood = "idle";
+      say("Good fit. Now try to close a coloured area.");
+    }
+    state.guideUntil = performance.now() + 1200;
+    refillChoices();
+    checkProgress();
+  }
+
+  function placedCount() {
+    return state.grid.flat().filter(Boolean).length;
+  }
+
+  function isBoardFull() {
+    return placedCount() + state.blocked.size >= size * size;
+  }
+
+  function regionSignature(cells) {
+    return cells.slice().sort().join("|");
+  }
+
+  function scoreClosedAreas() {
+    const visited = new Set();
+    let closures = 0;
+    const dirs = [
+      [-1, 0],
+      [0, 1],
+      [1, 0],
+      [0, -1],
+    ];
+
+    for (let row = 0; row < size; row += 1) {
+      for (let col = 0; col < size; col += 1) {
+        const tile = state.grid[row][col];
+        const startKey = key(row, col);
+        if (!tile || visited.has(startKey)) continue;
+
+        const zone = tile.center;
+        const queue = [[row, col]];
+        const cells = [];
+        let closed = true;
+        visited.add(startKey);
+
+        while (queue.length) {
+          const [r, c] = queue.shift();
+          const current = state.grid[r][c];
+          cells.push(key(r, c));
+
+          for (const [dr, dc] of dirs) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (!inBounds(nr, nc)) continue;
+            const neighbour = state.grid[nr][nc];
+            const neighbourKey = key(nr, nc);
+            if (!neighbour) {
+              if (!state.blocked.has(neighbourKey)) closed = false;
+              continue;
+            }
+            if (neighbour.center === zone && !visited.has(neighbourKey)) {
+              visited.add(neighbourKey);
+              queue.push([nr, nc]);
+            }
+          }
+        }
+
+        if (!closed || cells.length < 2) continue;
+        const signature = regionSignature(cells);
+        if (state.scoredRegions.has(signature)) continue;
+
+        state.scoredRegions.add(signature);
+        closures += 1;
+        const zoneBonus = zoneColors[zone].bonus;
+        let points = 40 + cells.length * (18 + zoneBonus) + state.charityBonus;
+        if (state.acaciaDouble > 0) {
+          points *= 2;
+          state.acaciaDouble -= 1;
+        }
+        state.score += points;
+        const [fr, fc] = cells[0].split(",").map(Number);
+        float(`${zoneColors[zone].label} closed +${points}`, fr, fc, zoneColors[zone].color);
+        state.message = `${zoneColors[zone].label} area closed for ${points} points.`;
+      }
+    }
+
+    return closures;
+  }
+
+  function checkProgress() {
+    if (state.score >= state.target || isBoardFull()) {
+      finishRound();
+      return;
+    }
+    if (!hasLegalMove() && state.redraws <= 0 && state.gavels <= 0 && state.columnTokens <= 0) {
+      endGame("No legal moves remain.");
+    } else if (!hasLegalMove()) {
+      warn("No current tile fits. Redraw, use a token, or remove a tile with the gavel.");
+    }
+  }
+
+  function hasLegalMove() {
+    return state.choices.some((tile) => {
+      const probe = { ...tile, edges: tile.edges.slice() };
+      for (let turn = 0; turn < 4; turn += 1) {
+        for (let row = 0; row < size; row += 1) {
+          for (let col = 0; col < size; col += 1) {
+            if (placementCheck(row, col, probe, state.columnTokens > 0).ok) return true;
+          }
+        }
+        probe.edges = [probe.edges[3], probe.edges[0], probe.edges[1], probe.edges[2]];
+      }
+      return false;
+    });
+  }
+
+  function findBestPlacement() {
+    if (state.hints <= 0) return null;
+    const tile = state.choices[state.selected];
+    if (!tile) return null;
+    let best = null;
+    for (let row = 0; row < size; row += 1) {
+      for (let col = 0; col < size; col += 1) {
+        const legal = placementCheck(row, col, tile, state.columnTokens > 0);
+        if (!legal.ok) continue;
+        const centre = 8 - Math.abs(row - 3) - Math.abs(col - 3);
+        const value = legal.matches * 24 + centre;
+        if (!best || value > best.value) best = { row, col, value };
+      }
+    }
+    return best;
+  }
+
+  function updateHint() {
+    state.hint = findBestPlacement();
+  }
+
   function finishRound() {
-    state.score += Math.round(state.timeLeft * 2) + state.round * 75;
     state.mode = "choose-upgrade";
+    state.score += state.round * 70;
     state.upgradeChoices = shuffle(upgrades).slice(0, 3);
-    say("Room set. Choose a useful advantage for the next round.");
+    state.guideMood = "celebrate";
+    say("Round complete. Choose one item for the next working.");
   }
 
   function chooseUpgrade(index) {
     if (state.mode !== "choose-upgrade") return;
-    const choice = state.upgradeChoices[index];
-    if (!choice) return;
-    choice.apply(state);
+    const upgrade = state.upgradeChoices[index];
+    if (!upgrade) return;
+    upgrade.apply(state);
     state.round += 1;
-    state.totalThisRound = Math.min(8, state.totalThisRound + 1);
+    state.target += 160 + state.round * 45;
+    state.redraws = Math.max(1, 3 - Math.floor(state.round / 2));
     startRound();
   }
 
   function endGame(reason) {
     state.mode = "game-over";
-    say(reason);
+    state.guideMood = "warning";
+    say(`${reason} Final score: ${state.score}.`);
   }
 
-  function callGuide() {
-    if (state.mode !== "playing") return;
-    const target = state.carried
-      ? state.stations.find((station) => station.id === state.carried.id)
-      : nearestAvailableItem();
-
-    if (!target) {
-      say("Everything is set. Excellent work.");
-      return;
-    }
-
-    state.guidePulse = { x: target.x, y: target.y, until: performance.now() + 2800 };
-    say(state.carried ? state.carried.clue : `Collect the ${target.name}.`);
+  function say(text) {
+    state.message = text;
+    if (help) help.textContent = text;
   }
 
-  function dropItem() {
-    if (state.mode !== "playing") return;
-    if (!state.carried) {
-      say("You are not carrying anything.");
-      return;
-    }
-    state.carried.collected = false;
-    state.carried.x = state.player.x + 26;
-    state.carried.y = state.player.y + 8;
-    state.items.push(state.carried);
-    say(`${state.carried.name} dropped. Pick it up again when ready.`);
-    state.carried = null;
+  function warn(text) {
+    state.guideMood = "warning";
+    state.guideUntil = performance.now() + 1200;
+    say(text);
   }
 
-  function nearestAvailableItem() {
-    const available = state.items.filter((item) => !item.collected && !item.delivered);
-    available.sort((a, b) => distance(state.player, a) - distance(state.player, b));
-    return available[0] || null;
-  }
-
-  function update(dt) {
-    if (state.mode !== "playing") {
-      updateFloating(dt);
-      return;
-    }
-
-    state.timeLeft -= dt;
-    if (state.timeLeft <= 0) {
-      state.timeLeft = 0;
-      endGame("Time called. Try again and set the room a little quicker.");
-      return;
-    }
-
-    movePlayer(dt);
-    collectAndDeliver();
-    updateFloating(dt);
-
-    if (state.delivered >= state.stations.length) {
-      finishRound();
-    }
-  }
-
-  function movePlayer(dt) {
-    const player = state.player;
-    const speed = player.speed + state.speedBonus;
-    let vx = 0;
-    let vy = 0;
-
-    if (keys.has("arrowleft") || keys.has("a")) vx -= 1;
-    if (keys.has("arrowright") || keys.has("d")) vx += 1;
-    if (keys.has("arrowup") || keys.has("w")) vy -= 1;
-    if (keys.has("arrowdown") || keys.has("s")) vy += 1;
-
-    if (vx || vy) {
-      const length = Math.hypot(vx, vy) || 1;
-      player.x += (vx / length) * speed * dt;
-      player.y += (vy / length) * speed * dt;
-      player.targetX = player.x;
-      player.targetY = player.y;
-    } else {
-      const dx = player.targetX - player.x;
-      const dy = player.targetY - player.y;
-      const remaining = Math.hypot(dx, dy);
-      if (remaining > 2) {
-        const step = Math.min(remaining, speed * dt);
-        player.x += (dx / remaining) * step;
-        player.y += (dy / remaining) * step;
-      }
-    }
-
-    player.x = clamp(player.x, floorBounds.x, floorBounds.x + floorBounds.w);
-    player.y = clamp(player.y, floorBounds.y, floorBounds.y + floorBounds.h);
-  }
-
-  function collectAndDeliver() {
-    if (!state.carried) {
-      const item = state.items.find((candidate) => !candidate.collected && !candidate.delivered && distance(state.player, candidate) < 42);
-      if (item) {
-        item.collected = true;
-        state.carried = item;
-        state.items = state.items.filter((candidate) => candidate !== item);
-        say(item.clue);
-        addFloating(`Picked up ${item.name}`, item.x, item.y, item.color);
-      }
-      return;
-    }
-
-    const station = state.stations.find((candidate) => candidate.id === state.carried.id);
-    if (station && distance(state.player, station) < 52 + state.stationGlow) {
-      state.carried.delivered = true;
-      state.delivered += 1;
-      const points = 120 + state.round * 15 + state.deliveryBonus + Math.round(state.timeLeft / 3);
-      state.score += points;
-      addFloating(`+${points}`, station.x - 10, station.y - 24, palette.gold);
-      say(`${state.carried.name} set at the ${station.station}.`);
-      state.carried = null;
-    }
+  function float(text, row, col, color) {
+    state.floating.push({
+      text,
+      x: board.x + col * board.cell + board.cell / 2,
+      y: board.y + row * board.cell + 12,
+      color,
+      life: 1,
+    });
   }
 
   function updateFloating(dt) {
     state.floating = state.floating
-      .map((text) => ({ ...text, y: text.y - 36 * dt, life: text.life - dt * 0.72 }))
-      .filter((text) => text.life > 0);
-  }
-
-  function addFloating(text, x, y, color) {
-    state.floating.push({ text, x, y, color, life: 1 });
+      .map((item) => ({ ...item, y: item.y - dt * 40, life: item.life - dt * 0.68 }))
+      .filter((item) => item.life > 0);
   }
 
   function canvasPoint(event) {
@@ -416,8 +572,32 @@
     };
   }
 
+  function boardHit(point) {
+    if (point.x < board.x || point.y < board.y || point.x > board.x + board.size || point.y > board.y + board.size) {
+      return null;
+    }
+    return {
+      row: Math.floor((point.y - board.y) / board.cell),
+      col: Math.floor((point.x - board.x) / board.cell),
+    };
+  }
+
+  function handRects() {
+    return [0, 1, 2].map((index) => ({ index, x: 936, y: 132 + index * 148, w: 288, h: 126 }));
+  }
+
+  function upgradeRects() {
+    return [0, 1, 2].map((index) => ({ index, x: 300 + index * 230, y: 318, w: 204, h: 246 }));
+  }
+
   function onPointerMove(event) {
     pointer = canvasPoint(event);
+    state.hover = boardHit(pointer);
+  }
+
+  function onPointerLeave() {
+    pointer = { x: -1, y: -1 };
+    state.hover = null;
   }
 
   function onPointerDown(event) {
@@ -431,20 +611,21 @@
     }
 
     if (state.mode === "game-over") {
-      if (point.x >= 464 && point.x <= 620 && point.y >= 520 && point.y <= 576) restartGame();
-      if (point.x >= 650 && point.x <= 842 && point.y >= 520 && point.y <= 576) window.location.href = "index.html";
+      if (point.x >= 462 && point.x <= 620 && point.y >= 520 && point.y <= 578) restartGame();
+      if (point.x >= 650 && point.x <= 842 && point.y >= 520 && point.y <= 578) window.location.href = "index.html";
       return;
     }
 
-    state.player.targetX = clamp(point.x, floorBounds.x, floorBounds.x + floorBounds.w);
-    state.player.targetY = clamp(point.y, floorBounds.y, floorBounds.y + floorBounds.h);
-  }
+    const handHit = handRects().find((rect) => point.x >= rect.x && point.x <= rect.x + rect.w && point.y >= rect.y && point.y <= rect.y + rect.h);
+    if (handHit) {
+      state.selected = handHit.index;
+      say(`${state.choices[state.selected].name} selected.`);
+      updateHint();
+      return;
+    }
 
-  function formatTime(seconds) {
-    const total = Math.max(0, Math.ceil(seconds));
-    const minutes = Math.floor(total / 60);
-    const remainder = String(total % 60).padStart(2, "0");
-    return `${minutes}:${remainder}`;
+    const cell = boardHit(point);
+    if (cell) placeTile(cell.row, cell.col);
   }
 
   function drawImageCover(img, x, y, w, h, alpha) {
@@ -470,9 +651,9 @@
     ctx.closePath();
   }
 
-  function panel(x, y, w, h, fill, stroke, r) {
+  function panel(x, y, w, h, fill, stroke, radius) {
     ctx.save();
-    roundRect(x, y, w, h, r || 18);
+    roundRect(x, y, w, h, radius || 18);
     ctx.fillStyle = fill;
     ctx.fill();
     ctx.lineWidth = 2;
@@ -481,9 +662,9 @@
     ctx.restore();
   }
 
-  function text(content, x, y, size, color, weight, align, maxWidth) {
+  function text(content, x, y, sizePx, color, weight, align, maxWidth) {
     ctx.save();
-    ctx.font = `${weight || 800} ${size}px Inter, Arial, sans-serif`;
+    ctx.font = `${weight || 800} ${sizePx}px Inter, Arial, sans-serif`;
     ctx.fillStyle = color;
     ctx.textAlign = align || "left";
     ctx.textBaseline = "top";
@@ -491,12 +672,12 @@
     ctx.restore();
   }
 
-  function wrapText(content, x, y, maxWidth, lineHeight, size, color) {
+  function wrapText(content, x, y, maxWidth, lineHeight, sizePx, color) {
     const words = content.split(" ");
     let line = "";
     let currentY = y;
     ctx.save();
-    ctx.font = `800 ${size}px Inter, Arial, sans-serif`;
+    ctx.font = `800 ${sizePx}px Inter, Arial, sans-serif`;
     ctx.fillStyle = color;
     ctx.textBaseline = "top";
     words.forEach((word) => {
@@ -525,175 +706,236 @@
     ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
   }
 
-  function drawScene() {
-    drawImageCover(assetImages.bg, 0, 0, W, H, 1);
-    ctx.fillStyle = "rgba(3, 12, 24, 0.15)";
-    ctx.fillRect(0, 0, W, H);
-
-    const pulse = reducedMotion ? 0 : Math.sin(t * 2) * 0.5 + 0.5;
-    state.stations.forEach((station) => {
-      const done = !state.items.some((item) => item.id === station.id) && state.carried?.id !== station.id;
-      const active = state.carried?.id === station.id;
-      ctx.save();
-      ctx.globalAlpha = done ? 0.28 : active ? 0.95 : 0.52;
-      ctx.shadowColor = active ? station.color : "rgba(158, 208, 255, 0.55)";
-      ctx.shadowBlur = active ? 24 + pulse * 12 : 12;
-      ctx.fillStyle = active ? station.color : "rgba(158, 208, 255, 0.42)";
-      ctx.beginPath();
-      ctx.arc(station.x, station.y, station.r + (active ? pulse * 8 : 0), 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = palette.gold;
-      ctx.stroke();
-      ctx.restore();
-      if (!done) text(station.station, station.x, station.y + 42, 11, "rgba(255,255,255,0.78)", 900, "center", 130);
-    });
-
-    state.items.forEach((item) => {
-      const bob = reducedMotion ? 0 : Math.sin(t * 3 + item.bob) * 6;
-      drawItemIcon(item, item.x - 34, item.y - 40 + bob, 68, 58);
-      text(item.name, item.x, item.y + 28 + bob, 12, palette.cream, 900, "center", 120);
-    });
-
-    if (state.guidePulse && state.guidePulse.until > performance.now()) {
-      const age = (state.guidePulse.until - performance.now()) / 2800;
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, age);
-      ctx.strokeStyle = palette.gold;
-      ctx.lineWidth = 5;
-      ctx.setLineDash([10, 10]);
-      ctx.beginPath();
-      ctx.arc(state.guidePulse.x, state.guidePulse.y, 54 + (1 - age) * 42, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    drawPlayer();
-    drawCarriedItem();
-    drawFloating();
+  function drawTileTexture(tile, x, y, tileSize) {
+    const img = assetImages.tiles;
+    if (!img) return;
+    const zone = zoneColors[tile.center];
+    const columns = 4;
+    const rows = 3;
+    const sw = img.width / columns;
+    const sh = img.height / rows;
+    const sx = (zone.art % columns) * sw;
+    const sy = Math.floor(zone.art / columns) * sh;
+    ctx.save();
+    roundRect(x, y, tileSize, tileSize, 12);
+    ctx.clip();
+    ctx.translate(x + tileSize / 2, y + tileSize / 2);
+    ctx.rotate((tile.rotation * Math.PI) / 180);
+    ctx.drawImage(img, sx, sy, sw, sh, -tileSize / 2, -tileSize / 2, tileSize, tileSize);
+    ctx.restore();
   }
 
-  function drawPlayer() {
-    const player = state.player;
+  function drawTile(tile, x, y, tileSize, options) {
+    const opts = options || {};
+    const zone = zoneColors[tile.center];
     ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,0.28)";
-    ctx.beginPath();
-    ctx.ellipse(player.x, player.y + 30, 38, 15, 0, 0, Math.PI * 2);
+    if (opts.alpha) ctx.globalAlpha = opts.alpha;
+    panel(x, y, tileSize, tileSize, "rgba(255, 247, 230, 0.95)", opts.selected ? palette.gold : "rgba(7, 31, 63, 0.2)", 12);
+    drawTileTexture(tile, x + 4, y + 4, tileSize - 8);
+    ctx.fillStyle = zone.color;
+    roundRect(x + tileSize * 0.27, y + tileSize * 0.27, tileSize * 0.46, tileSize * 0.46, 8);
     ctx.fill();
-    if (assetImages.character) {
-      ctx.drawImage(assetImages.character, player.x - 54, player.y - 128, 112, 170);
-    } else {
-      ctx.fillStyle = palette.lightBlue;
-      ctx.beginPath();
-      ctx.arc(player.x, player.y - 28, 24, 0, Math.PI * 2);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = zone.stroke;
+    ctx.stroke();
+
+    const edge = tileSize * 0.12;
+    tile.edges.forEach((edgeName, index) => {
+      ctx.fillStyle = zoneColors[edgeName].color;
+      if (index === 0) ctx.fillRect(x + edge, y + 5, tileSize - edge * 2, edge);
+      if (index === 1) ctx.fillRect(x + tileSize - edge - 5, y + edge, edge, tileSize - edge * 2);
+      if (index === 2) ctx.fillRect(x + edge, y + tileSize - edge - 5, tileSize - edge * 2, edge);
+      if (index === 3) ctx.fillRect(x + 5, y + edge, edge, tileSize - edge * 2);
+    });
+
+    if (opts.preview) {
+      ctx.fillStyle = opts.legal ? "rgba(158, 208, 255, 0.36)" : "rgba(158, 29, 47, 0.28)";
+      roundRect(x, y, tileSize, tileSize, 12);
       ctx.fill();
+    }
+
+    if (opts.pulse) {
+      ctx.strokeStyle = palette.gold;
+      ctx.lineWidth = 5;
+      roundRect(x + 2, y + 2, tileSize - 4, tileSize - 4, 10);
+      ctx.stroke();
     }
     ctx.restore();
   }
 
-  function drawCarriedItem() {
-    if (!state.carried) return;
-    drawItemIcon(state.carried, state.player.x + 16, state.player.y - 118, 58, 48);
-    text(state.carried.name, state.player.x + 48, state.player.y - 68, 12, palette.cream, 900, "center", 110);
+  function drawBoard() {
+    panel(board.x - 18, board.y - 18, board.size + 36, board.size + 36, "rgba(255, 247, 230, 0.92)", "rgba(197, 154, 54, 0.95)", 20);
+    for (let row = 0; row < size; row += 1) {
+      for (let col = 0; col < size; col += 1) {
+        const x = board.x + col * board.cell;
+        const y = board.y + row * board.cell;
+        const cell = key(row, col);
+        const tile = state.grid[row][col];
+        const hover = state.hover?.row === row && state.hover?.col === col;
+        const hinted = state.hint?.row === row && state.hint?.col === col;
+        const blocked = state.blocked.has(cell);
+
+        ctx.save();
+        roundRect(x + 3, y + 3, board.cell - 6, board.cell - 6, 9);
+        ctx.fillStyle = (row + col) % 2 ? "rgba(7, 31, 63, 0.13)" : "rgba(255, 255, 255, 0.7)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(7, 31, 63, 0.14)";
+        ctx.stroke();
+        if (blocked) {
+          ctx.fillStyle = "rgba(7, 31, 63, 0.78)";
+          ctx.fill();
+          text("LOCK", x + board.cell / 2, y + board.cell / 2 - 8, 12, palette.gold, 900, "center");
+        }
+        if (hinted && state.mode === "playing") {
+          ctx.strokeStyle = palette.gold;
+          ctx.lineWidth = 4;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        if (tile) {
+          const pulse = state.lastPlaced?.row === row && state.lastPlaced?.col === col && performance.now() - state.lastPlaced.t < 450;
+          drawTile(tile, x + 5, y + 5, board.cell - 10, { pulse });
+        } else if (hover && state.mode === "playing" && state.choices[state.selected] && !blocked) {
+          const candidate = state.choices[state.selected];
+          const legal = placementCheck(row, col, candidate, state.columnTokens > 0).ok;
+          drawTile(candidate, x + 5, y + 5, board.cell - 10, { preview: true, legal, alpha: 0.76 });
+        }
+      }
+    }
+  }
+
+  function drawHand() {
+    panel(920, 98, 330, 552, "rgba(7, 31, 63, 0.84)", "rgba(197, 154, 54, 0.5)", 20);
+    text("Tile Choices", 946, 122, 20, palette.lightBlue, 900);
+    text("1-3 select / R rotates", 946, 150, 13, "rgba(255,255,255,0.72)", 800);
+    handRects().forEach((rect) => {
+      const tile = state.choices[rect.index];
+      if (!tile) return;
+      const selected = rect.index === state.selected;
+      panel(rect.x, rect.y, rect.w, rect.h, selected ? "rgba(216,235,255,0.98)" : "rgba(255,247,230,0.9)", selected ? palette.gold : "rgba(197,154,54,0.48)", 16);
+      drawTile(tile, rect.x + 14, rect.y + 14, 94, { selected });
+      text(tile.name, rect.x + 122, rect.y + 22, 17, palette.navy, 900, "left", 146);
+      text(zoneColors[tile.center].label, rect.x + 122, rect.y + 50, 12, palette.blue, 900, "left", 148);
+      text(tile.edges.map((edge) => edge[0].toUpperCase()).join("  "), rect.x + 122, rect.y + 76, 14, palette.gold, 900);
+      text(`Key ${rect.index + 1}`, rect.x + rect.w - 40, rect.y + rect.h - 28, 12, palette.navy, 900, "center");
+    });
+
+    const inventory = [
+      ["Redraw", state.redraws],
+      ["Apron", state.apron],
+      ["Gavel", state.gavels],
+      ["Column", state.columnTokens],
+      ["Acacia x2", state.acaciaDouble],
+      ["Charity", state.charityBonus],
+    ];
+    inventory.forEach((item, index) => {
+      const x = 946 + (index % 2) * 142;
+      const y = 594 + Math.floor(index / 2) * 18;
+      text(`${item[0]} ${item[1]}`, x, y, 12, "rgba(255,255,255,0.82)", 900);
+    });
+  }
+
+  function drawGuide() {
+    panel(34, 98, 292, 552, "rgba(7, 31, 63, 0.84)", "rgba(197, 154, 54, 0.5)", 20);
+    text("Light Blue Guide", 60, 122, 18, palette.lightBlue, 900);
+    panel(60, 154, 240, 126, "rgba(255, 247, 230, 0.96)", "rgba(197,154,54,0.74)", 18);
+    wrapText(state.message, 82, 176, 196, 20, 14, palette.navy);
+    if (assetImages.character) {
+      ctx.save();
+      if (state.guideMood === "warning") ctx.filter = "saturate(1.2) hue-rotate(-18deg)";
+      if (state.guideMood === "pleased" || state.guideMood === "celebrate") ctx.filter = "saturate(1.2) brightness(1.08)";
+      const bounce = !reducedMotion && state.guideMood === "celebrate" ? Math.sin(clock * 8) * 6 : 0;
+      ctx.drawImage(assetImages.character, 42, 310 + bounce, 248, 310);
+      ctx.restore();
+    }
+  }
+
+  function drawHeader() {
+    panel(26, 22, 1228, 58, "rgba(4, 17, 34, 0.86)", "rgba(197, 154, 54, 0.65)", 18);
+    text("Tyler's Trial: Lodge Floor", 52, 37, 24, palette.ink, 900);
+    text(`Score ${state.score}`, 604, 40, 18, palette.gold, 900, "center");
+    text(`Target ${state.target}`, 752, 40, 18, palette.cream, 900, "center");
+    text(`Round ${state.round}`, 902, 40, 18, palette.lightBlue, 900, "center");
+    text(`${placedCount()}/${size * size - state.blocked.size} Tiles`, 1088, 40, 18, palette.green, 900, "center");
   }
 
   function drawFloating() {
-    state.floating.forEach((floating) => {
+    state.floating.forEach((item) => {
       ctx.save();
-      ctx.globalAlpha = floating.life;
-      text(floating.text, floating.x, floating.y, 18, floating.color, 900, "center", 220);
+      ctx.globalAlpha = item.life;
+      text(item.text, item.x, item.y, 18, item.color, 900, "center", 220);
       ctx.restore();
     });
   }
 
-  function drawHud() {
-    panel(26, 22, 1228, 58, "rgba(4, 17, 34, 0.86)", "rgba(197, 154, 54, 0.65)", 18);
-    text("Tyler's Trial: Set the Lodge Room", 52, 37, 24, palette.ink, 900);
-    text(`Score ${state.score}`, 644, 40, 18, palette.gold, 900, "center");
-    text(`Round ${state.round}`, 790, 40, 18, palette.lightBlue, 900, "center");
-    text(`Time ${formatTime(state.timeLeft)}`, 940, 40, 18, state.timeLeft < 12 ? palette.red : palette.cream, 900, "center");
-    text(`${state.delivered}/${state.stations.length} Set`, 1100, 40, 18, palette.green, 900, "center");
-
-    panel(36, 96, 318, 112, "rgba(7, 31, 63, 0.86)", "rgba(197, 154, 54, 0.55)", 18);
-    text("Current Task", 60, 116, 15, palette.lightBlue, 900);
-    wrapText(state.message, 60, 142, 260, 20, 15, palette.cream);
-
-    panel(950, 96, 288, 134, "rgba(7, 31, 63, 0.82)", "rgba(197, 154, 54, 0.55)", 18);
-    text("Controls", 974, 116, 15, palette.lightBlue, 900);
-    wrapText("Arrow keys or WASD to walk. Click or tap the floor to move. Pick up an item, then go to the matching glowing station.", 974, 142, 232, 18, 13, "rgba(255,255,255,0.84)");
-
-    panel(950, 548, 288, 92, "rgba(7, 31, 63, 0.78)", "rgba(197, 154, 54, 0.45)", 18);
-    text("Carrying", 974, 568, 14, palette.lightBlue, 900);
-    if (state.carried) {
-      drawItemIcon(state.carried, 974, 588, 44, 38);
-      text(state.carried.name, 1026, 592, 14, palette.cream, 900);
-    } else {
-      text("Nothing yet", 974, 594, 14, "rgba(255,255,255,0.74)", 900);
-    }
-  }
-
-  function upgradeRects() {
-    return [0, 1, 2].map((index) => ({
-      index,
-      x: 300 + index * 230,
-      y: 315,
-      w: 204,
-      h: 248,
-    }));
+  function drawItemIcon(item, x, y, w, h) {
+    const img = assetImages.items;
+    if (!img) return;
+    const columns = 4;
+    const rows = 2;
+    const sw = img.width / columns;
+    const sh = img.height / rows;
+    const sx = (item.sheet % columns) * sw;
+    const sy = Math.floor(item.sheet / columns) * sh;
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
   }
 
   function drawOverlay() {
     if (state.mode === "choose-upgrade") {
-      ctx.fillStyle = "rgba(3, 12, 24, 0.7)";
+      ctx.fillStyle = "rgba(3, 12, 24, 0.72)";
       ctx.fillRect(0, 0, W, H);
-      panel(248, 164, 784, 440, "rgba(7, 31, 63, 0.96)", "rgba(197, 154, 54, 0.92)", 24);
-      text("Room Set", 640, 196, 42, palette.cream, 900, "center");
-      text("Choose one advantage for the next round", 640, 246, 16, palette.lightBlue, 900, "center");
-
+      panel(246, 164, 788, 442, "rgba(7,31,63,0.96)", "rgba(197,154,54,0.92)", 24);
+      text("Round Complete", 640, 198, 38, palette.cream, 900, "center");
+      text("Choose one item for the next working", 640, 244, 16, palette.lightBlue, 900, "center");
       upgradeRects().forEach((rect) => {
         const upgrade = state.upgradeChoices[rect.index];
         const hover = pointer.x >= rect.x && pointer.x <= rect.x + rect.w && pointer.y >= rect.y && pointer.y <= rect.y + rect.h;
-        panel(rect.x, rect.y, rect.w, rect.h, hover ? "rgba(255, 247, 230, 0.98)" : "rgba(255, 247, 230, 0.9)", hover ? palette.lightBlue : "rgba(197, 154, 54, 0.75)", 18);
-        drawItemIcon(upgrade, rect.x + 46, rect.y + 24, 112, 88);
-        text(upgrade.name, rect.x + rect.w / 2, rect.y + 132, 17, palette.navy, 900, "center", rect.w - 20);
+        panel(rect.x, rect.y, rect.w, rect.h, hover ? "rgba(255,247,230,0.99)" : "rgba(255,247,230,0.9)", hover ? palette.lightBlue : "rgba(197,154,54,0.76)", 18);
+        drawItemIcon(upgrade, rect.x + 44, rect.y + 26, 116, 90);
+        text(upgrade.name, rect.x + rect.w / 2, rect.y + 132, 16, palette.navy, 900, "center", rect.w - 18);
         wrapText(upgrade.desc, rect.x + 28, rect.y + 168, rect.w - 56, 19, 14, palette.blue);
       });
     }
 
     if (state.mode === "game-over") {
-      ctx.fillStyle = "rgba(3, 12, 24, 0.74)";
+      ctx.fillStyle = "rgba(3, 12, 24, 0.78)";
       ctx.fillRect(0, 0, W, H);
-      panel(330, 188, 620, 416, "rgba(7, 31, 63, 0.96)", "rgba(197, 154, 54, 0.94)", 24);
-      text("Trial Over", 640, 230, 44, palette.cream, 900, "center");
-      text(`Final Score ${state.score}`, 640, 296, 24, palette.gold, 900, "center");
-      text(`Round ${state.round}`, 640, 332, 18, palette.lightBlue, 900, "center");
-      wrapText(state.message, 450, 378, 380, 23, 16, "rgba(255,255,255,0.84)");
-      drawButton(464, 520, 156, 56, "Play Again");
-      drawButton(650, 520, 192, 56, "Return");
+      panel(330, 188, 620, 416, "rgba(7,31,63,0.96)", "rgba(197,154,54,0.94)", 24);
+      text("Trial Complete", 640, 230, 42, palette.cream, 900, "center");
+      text(`Final Score ${state.score}`, 640, 294, 24, palette.gold, 900, "center");
+      text(`Round ${state.round}`, 640, 330, 18, palette.lightBlue, 900, "center");
+      wrapText(state.message, 450, 380, 380, 23, 16, "rgba(255,255,255,0.84)");
+      drawButton(462, 520, 158, 58, "Play Again");
+      drawButton(650, 520, 192, 58, "Return");
     }
   }
 
   function drawButton(x, y, w, h, label) {
-    panel(x, y, w, h, "rgba(255, 247, 230, 0.96)", "rgba(197, 154, 54, 0.86)", 16);
-    text(label, x + w / 2, y + 18, 15, palette.navy, 900, "center");
+    panel(x, y, w, h, "rgba(255,247,230,0.96)", "rgba(197,154,54,0.86)", 16);
+    text(label, x + w / 2, y + 19, 15, palette.navy, 900, "center");
   }
 
   function render(now) {
     const dt = Math.min(0.05, (now - lastFrame) / 1000);
     lastFrame = now;
-    if (!reducedMotion) t += dt;
-    update(dt);
-    drawScene();
-    drawHud();
+    if (!reducedMotion) clock += dt;
+    updateFloating(dt);
+    drawImageCover(assetImages.bg, 0, 0, W, H, 1);
+    ctx.fillStyle = "rgba(3, 12, 24, 0.16)";
+    ctx.fillRect(0, 0, W, H);
+    drawHeader();
+    drawGuide();
+    drawBoard();
+    drawHand();
+    drawFloating();
     drawOverlay();
     requestAnimationFrame(render);
   }
 
   function installEvents() {
     canvas.addEventListener("mousemove", onPointerMove);
-    canvas.addEventListener("mouseleave", () => {
-      pointer = { x: -1, y: -1 };
-    });
+    canvas.addEventListener("mouseleave", onPointerLeave);
     canvas.addEventListener("mousedown", onPointerDown);
     canvas.addEventListener("touchstart", (event) => {
       event.preventDefault();
@@ -703,27 +945,31 @@
       event.preventDefault();
       onPointerMove(event);
     }, { passive: false });
-
-    guideButton?.addEventListener("click", callGuide);
-    dropButton?.addEventListener("click", dropItem);
+    rotateButton?.addEventListener("click", rotateSelected);
+    redrawButton?.addEventListener("click", () => redrawChoices(false));
     restartButton?.addEventListener("click", restartGame);
 
     document.addEventListener("keydown", (event) => {
-      const key = event.key.toLowerCase();
-      if (key === "escape") {
+      const pressed = event.key.toLowerCase();
+      if (pressed === "escape") {
         window.location.href = "index.html";
         return;
       }
-      if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(key)) {
-        keys.add(key);
-        event.preventDefault();
+      if (pressed === "r") rotateSelected();
+      if (pressed === "b") redrawChoices(false);
+      if (["1", "2", "3"].includes(pressed) && state.mode === "playing") {
+        const index = Number(pressed) - 1;
+        if (state.choices[index]) {
+          state.selected = index;
+          updateHint();
+          say(`${state.choices[index].name} selected.`);
+        }
       }
-      if (key === "g") callGuide();
-      if (key === "q") dropItem();
-    });
-
-    document.addEventListener("keyup", (event) => {
-      keys.delete(event.key.toLowerCase());
+      if (pressed === " " && state.mode === "playing") {
+        event.preventDefault();
+        const move = findBestPlacement();
+        if (move) placeTile(move.row, move.col);
+      }
     });
   }
 
@@ -732,36 +978,35 @@
       getState: () => ({
         score: state.score,
         round: state.round,
-        delivered: state.delivered,
-        carrying: state.carried?.name || null,
         mode: state.mode,
-        timeLeft: Math.round(state.timeLeft),
+        target: state.target,
+        placed: placedCount(),
+        choices: state.choices.map((tile) => tile.name),
+        hint: state.hint,
       }),
-      moveToFirstItem: () => {
-        const item = nearestAvailableItem();
-        if (!item) return false;
-        state.player.x = item.x;
-        state.player.y = item.y;
-        collectAndDeliver();
+      placeFirstLegal: () => {
+        const move = findBestPlacement();
+        if (!move) return false;
+        placeTile(move.row, move.col);
         return true;
       },
-      deliverCarried: () => {
-        if (!state.carried) return false;
-        const station = state.stations.find((candidate) => candidate.id === state.carried.id);
-        state.player.x = station.x;
-        state.player.y = station.y;
-        collectAndDeliver();
-        return true;
+      forceRoundComplete: () => finishRound(),
+      chooseUpgrade: (index = 0) => chooseUpgrade(index),
+      forceNoMoves: () => {
+        state.redraws = 0;
+        state.gavels = 0;
+        state.columnTokens = 0;
+        state.choices = [];
+        checkProgress();
       },
-      finishRound: () => finishRound(),
     };
   }
 
   async function init() {
     resizeCanvas();
-    const entries = await Promise.all(Object.entries(assets).map(async ([key, src]) => [key, await loadImage(src)]));
-    entries.forEach(([key, img]) => {
-      assetImages[key] = img;
+    const entries = await Promise.all(Object.entries(assets).map(async ([name, src]) => [name, await loadImage(src)]));
+    entries.forEach(([name, img]) => {
+      assetImages[name] = img;
     });
     loading?.setAttribute("hidden", "");
     restartGame();
