@@ -34,11 +34,11 @@
 
   const resources = {
     ashlar: {
-      label: "Rough Ashlar",
+      label: "Ashlar",
       short: "Ashlar",
       color: "#d8d2c2",
-      dark: "#8a8477",
-      tower: ["Lodge Column", "Perfect Column", "Pillar of Strength"],
+      dark: "#7a7468",
+      tower: ["Ashlar Guard", "Dressed Ashlar", "Perfect Ashlar"],
       range: [120, 145, 175],
       damage: [16, 34, 72],
       rate: [0.92, 0.78, 0.64],
@@ -49,57 +49,63 @@
       short: "Candle",
       color: "#f7d36a",
       dark: "#9c6f1d",
-      tower: ["Lesser Light", "Greater Light", "Blazing Star"],
+      tower: ["Candle Stand", "Lesser Light", "Greater Light"],
       range: [180, 220, 265],
       damage: [12, 25, 48],
       rate: [1.15, 0.95, 0.78],
       icon: "flame",
     },
     tool: {
-      label: "Working Tool",
-      short: "Tool",
-      color: "#77b8dc",
-      dark: "#24577b",
-      tower: ["Craftsman's Bench", "Master's Workshop", "Grand Workshop"],
+      label: "Lewis",
+      short: "Lewis",
+      color: "#65c7e8",
+      dark: "#1b6682",
+      tower: ["Lewis Support", "Senior Lewis", "Grand Lewis"],
       range: [112, 135, 160],
       damage: [6, 12, 22],
       rate: [0.72, 0.58, 0.46],
       support: [1.18, 1.28, 1.42],
-      icon: "tool",
+      icon: "lewis",
     },
     acacia: {
-      label: "Acacia",
-      short: "Acacia",
-      color: "#5fb965",
-      dark: "#246431",
-      tower: ["Acacia Hedge", "Acacia Wall", "Evergreen Rampart"],
+      label: "Wand",
+      short: "Wand",
+      color: "#8d73dc",
+      dark: "#443282",
+      tower: ["Steward's Wand", "Deacon's Wand", "Director's Wand"],
       range: [112, 135, 156],
       damage: [5, 11, 20],
       rate: [1.0, 0.82, 0.66],
       slow: [0.62, 0.5, 0.38],
-      icon: "leaf",
+      icon: "wand",
     },
     gold: {
-      label: "Gold Token",
-      short: "Gold",
-      color: "#d6a43a",
-      dark: "#7f5218",
-      tower: ["Treasurer's Chest", "Grand Chest", "Provincial Treasury"],
+      label: "Jewels",
+      short: "Jewels",
+      color: "#e1515d",
+      dark: "#84202a",
+      tower: ["Officer's Jewel", "Collar Jewel", "Provincial Jewel"],
       range: [116, 140, 166],
       damage: [9, 18, 34],
       rate: [1.25, 1.05, 0.88],
       reward: true,
-      icon: "coin",
+      icon: "jewel",
     },
   };
 
   const resourceKeys = Object.keys(resources);
   const defenceGuide = {
-    ashlar: "Balanced medium-range defence. Reliable damage and good coverage.",
-    candle: "Long-range golden ray attack. Reaches far but fires steadily.",
-    tool: "Boosts nearby defences' attack speed. Does not attack directly.",
-    acacia: "Slows enemies on the path while adding light chip damage.",
-    gold: "Reward structure. Builds Treasurer's Chests for bonuses and tactical refreshes.",
+    ashlar: "Balanced medium-range defence with steady damage and reliable coverage.",
+    candle: "Long-range golden ray attack. Reaches far but fires at a measured pace.",
+    tool: "Support defence. Boosts nearby towers' attack speed but does not attack directly.",
+    acacia: "Slowing defence. Wands hinder threats on the path while adding light damage.",
+    gold: "Reward defence. Jewels can trigger bonuses, repairs, upgrades, or a board refresh.",
+  };
+  const abilityGuide = {
+    sword: "Combat: turn away the nearest threat. Uses one Tyler charge.",
+    guard: "Combat: guard the Lodge entrance for five seconds.",
+    installation: "Setup: randomise the whole board once before the Trial begins.",
+    close: "Combat: close the Lodge briefly, freezing all threats on the path.",
   };
   const localLeaderboardKey = "tylersTrialLocalScores";
   const chapters = [
@@ -111,9 +117,10 @@
 
   const assets = {
     bg: "assets/tylers-lodge-floor-bg-v2.webp",
-    character: "assets/tylers-lodge-character-v2.webp",
+    character: "assets/tylers-lodge-character-v3.png",
     items: "assets/tylers-lodge-items.webp",
     ui: "assets/tylers-lodge-ui.webp",
+    logo: "assets/surrey-1837-club-badge.png",
   };
   const images = {};
 
@@ -147,7 +154,7 @@
       score: 0,
       security: 10,
       maxSecurity: 10,
-      swaps: 18,
+      swaps: swapsForTrial(1),
       selected: null,
       board: createBoard(),
       enemies: [],
@@ -156,8 +163,7 @@
       floaters: [],
       supportPulses: [],
       wave: { timer: 0, spawned: 0, total: 0, done: false, bossAnnounced: false },
-      tyler: { charges: 3, guard: 0, alarm: 0, closed: 0, stance: "idle" },
-      attrs: { wisdom: 1, strength: 1, beauty: 1 },
+      tyler: { charges: 3, guard: 0, alarm: 0, closed: 0, installation: 1, stance: "idle" },
       stats: { defeated: 0, highest: 0, bestChain: 0, bosses: 0 },
       message: "Begin the Trial and prepare the Lodge.",
       chest: null,
@@ -178,6 +184,10 @@
       img.onerror = () => resolve(null);
       img.src = src;
     });
+  }
+
+  function swapsForTrial(trial) {
+    return Math.max(8, Math.round((18 + Math.floor((trial - 1) / 3)) * 0.67));
   }
 
   function resizeCanvas() {
@@ -266,7 +276,7 @@
   function nextTrial() {
     state.trial += 1;
     state.mode = "prep";
-    state.swaps = 16 + Math.max(0, state.attrs.beauty - 1) + Math.floor(state.trial / 3);
+    state.swaps = swapsForTrial(state.trial);
     state.enemies = [];
     state.projectiles = [];
     state.selected = null;
@@ -274,8 +284,14 @@
     state.tyler.guard = 0;
     state.tyler.alarm = 0;
     state.tyler.closed = 0;
+    state.tyler.installation = 1;
     refillEmptyTiles();
-    say("THE LODGE IS SECURE. Prepare for the next Trial.");
+    if ((state.trial - 1) % 10 === 0) {
+      randomiseEntryLevelDefences();
+      say("A new Degree begins: the entry-level positions have been refreshed.");
+    } else {
+      say("THE LODGE IS SECURE. Prepare for the next Trial.");
+    }
     if (state.trial % 5 === 1) {
       state.eventCard = randomEventCard();
     }
@@ -290,7 +306,7 @@
       },
       {
         title: "Festive Board",
-        body: "The next Trial begins with Sound the Alarm active.",
+        body: "The next Trial begins with all defences working faster.",
         apply: () => { state.tyler.alarm = 6; },
       },
       {
@@ -505,6 +521,30 @@
     }
   }
 
+  function randomiseEntryLevelDefences() {
+    const slots = [];
+    const tiles = [];
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const cell = state.board[row][col];
+        const tile = cell.tile;
+        if (!cell.path && tile && (!tile.tower || tile.level === 0)) {
+          slots.push({ row, col });
+          tiles.push(tile);
+        }
+      }
+    }
+    for (let index = tiles.length - 1; index > 0; index -= 1) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [tiles[index], tiles[target]] = [tiles[target], tiles[index]];
+    }
+    slots.forEach((slot, index) => {
+      state.board[slot.row][slot.col].tile = tiles[index];
+      particle(boardPoint(slot.row, slot.col), palette.lightBlue, 4);
+    });
+    floatText("NEW DEGREE REFRESH", board.x + board.w / 2, board.y - 28, palette.lightBlue, 24);
+  }
+
   function upgradeRandomTower() {
     const towers = [];
     for (let row = 0; row < GRID; row += 1) {
@@ -567,16 +607,16 @@
         const speedBoost = supportBoost * (state.tyler.alarm > 0 ? 1.55 : 1);
         if (tile.cooldown > 0) continue;
         const origin = boardPoint(row, col);
-        const target = nearestEnemy(origin, def.range[tile.level] * (1 + state.attrs.wisdom * 0.03));
+        const target = nearestEnemy(origin, def.range[tile.level]);
         if (!target) continue;
         tile.cooldown = def.rate[tile.level] / speedBoost;
-        const damage = def.damage[tile.level] * (1 + state.attrs.strength * 0.05) * (tile.charged ? 1.22 : 1);
+        const damage = def.damage[tile.level] * (tile.charged ? 1.22 : 1);
         fireProjectile(origin, target, tile.kind, damage);
         if (supportBoost > 1) {
           tile.supportFlash = 0.45;
           state.supportPulses.push({ row, col, life: 0.65, boost: supportBoost });
           if ((tile.boostNotice || 0) <= 0) {
-            floatText("Bench boost", origin.x, origin.y - 30, palette.lightBlue, 12);
+            floatText("Lewis boost", origin.x, origin.y - 30, palette.lightBlue, 12);
             tile.boostNotice = 2.2;
           }
         }
@@ -669,6 +709,23 @@
   }
 
   function useAbility(id) {
+    if (id === "installation") {
+      if (state.mode !== "prep") {
+        say("Installation can only be used while setting up the Lodge.");
+        return;
+      }
+      if (state.tyler.installation <= 0) {
+        say("Installation has already been used for this Trial.");
+        return;
+      }
+      state.tyler.installation -= 1;
+      shuffleBoard();
+      state.selected = null;
+      particle({ x: board.x + board.w / 2, y: board.y + board.h / 2 }, palette.lightBlue, 46);
+      floatText("INSTALLATION", board.x + board.w / 2, board.y - 28, palette.gold, 28);
+      say("Installation: the whole board has been randomised for fresh matches.");
+      return;
+    }
     if (state.mode !== "combat") return;
     if (id === "sword") {
       if (state.tyler.charges <= 0 || !state.enemies.length) {
@@ -690,7 +747,7 @@
     if (id === "alarm") {
       if (state.tyler.alarm > 0) return;
       state.tyler.alarm = 7;
-      say("Sound the Alarm: all defences work faster.");
+      say("Festive Board: all defences work faster.");
     }
     if (id === "close") {
       if (state.tyler.closed > 0) return;
@@ -932,6 +989,12 @@
     return chapters.reduce((active, chapter) => (state.trial >= chapter.min ? chapter : active), chapters[0]).name;
   }
 
+  function levelCounter() {
+    const name = chapterName();
+    const progress = ((state.trial - 1) % 10) + 1;
+    return `${name} ${progress}/10`;
+  }
+
   function say(message) {
     state.message = message;
     if (help) help.textContent = message;
@@ -981,11 +1044,16 @@
   function buttonRects() {
     return [
       { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1018, y: 602, w: 190, h: 48 },
-      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 534, w: 132, h: 42 },
-      { id: "guard", label: "GUARD", x: 198, y: 534, w: 112, h: 42 },
-      { id: "alarm", label: "ALARM", x: 54, y: 584, w: 112, h: 42 },
-      { id: "close", label: "CLOSE", x: 178, y: 584, w: 112, h: 42 },
+      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 566, w: 132, h: 36 },
+      { id: "guard", label: "GUARD", x: 198, y: 566, w: 112, h: 36 },
+      { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 54, y: 610, w: 132, h: 36 },
+      { id: "close", label: "CLOSE", x: 198, y: 610, w: 112, h: 36 },
     ];
+  }
+
+  function abilityDisabled(id) {
+    if (id === "installation") return state.mode !== "prep" || state.tyler.installation <= 0;
+    return state.mode !== "combat";
   }
 
   function menuRects() {
@@ -1164,9 +1232,15 @@
     ctx.save();
     ctx.shadowColor = "rgba(201,154,53,0.35)";
     ctx.shadowBlur = 18;
-    ctx.fillStyle = gradientFill(430, 78, 420, 24, [[0, palette.navy], [0.5, palette.royal], [1, palette.navy]]);
-    roundRect(430, 78, 420, 24, 8);
+    ctx.fillStyle = gradientFill(414, 76, 452, 32, [[0, palette.navy], [0.5, palette.royal], [1, palette.navy]]);
+    roundRect(414, 76, 452, 32, 10);
     ctx.fill();
+    ctx.shadowColor = "rgba(201,154,53,0.8)";
+    ctx.shadowBlur = 18;
+    ctx.strokeStyle = palette.gold;
+    ctx.lineWidth = 3;
+    roundRect(496, 64, 288, 50, 14);
+    ctx.stroke();
     ctx.restore();
     for (let i = 0; i < 4 + stage; i += 1) {
       const x = 442 + i * (368 / Math.max(1, 3 + stage));
@@ -1178,17 +1252,25 @@
       ctx.fill();
     }
     label(["Small Lodge", "Established Lodge", "Masonic Hall", "Provincial Hall", "Grand Temple"][stage], 640, 46, 22, palette.navy, 900, "center");
-    label("LODGE ENTRANCE", 640, 82, 12, palette.gold, 900, "center");
+    label("LODGE ENTRANCE", 640, 84, 15, palette.gold, 900, "center");
   }
 
   function drawTopBar() {
     panel(28, 20, 1224, 56, "rgba(6,26,54,0.9)", "rgba(201,154,53,0.65)", 18);
-    label(`TRIAL ${roman(state.trial)}`, 56, 38, 20, palette.cream, 900);
-    label(chapterName(), 188, 40, 14, palette.lightBlue, 900);
+    label(levelCounter(), 56, 37, 19, palette.cream, 900);
     label(`SWAPS ${state.swaps}`, 460, 38, 18, palette.gold, 900, "center");
     label(`SECURITY ${state.security}/${state.maxSecurity}`, 642, 38, 18, palette.cream, 900, "center");
     label(`SCORE ${state.score}`, 842, 38, 18, palette.lightBlue, 900, "center");
-    label(`W ${state.attrs.wisdom} | S ${state.attrs.strength} | B ${state.attrs.beauty}`, 1100, 38, 16, palette.gold, 900, "center");
+    if (images.logo) {
+      ctx.save();
+      ctx.fillStyle = "rgba(255,246,223,0.96)";
+      ctx.beginPath();
+      ctx.arc(1112, 48, 24, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.drawImage(images.logo, 1091, 27, 42, 42);
+      ctx.restore();
+    }
+    label("Surrey 1837 Club", 1144, 39, 15, palette.gold, 900, "left", 92);
   }
 
   function drawSidePanels() {
@@ -1197,7 +1279,12 @@
     wrap(state.message, 58, 154, 254, 20, 14, palette.cream);
     drawInspectCard(58, 404, 252, 102);
     label("Abilities", 58, 510, 16, palette.gold, 900);
-    buttonRects().slice(1).forEach((button) => drawButton(button, state.mode !== "combat"));
+    const hoveredAbility = buttonRects().slice(1).find((button) => rectHit(button, pointer));
+    const abilityText = hoveredAbility
+      ? abilityGuide[hoveredAbility.id]
+      : "Use Installation during setup. Other abilities work during combat.";
+    wrap(abilityText, 58, 530, 252, 13, 10.5, "rgba(255,255,255,0.76)", 800);
+    buttonRects().slice(1).forEach((button) => drawButton(button, abilityDisabled(button.id)));
 
     panel(926, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
     label("Defence Guide", 954, 120, 22, palette.lightBlue, 900);
@@ -1211,7 +1298,7 @@
       wrap(defenceGuide[keyName], 1018, y + 25, 178, 13, 10.5, "rgba(255,255,255,0.76)", 800);
     });
     drawButton(buttonRects()[0], state.mode !== "prep");
-    label("Match, build, merge, defend. Tool benches support nearby towers.", 954, 557, 13, "rgba(255,255,255,0.78)", 800, "left", 248);
+    label("Match, build, merge, defend. Lewis supports nearby towers.", 954, 557, 13, "rgba(255,255,255,0.78)", 800, "left", 248);
   }
 
   function drawInspectCard(x, y, w, h) {
@@ -1272,7 +1359,10 @@
         ctx.lineWidth = selected ? 5 : 1.5;
         ctx.stroke();
         ctx.restore();
-        if (cell.path) drawPathMark(x, y, row, col);
+        if (cell.path) {
+          drawPathMark(x, y, row, col);
+          if (isLodgeDoor(row, col)) drawEntranceCell(x, y, row, col);
+        }
         if (cell.tile?.tower) drawTowerRange(cell.tile, row, col);
         if (cell.tile) drawTile(cell.tile, x + 6, y + 6, CELL - 12, selected, row, col);
       }
@@ -1323,6 +1413,24 @@
     ctx.globalAlpha = 0.28;
     ctx.fillRect(x + 8, y + 8, 20, 20);
     ctx.fillRect(x + 36, y + 36, 20, 20);
+    ctx.restore();
+  }
+
+  function drawEntranceCell(x, y, row, col) {
+    ctx.save();
+    const pulse = 0.65 + (!reducedMotion ? Math.sin(clock * 3) * 0.15 : 0);
+    ctx.globalAlpha = row === 0 ? pulse : 0.5;
+    ctx.fillStyle = gradientFill(x + 7, y + 7, CELL - 14, CELL - 14, [[0, "#fff3bf"], [0.45, palette.gold], [1, "#6b4315"]]);
+    roundRect(x + 8, y + 8, CELL - 16, CELL - 16, 12);
+    ctx.fill();
+    ctx.strokeStyle = palette.cream;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(x + CELL / 2, y + CELL * 0.62, CELL * 0.23, Math.PI, Math.PI * 2);
+    ctx.lineTo(x + CELL * 0.73, y + CELL * 0.8);
+    ctx.lineTo(x + CELL * 0.27, y + CELL * 0.8);
+    ctx.closePath();
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -1410,47 +1518,57 @@
       ctx.stroke();
     }
     if (kind === "tool") {
-      ctx.lineCap = "round";
-      ctx.strokeStyle = tower ? palette.lightBlue : def.dark;
+      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#dff8ff"], [1, def.color]]);
       ctx.beginPath();
-      ctx.moveTo(x + size * 0.22, y + size * 0.72);
-      ctx.lineTo(x + size * 0.78, y + size * 0.26);
-      ctx.moveTo(x + size * 0.22, y + size * 0.26);
-      ctx.lineTo(x + size * 0.78, y + size * 0.72);
-      ctx.stroke();
-      ctx.fillStyle = def.color;
-      roundRect(cx - size * 0.24, cy - size * 0.08, size * 0.48, size * 0.16, 4);
+      ctx.moveTo(cx - size * 0.22, y + size * 0.22);
+      ctx.lineTo(cx + size * 0.22, y + size * 0.22);
+      ctx.lineTo(cx + size * 0.12, y + size * 0.5);
+      ctx.lineTo(cx + size * 0.28, y + size * 0.78);
+      ctx.lineTo(cx - size * 0.28, y + size * 0.78);
+      ctx.lineTo(cx - size * 0.12, y + size * 0.5);
+      ctx.closePath();
       ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = palette.cream;
+      ctx.beginPath();
+      ctx.moveTo(cx, y + size * 0.28);
+      ctx.lineTo(cx, y + size * 0.72);
       ctx.stroke();
     }
     if (kind === "acacia") {
-      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#92e09a"], [1, def.dark]]);
+      ctx.lineCap = "round";
+      ctx.strokeStyle = tower ? palette.gold : def.dark;
+      ctx.lineWidth = Math.max(3, size * 0.08);
       ctx.beginPath();
-      ctx.moveTo(cx, y + size * 0.78);
-      ctx.quadraticCurveTo(cx - size * 0.18, cy, cx, y + size * 0.22);
-      ctx.quadraticCurveTo(cx + size * 0.18, cy, cx, y + size * 0.78);
+      ctx.moveTo(cx - size * 0.18, y + size * 0.78);
+      ctx.lineTo(cx + size * 0.18, y + size * 0.22);
+      ctx.stroke();
+      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#efe8ff"], [1, def.color]]);
+      ctx.beginPath();
+      ctx.arc(cx + size * 0.22, y + size * 0.18, size * 0.09, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
-      for (let i = 0; i < 4; i += 1) {
-        ctx.beginPath();
-        ctx.arc(cx - size * 0.12, y + size * (0.34 + i * 0.1), size * 0.06, 0, Math.PI * 2);
-        ctx.arc(cx + size * 0.12, y + size * (0.38 + i * 0.1), size * 0.06, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      ctx.strokeStyle = palette.cream;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx - size * 0.1, y + size * 0.66);
+      ctx.lineTo(cx + size * 0.24, y + size * 0.12);
+      ctx.stroke();
     }
     if (kind === "gold") {
-      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#ffe79a"], [0.5, def.color], [1, "#8f5a16"]]);
+      ctx.fillStyle = gradientFill(x, y, size, size, [[0, "#ffd4d8"], [0.5, def.color], [1, "#671018"]]);
       ctx.beginPath();
-      ctx.arc(cx, cy, size * 0.28, 0, Math.PI * 2);
+      ctx.moveTo(cx, y + size * 0.18);
+      ctx.lineTo(cx + size * 0.28, cy);
+      ctx.lineTo(cx, y + size * 0.82);
+      ctx.lineTo(cx - size * 0.28, cy);
+      ctx.closePath();
       ctx.fill();
       ctx.stroke();
+      ctx.fillStyle = palette.gold;
       ctx.beginPath();
-      ctx.moveTo(cx, cy - size * 0.14);
-      ctx.lineTo(cx + size * 0.13, cy + size * 0.1);
-      ctx.lineTo(cx - size * 0.13, cy + size * 0.1);
-      ctx.closePath();
-      ctx.strokeStyle = palette.cream;
-      ctx.stroke();
+      ctx.arc(cx, cy, size * 0.11, 0, Math.PI * 2);
+      ctx.fill();
     }
     if (tower) {
       ctx.strokeStyle = palette.gold;
@@ -1463,30 +1581,24 @@
   }
 
   function drawTyler() {
-    const x = 150;
-    const y = 244 + (!reducedMotion ? Math.sin(clock * 2) * 3 : 0);
+    const x = 145;
+    const y = 230 + (!reducedMotion ? Math.sin(clock * 2) * 2 : 0);
     if (images.character) {
       ctx.save();
       if (state.tyler.stance === "strike") ctx.filter = "brightness(1.15) saturate(1.15)";
       ctx.shadowColor = "rgba(0,0,0,0.38)";
       ctx.shadowBlur = 16;
-      ctx.drawImage(images.character, x - 58, y, 160, 240);
+      ctx.drawImage(images.character, x - 54, y, 136, 204);
       ctx.restore();
     } else {
       ctx.fillStyle = palette.navy;
       ctx.fillRect(x, y, 42, 112);
     }
-    ctx.strokeStyle = palette.gold;
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(x + 82, y + 64);
-    ctx.lineTo(x + 130, y + 134);
-    ctx.stroke();
     if (state.tyler.guard > 0 || state.tyler.closed > 0) {
       ctx.strokeStyle = "rgba(159,212,255,0.8)";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(x + 52, y + 98, 66, 0, Math.PI * 2);
+      ctx.arc(x + 40, y + 90, 58, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
@@ -1578,7 +1690,7 @@
     ctx.fillStyle = "rgba(3,12,24,0.62)";
     ctx.fillRect(0, 0, W, H);
     label("THE TRIAL BEGINS", W / 2, H / 2 - 36, 44, palette.gold, 900, "center");
-    label(`Trial ${roman(state.trial)}`, W / 2, H / 2 + 18, 22, palette.cream, 900, "center");
+    label(levelCounter(), W / 2, H / 2 + 18, 22, palette.cream, 900, "center");
     ctx.restore();
   }
 
@@ -1597,16 +1709,15 @@
     ctx.fillRect(0, 0, W, H);
     panel(330, 90, 620, 580, "rgba(6,26,54,0.94)", "rgba(201,154,53,0.88)", 26);
     label("TYLER'S TRIAL", 640, 136, 54, palette.cream, 900, "center");
-    label("A Masonic Puzzle of Wisdom, Strength & Beauty", 640, 202, 18, palette.lightBlue, 900, "center");
+    label("A Masonic puzzle of preparation, harmony, and defence", 640, 202, 18, palette.lightBlue, 900, "center");
     if (state.mode === "how") {
-      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. During combat, towers defend automatically while Tyler abilities buy time. Tools do not attack: place them beside towers to make those towers fire faster. Gold Chests can reward swaps, repairs, upgrades, or a deliberate board refresh.", 430, 278, 420, 23, 15, palette.cream);
+      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. During setup, Installation randomises the whole board once. During combat, towers defend automatically while Tyler abilities buy time. Lewis supports nearby towers but does not attack directly. Jewels can reward swaps, repairs, upgrades, or a deliberate board refresh.", 430, 264, 420, 22, 14, palette.cream);
     } else if (state.mode === "achievements") {
       wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 430, 288, 420, 24, 16, palette.cream);
     } else {
       menuRects().forEach((rect) => drawButton(rect, false));
     }
     if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 505, y: 552, w: 270, h: 50 }, false);
-    label("An independent Masonic-themed game. Not affiliated with the United Grand Lodge of England.", 640, 642, 11, "rgba(255,255,255,0.66)", 800, "center");
   }
 
   function drawGameOver() {
@@ -1655,7 +1766,8 @@
       beginButton.disabled = !["menu", "prep"].includes(state.mode);
     }
     if (alarmButton) {
-      alarmButton.disabled = state.mode !== "combat";
+      alarmButton.textContent = "Installation";
+      alarmButton.disabled = state.mode !== "prep" || state.tyler.installation <= 0;
     }
   }
 
@@ -1683,7 +1795,7 @@
       if (state.mode === "menu") startGame();
       else if (state.mode === "prep") beginCombat();
     });
-    alarmButton?.addEventListener("click", () => useAbility("alarm"));
+    alarmButton?.addEventListener("click", () => useAbility("installation"));
     restartButton?.addEventListener("click", startGame);
     document.addEventListener("keydown", (event) => {
       const key = event.key.toLowerCase();
@@ -1694,7 +1806,7 @@
       }
       if (key === "1") useAbility("sword");
       if (key === "2") useAbility("guard");
-      if (key === "3") useAbility("alarm");
+      if (key === "3") useAbility("installation");
       if (key === "4") useAbility("close");
     });
   }
