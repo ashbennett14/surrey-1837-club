@@ -29,9 +29,8 @@
             <p class="section-kicker">Hidden Easter Egg</p>
             <h1 id="trialQuestTitle">Tyler's Trial</h1>
             <p>
-              Place lodge-floor tiles, close quiet areas, and collect useful
-              items between rounds. The more carefully you set the floor, the
-              better your score.
+              Guide the Light Blue around the lodge room, collect the right
+              items, and set each station before time runs out.
             </p>
           </div>
           <a class="small-action-link trial-return-link" href="index.html">Return to the 1837 Club</a>
@@ -46,8 +45,8 @@
             aria-label="Interactive tile-placement game board"
             role="img"
           >
-            Tyler's Trial is an interactive canvas game. Select one of the three
-            tile choices, rotate it, and place it on the lodge floor.
+            Tyler's Trial is an interactive canvas game. Move the character,
+            collect items, and carry them to the matching lodge-room station.
           </canvas>
           <div class="lodge-game-loading" id="lodgeGameLoading" aria-live="polite">
             Preparing the lodge floor...
@@ -56,10 +55,10 @@
 
         <div class="lodge-game-controls" aria-label="Game controls">
           <button class="small-action-link trial-secondary-action" type="button" id="gameRotate">
-            Rotate Tile
+            Call Guide
           </button>
           <button class="small-action-link trial-secondary-action" type="button" id="gameRedraw">
-            Redraw Choices
+            Drop Item
           </button>
           <button class="small-action-link trial-secondary-action" type="button" id="gameRestart">
             Play Again
@@ -70,10 +69,10 @@
         </div>
 
         <p class="lodge-game-help" id="lodgeGameHelp" aria-live="polite">
-          Choose a tile on the right, rotate it if needed, then place it on the lodge floor.
+          Use the arrow keys, WASD, or click/tap the floor to move. Pick up an item and carry it to its glowing station.
         </p>
       </section>
     </main>
-    <script src="tylers-trial.js?v=lodge-floor-game"></script>
+    <script src="tylers-trial.js?v=lodge-room-quest"></script>
   </body>
 </html>
