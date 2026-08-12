@@ -382,7 +382,7 @@
       }
 
       for (const [path, asset] of pendingAssets) {
-        const base64Content = await fileToBase64(asset.file);
+        const base64Content = await asset.contentPromise;
         await updateGithubFile(token, path, base64Content, `Upload calendar image ${path}`, true);
       }
 
@@ -575,7 +575,7 @@
 
     const extension = getFileExtension(selectedFile);
     const path = `assets/${createId(formData.get("date"), title)}${extension}`;
-    pendingAssets.set(path, { file: selectedFile });
+    pendingAssets.set(path, { contentPromise: fileToBase64(selectedFile) });
     return path;
   }
 
