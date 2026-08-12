@@ -179,7 +179,6 @@
         mergedThisTrial: 0,
       },
       objective: null,
-      tutorial: { active: false, step: 0, targetA: null, targetB: null },
       message: "Begin the Trial and prepare the Lodge.",
       chest: null,
       eventCard: null,
@@ -229,7 +228,7 @@
   }
 
   function isLodgeDoor(row, col) {
-    return row === 0 && (col === 3 || col === 4);
+    return row === 0 && col === 4;
   }
 
   function makeTile(kind) {
@@ -268,25 +267,16 @@
     state.mode = "prep";
     hideLeaderboard();
     setTrialObjective();
-    startTutorial();
+    say("Prepare the Lodge. Swap adjacent tiles; three resources become defences.");
   }
 
   function beginCombat() {
     if (state.mode !== "prep") return;
-    if (state.tutorial.active && state.tutorial.step === 0) {
-      say("First make the highlighted swap so you can see how a defence is created.");
-      return;
-    }
     state.mode = "combat";
     state.selected = null;
     state.wave = makeWave();
     state.transition = 1.6;
-    if (state.tutorial.active) {
-      state.tutorial.step = Math.max(state.tutorial.step, 3);
-      say("THE TRIAL BEGINS. Your defences now work automatically. Watch how each one counters different threats.");
-    } else {
-      say("THE TRIAL BEGINS. Your defences will work automatically.");
-    }
+    say("THE TRIAL BEGINS. Your defences will work automatically.");
     state.tyler.stance = "ready";
     knock();
   }
@@ -310,7 +300,6 @@
     state.tyler.alarm = 0;
     state.tyler.closed = 0;
     state.tyler.installation = 1;
-    state.tutorial.active = false;
     refillEmptyTiles();
     if ((state.trial - 1) % 10 === 0) {
       randomiseEntryLevelDefences();
@@ -376,43 +365,6 @@
     if (objective.completed) return `Complete +${objective.bonus}`;
     if (objective.kind === "security") return `${state.security}/${objective.target}+ security`;
     return `${Math.min(objective.progress, objective.target)}/${objective.target}`;
-  }
-
-  function startTutorial() {
-    state.tutorial = {
-      active: true,
-      step: 0,
-      targetA: { row: 6, col: 3 },
-      targetB: { row: 6, col: 2 },
-    };
-    [[6, 2, "ashlar"], [6, 3, "candle"], [6, 4, "ashlar"], [6, 5, "ashlar"]].forEach(([row, col, kind]) => {
-      if (!state.board[row][col].path) state.board[row][col].tile = makeTile(kind);
-    });
-    state.message = "Guided first Trial: swap the highlighted Candle and Ashlar to make three Ashlars.";
-    say("Guided first Trial: swap the highlighted Candle and Ashlar to make three Ashlars.");
-  }
-
-  function tutorialAllowsSwap(a, b) {
-    if (!state.tutorial.active || state.tutorial.step !== 0) return true;
-    const { targetA, targetB } = state.tutorial;
-    const first = a.row === targetA.row && a.col === targetA.col && b.row === targetB.row && b.col === targetB.col;
-    const second = a.row === targetB.row && a.col === targetB.col && b.row === targetA.row && b.col === targetA.col;
-    if (first || second) return true;
-    say("For this first move, use the highlighted pair so you can see a defence being made.");
-    return false;
-  }
-
-  function advanceTutorialAfterSwap(chain) {
-    if (!state.tutorial.active) return;
-    if (state.tutorial.step === 0 && chain > 0) {
-      state.tutorial.step = 1;
-      say("Good. Three matching resources have formed a defence. Three matching defences will merge into a stronger one.");
-      return;
-    }
-    if (state.tutorial.step === 1) {
-      state.tutorial.step = 2;
-      say("Use your remaining swaps to build more defences, then press Begin Trial to test the Lodge.");
-    }
   }
 
   function randomEventCard() {
@@ -487,10 +439,6 @@
   }
 
   function swapCells(a, b) {
-    if (!tutorialAllowsSwap(a, b)) {
-      state.selected = null;
-      return;
-    }
     const ca = state.board[a.row][a.col];
     const cb = state.board[b.row][b.col];
     if (ca.path || cb.path || !ca.tile || !cb.tile) return;
@@ -500,7 +448,6 @@
     particle(boardPoint(b.row, b.col), palette.lightBlue, 18);
     say("Tiles swapped. Matches may build or strengthen your defences.");
     const chain = resolveMatches(false, [a, b]);
-    advanceTutorialAfterSwap(chain);
     if (chain === 0) say("No match this time. Positioning still matters.");
     if (state.swaps <= 0) beginCombat();
   }
@@ -1207,6 +1154,7 @@
   function buttonRects() {
     return [
       { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1018, y: 602, w: 190, h: 48 },
+      { id: "scores", label: "HIGH SCORES", x: 1018, y: 548, w: 190, h: 40 },
       { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 566, w: 132, h: 36 },
       { id: "guard", label: "GUARD", x: 198, y: 566, w: 112, h: 36 },
       { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 54, y: 610, w: 132, h: 36 },
@@ -1214,7 +1162,12 @@
     ];
   }
 
+  function abilityRects() {
+    return buttonRects().filter((button) => ["sword", "guard", "installation", "close"].includes(button.id));
+  }
+
   function abilityDisabled(id) {
+    if (id === "scores") return false;
     if (id === "installation") return state.mode !== "prep" || state.tyler.installation <= 0;
     return state.mode !== "combat";
   }
@@ -1263,6 +1216,10 @@
     const button = buttonRects().find((rect) => rectHit(rect, point));
     if (button) {
       if (button.id === "begin" && state.mode === "prep") beginCombat();
+      if (button.id === "scores") {
+        showLeaderboard();
+        return;
+      }
       if (button.id !== "begin") useAbility(button.id);
       return;
     }
@@ -1378,7 +1335,6 @@
     drawLodge();
     drawTopBar();
     drawSidePanels();
-    drawObjectivePanel();
     drawBoard();
     drawTyler();
     drawEnemies();
@@ -1442,10 +1398,10 @@
   function drawObjectivePanel() {
     if (!state.objective || ["menu", "how", "achievements", "game-over"].includes(state.mode)) return;
     const completed = state.objective.completed;
-    panel(424, 82, 432, 38, completed ? "rgba(77,150,88,0.9)" : "rgba(6,26,54,0.88)", completed ? "rgba(255,246,223,0.55)" : "rgba(159,212,255,0.5)", 13);
-    label("Objective", 446, 94, 11, completed ? palette.cream : palette.gold, 900);
-    label(state.objective.text, 522, 93, 13, palette.cream, 900, "left", 236);
-    label(objectiveProgressText(), 830, 93, 12, completed ? palette.cream : palette.lightBlue, 900, "right", 80);
+    panel(954, 492, 268, 48, completed ? "rgba(77,150,88,0.86)" : "rgba(255,246,223,0.1)", completed ? "rgba(255,246,223,0.55)" : "rgba(159,212,255,0.38)", 12);
+    label("Objective", 970, 503, 11, completed ? palette.cream : palette.gold, 900);
+    label(objectiveProgressText(), 1206, 503, 11, completed ? palette.cream : palette.lightBlue, 900, "right", 74);
+    label(state.objective.text, 970, 520, 11, palette.cream, 900, "left", 228);
   }
 
   function drawSidePanels() {
@@ -1454,27 +1410,29 @@
     wrap(state.message, 58, 154, 254, 20, 14, palette.cream);
     drawInspectCard(58, 404, 252, 102);
     label("Abilities", 58, 510, 16, palette.gold, 900);
-    const hoveredAbility = buttonRects().slice(1).find((button) => rectHit(button, pointer));
+    const hoveredAbility = abilityRects().find((button) => rectHit(button, pointer));
     const abilityText = hoveredAbility
       ? abilityGuide[hoveredAbility.id]
       : "Use Installation during setup. Other abilities work during combat.";
     wrap(abilityText, 58, 530, 252, 13, 10.5, "rgba(255,255,255,0.76)", 800);
-    buttonRects().slice(1).forEach((button) => drawButton(button, abilityDisabled(button.id)));
+    abilityRects().forEach((button) => drawButton(button, abilityDisabled(button.id)));
 
     panel(926, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
     label("Defence Guide", 954, 120, 22, palette.lightBlue, 900);
     resourceKeys.forEach((keyName, index) => {
-      const y = 156 + index * 78;
+      const y = 150 + index * 65;
       const def = resources[keyName];
-      const hover = rectHit({ x: 954, y: y - 4, w: 268, h: 70 }, pointer);
-      panel(954, y - 4, 268, 70, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 12);
-      drawIcon(keyName, 965, y + 8, 42, 0, false);
-      label(def.short, 1018, y + 5, 13, palette.cream, 900, "left", 182);
-      label(def.role, 1018, y + 20, 10, def.color, 900, "left", 178);
-      wrap(defenceGuide[keyName], 1018, y + 34, 178, 12, 9.5, "rgba(255,255,255,0.76)", 800);
+      const hover = rectHit({ x: 954, y: y - 4, w: 268, h: 58 }, pointer);
+      panel(954, y - 4, 268, 58, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 12);
+      drawIcon(keyName, 965, y + 7, 38, 0, false);
+      label(def.short, 1012, y + 3, 13, palette.cream, 900, "left", 188);
+      label(def.role, 1012, y + 18, 10, def.color, 900, "left", 184);
+      wrap(defenceGuide[keyName], 1012, y + 31, 184, 11, 9, "rgba(255,255,255,0.76)", 800);
     });
-    drawButton(buttonRects()[0], state.mode !== "prep");
-    wrap("Inspect tiles and threats for counters. Match resources to build; match defences to merge.", 954, 552, 248, 15, 11, "rgba(255,255,255,0.78)", 800);
+    drawObjectivePanel();
+    drawButton(buttonRects().find((button) => button.id === "scores"), false);
+    drawButton(buttonRects().find((button) => button.id === "begin"), state.mode !== "prep");
+    wrap("Inspect tiles and threats for counters. Match resources to build; match defences to merge.", 954, 656, 248, 15, 11, "rgba(255,255,255,0.78)", 800);
   }
 
   function drawInspectCard(x, y, w, h) {
@@ -1552,45 +1510,7 @@
       }
     }
     drawTowerRanges();
-    drawTutorialPrompt();
-    drawEntranceGateway();
     drawSupportPulses();
-  }
-
-  function drawTutorialPrompt() {
-    if (!state.tutorial.active || state.mode !== "prep") return;
-    const { targetA, targetB, step } = state.tutorial;
-    if (step === 0 && targetA && targetB) {
-      [targetA, targetB].forEach((cell) => {
-        const x = board.x + cell.col * CELL;
-        const y = board.y + cell.row * CELL;
-        ctx.save();
-        ctx.shadowColor = palette.gold;
-        ctx.shadowBlur = 18;
-        ctx.strokeStyle = palette.gold;
-        ctx.lineWidth = 5;
-        roundRect(x + 4, y + 4, CELL - 8, CELL - 8, 12);
-        ctx.stroke();
-        ctx.restore();
-      });
-      const a = boardPoint(targetA.row, targetA.col);
-      const b = boardPoint(targetB.row, targetB.col);
-      ctx.save();
-      ctx.strokeStyle = palette.lightBlue;
-      ctx.lineWidth = 5;
-      ctx.setLineDash([10, 8]);
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.stroke();
-      ctx.restore();
-      panel(board.x + 24, board.y + board.h - 92, board.w - 48, 62, "rgba(6,26,54,0.92)", "rgba(201,154,53,0.72)", 14);
-      label("Guided first move", board.x + board.w / 2, board.y + board.h - 78, 14, palette.gold, 900, "center");
-      label("Swap the highlighted pair to create three Ashlars and build your first defence.", board.x + board.w / 2, board.y + board.h - 54, 12, palette.cream, 900, "center", board.w - 78);
-    } else if (step < 3) {
-      panel(board.x + 34, board.y + board.h - 84, board.w - 68, 54, "rgba(6,26,54,0.88)", "rgba(159,212,255,0.5)", 14);
-      label("Three resources build a defence. Three matching defences merge into a stronger one.", board.x + board.w / 2, board.y + board.h - 64, 12, palette.cream, 900, "center", board.w - 98);
-    }
   }
 
   function drawTowerRanges() {
@@ -1656,11 +1576,14 @@
 
   function drawEntranceCell(x, y, row, col) {
     ctx.save();
-    const pulse = 0.65 + (!reducedMotion ? Math.sin(clock * 3) * 0.15 : 0);
-    ctx.globalAlpha = row === 0 ? pulse : 0.5;
-    ctx.fillStyle = gradientFill(x + 7, y + 7, CELL - 14, CELL - 14, [[0, "#fff3bf"], [0.45, palette.gold], [1, "#6b4315"]]);
-    roundRect(x + 8, y + 8, CELL - 16, CELL - 16, 12);
+    const pulse = 0.82 + (!reducedMotion ? Math.sin(clock * 3) * 0.1 : 0);
+    ctx.globalAlpha = pulse;
+    ctx.shadowColor = "rgba(201,154,53,0.7)";
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = gradientFill(x + 5, y + 5, CELL - 10, CELL - 10, [[0, "#fff3bf"], [0.45, palette.gold], [1, "#6b4315"]]);
+    roundRect(x + 5, y + 5, CELL - 10, CELL - 10, 12);
     ctx.fill();
+    ctx.shadowBlur = 0;
     ctx.strokeStyle = palette.cream;
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -1669,38 +1592,10 @@
     ctx.lineTo(x + CELL * 0.27, y + CELL * 0.8);
     ctx.closePath();
     ctx.stroke();
+    label("ENTRANCE", x + CELL / 2, y + 10, 8, palette.navy, 900, "center", CELL - 10);
     ctx.restore();
   }
 
-  function drawEntranceGateway() {
-    const x = board.x + CELL * 3 - 4;
-    const y = board.y - 24;
-    const w = CELL * 2 + 8;
-    const h = CELL + 28;
-    const pulse = 0.76 + (!reducedMotion ? Math.sin(clock * 2.2) * 0.1 : 0);
-    ctx.save();
-    ctx.globalAlpha = pulse;
-    ctx.shadowColor = "rgba(201,154,53,0.78)";
-    ctx.shadowBlur = 24;
-    ctx.strokeStyle = palette.gold;
-    ctx.lineWidth = 5;
-    roundRect(x, y, w, h, 18);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = "rgba(6,26,54,0.94)";
-    roundRect(x + 9, y + 5, w - 18, 24, 10);
-    ctx.fill();
-    label("LODGE ENTRANCE", x + w / 2, y + 11, 11, palette.gold, 900, "center");
-    ctx.fillStyle = "rgba(255,246,223,0.92)";
-    ctx.beginPath();
-    ctx.moveTo(x + w / 2, y + h + 9);
-    ctx.lineTo(x + w / 2 - 12, y + h - 12);
-    ctx.lineTo(x + w / 2 + 12, y + h - 12);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
 
   function drawTile(tile, x, y, size, selected, row, col) {
     const def = resources[tile.kind];
