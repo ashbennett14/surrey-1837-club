@@ -131,8 +131,8 @@
     items: "assets/tylers-lodge-items.webp",
     ui: "assets/tylers-lodge-ui.webp",
     tylerSheet: "assets/tylers-trial-tyler-sheet-v1.png",
-    defenceSheet: "assets/tylers-trial-defences-v1.png",
-    enemySheet: "assets/tylers-trial-enemies-v1.png",
+    defenceSheet: "assets/tylers-trial-defences-v2.png",
+    enemySheet: "assets/tylers-trial-enemies-v2.png",
     uiSheet: "assets/tylers-trial-ui-v1.png",
     logo: "assets/surrey-1837-club-badge.png",
   };
@@ -156,11 +156,11 @@
   ];
 
   const enemyTypes = {
-    cowan: { name: "Cowan", trait: "Fast", counter: "Wand slow", color: "#6e70c8", hp: 34, speed: 44, reward: 11, size: 12, weakTo: ["acacia"] },
-    ruffian: { name: "Ruffian", trait: "Heavy", counter: "Ashlar or Candle", color: "#9b4b37", hp: 90, speed: 27, reward: 22, size: 17, weakTo: ["ashlar", "candle"] },
-    mischief: { name: "Mischief", trait: "Swift", counter: "Wand slow", color: "#28324d", hp: 46, speed: 56, reward: 15, size: 11, weakTo: ["acacia"] },
-    discord: { name: "Discord", trait: "Disruptive", counter: "Candle focus", color: "#a82468", hp: 72, speed: 34, reward: 20, size: 14, aura: true, disrupt: 0.78, weakTo: ["candle"] },
-    lewis: { name: "Lewis Breaker", trait: "Boss", counter: "Focused fire", color: "#77736a", hp: 230, speed: 22, reward: 75, size: 24, boss: true, weakTo: ["ashlar", "candle", "gold"] },
+    cowan: { name: "Late Visitor", trait: "Fast", counter: "Wand slow", color: "#2b5f9f", hp: 34, speed: 44, reward: 11, size: 12, weakTo: ["acacia"] },
+    ruffian: { name: "Heavy Summons", trait: "Heavy", counter: "Ashlar or Candle", color: "#8a5735", hp: 90, speed: 27, reward: 22, size: 17, weakTo: ["ashlar", "candle"] },
+    mischief: { name: "Late Papers", trait: "Swift", counter: "Wand slow", color: "#28324d", hp: 46, speed: 56, reward: 15, size: 11, weakTo: ["acacia"] },
+    discord: { name: "Distraction", trait: "Disruptive", counter: "Candle focus", color: "#a82468", hp: 72, speed: 34, reward: 20, size: 14, aura: true, disrupt: 0.78, weakTo: ["candle"] },
+    lewis: { name: "Formal Challenge", trait: "Boss", counter: "Focused fire", color: "#17365d", hp: 230, speed: 22, reward: 75, size: 24, boss: true, weakTo: ["ashlar", "candle", "gold"] },
   };
 
   let state;
@@ -2031,12 +2031,12 @@
       wrap(def.detail, 360, y + 24, 232, 11, 9, palette.ink, 800);
     });
 
-    label("Threat Counters", 662, 204, 17, palette.gold, 900);
+    label("Challenge Counters", 662, 204, 17, palette.gold, 900);
     const counters = [
-      ["Fast", "Use Wand slow so other defences can finish them."],
-      ["Heavy", "Ashlar and Candle hit hardest against these."],
-      ["Disruptor", "Candle focus removes their speed-reducing aura."],
-      ["Boss", "Appears every tenth Trial. Focus fire and protect the entrance."],
+      ["Fast", "Use the officer's Wand to slow late arrivals and moving paperwork."],
+      ["Heavy", "Ashlar and Candle work best against large summons bundles."],
+      ["Disruptive", "Candle focus clears distractions before they slow nearby defences."],
+      ["Boss", "A formal challenge appears every tenth Trial. Focus fire and guard the entrance."],
     ];
     counters.forEach(([name, text], index) => {
       const y = 232 + index * 64;
