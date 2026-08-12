@@ -743,7 +743,7 @@ body[data-calendar="chapter"] .calendar-panel {
 }
 
 .lodge-game-shell {
-  width: min(1460px, calc(100vw - 24px));
+  width: min(1800px, calc(100vw - 24px));
 }
 
 .lodge-game-panel {
@@ -966,7 +966,7 @@ body[data-calendar="chapter"] .calendar-panel {
 .lodge-game-canvas {
   display: block;
   width: 100%;
-  max-height: min(76vh, 840px);
+  max-height: min(82vh, 900px);
   background: #071f3f;
   cursor: pointer;
 }

@@ -9,12 +9,12 @@
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
-  const W = 1280;
-  const H = 720;
+  const W = 1600;
+  const H = 900;
   const DPR = Math.max(1, Math.min(1.5, window.devicePixelRatio || 1));
   const GRID = 8;
-  const CELL = 64;
-  const board = { x: 386, y: 128, w: GRID * CELL, h: GRID * CELL };
+  const CELL = 78;
+  const board = { x: 488, y: 160, w: GRID * CELL, h: GRID * CELL };
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const palette = {
@@ -110,6 +110,13 @@
     tool: resources.tool.detail,
     acacia: resources.acacia.detail,
     gold: resources.gold.detail,
+  };
+  const defenceSummary = {
+    ashlar: "Balanced damage",
+    candle: "Long range",
+    tool: "Support boost",
+    acacia: "Slows fast challenges",
+    gold: "Bonus rewards",
   };
   const abilityGuide = {
     sword: "Combat: turn away the nearest threat. Uses one Tyler charge.",
@@ -1207,13 +1214,13 @@
 
   function buttonRects() {
     return [
-      { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1018, y: 602, w: 190, h: 48 },
-      { id: "scores", label: "SCORES", x: 954, y: 548, w: 128, h: 40 },
-      { id: "help", label: "HELP", x: 1094, y: 548, w: 128, h: 40 },
-      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 566, w: 132, h: 36 },
-      { id: "guard", label: "GUARD", x: 198, y: 566, w: 112, h: 36 },
-      { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 54, y: 610, w: 132, h: 36 },
-      { id: "close", label: "CLOSE", x: 198, y: 610, w: 112, h: 36 },
+      { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1288, y: 770, w: 240, h: 58 },
+      { id: "scores", label: "SCORES", x: 1234, y: 704, w: 144, h: 48 },
+      { id: "help", label: "HELP", x: 1390, y: 704, w: 138, h: 48 },
+      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 74, y: 720, w: 160, h: 46 },
+      { id: "guard", label: "GUARD", x: 252, y: 720, w: 138, h: 46 },
+      { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 74, y: 780, w: 160, h: 46 },
+      { id: "close", label: "CLOSE", x: 252, y: 780, w: 138, h: 46 },
     ];
   }
 
@@ -1229,29 +1236,29 @@
 
   function menuRects() {
     return [
-      { id: "begin", label: "BEGIN THE TRIAL", x: 505, y: 374, w: 270, h: 52 },
-      { id: "how", label: "HOW TO PLAY", x: 505, y: 436, w: 270, h: 46 },
-      { id: "achievements", label: "ACHIEVEMENTS", x: 505, y: 492, w: 270, h: 46 },
-      { id: "settings", label: state.muted ? "SOUND: OFF" : "SOUND: ON", x: 505, y: 548, w: 270, h: 46 },
-      { id: "return", label: "RETURN TO LODGE", x: 505, y: 604, w: 270, h: 46 },
+      { id: "begin", label: "BEGIN THE TRIAL", x: 650, y: 472, w: 300, h: 58 },
+      { id: "how", label: "HOW TO PLAY", x: 650, y: 542, w: 300, h: 52 },
+      { id: "achievements", label: "ACHIEVEMENTS", x: 650, y: 606, w: 300, h: 52 },
+      { id: "settings", label: state.muted ? "SOUND: OFF" : "SOUND: ON", x: 650, y: 670, w: 300, h: 52 },
+      { id: "return", label: "RETURN TO LODGE", x: 650, y: 734, w: 300, h: 52 },
     ];
   }
 
   function handlePointer(point) {
     pointer = point;
     if (state.helpOpen) {
-      if (rectHit({ x: 976, y: 124, w: 40, h: 40 }, point) || rectHit({ x: 466, y: 614, w: 348, h: 48 }, point)) state.helpOpen = false;
+      if (rectHit({ x: 1238, y: 136, w: 46, h: 46 }, point) || rectHit({ x: 626, y: 766, w: 348, h: 54 }, point)) state.helpOpen = false;
       return;
     }
     if (state.eventCard) {
-      if (rectHit({ x: 477, y: 484, w: 326, h: 54 }, point)) {
+      if (rectHit({ x: 610, y: 620, w: 380, h: 58 }, point)) {
         state.eventCard.apply();
         state.eventCard = null;
       }
       return;
     }
     if (state.mode === "menu" || state.mode === "how" || state.mode === "achievements") {
-      if (state.mode !== "menu" && rectHit({ x: 505, y: 552, w: 270, h: 50 }, point)) {
+      if (state.mode !== "menu" && rectHit({ x: 650, y: 746, w: 300, h: 56 }, point)) {
         state.mode = "menu";
         return;
       }
@@ -1268,8 +1275,8 @@
       return;
     }
     if (state.mode === "game-over") {
-      if (rectHit({ x: 440, y: 538, w: 190, h: 54 }, point)) startGame();
-      if (rectHit({ x: 650, y: 538, w: 190, h: 54 }, point)) window.location.href = "index.html";
+      if (rectHit({ x: 560, y: 690, w: 220, h: 60 }, point)) startGame();
+      if (rectHit({ x: 820, y: 690, w: 220, h: 60 }, point)) window.location.href = "index.html";
       return;
     }
     const button = buttonRects().find((rect) => rectHit(rect, point));
@@ -1367,26 +1374,45 @@
     ctx.restore();
   }
 
-  function wrap(text, x, y, w, line, size, color, weight, align) {
+  function wrap(text, x, y, w, line, size, color, weight, align, maxLines) {
     const words = text.split(" ");
     let current = "";
     let currentY = y;
+    let lineCount = 0;
     ctx.save();
     ctx.font = `${weight || 800} ${size}px Inter, Arial, sans-serif`;
     ctx.fillStyle = color;
     ctx.textAlign = align || "left";
     ctx.textBaseline = "top";
     const textX = align === "center" ? x + w / 2 : x;
-    words.forEach((word) => {
+    const drawLine = (value) => {
+      let output = value.trim();
+      if (maxLines && lineCount >= maxLines - 1) {
+        output = `${output}...`;
+        while (ctx.measureText(output).width > w && output.length > 4) {
+          output = `${output.slice(0, -4)}...`;
+        }
+      }
+      ctx.fillText(output, textX, currentY);
+      lineCount += 1;
+      currentY += line;
+    };
+    for (let index = 0; index < words.length; index += 1) {
+      const word = words[index];
       const test = `${current}${word} `;
       if (ctx.measureText(test).width > w && current) {
-        ctx.fillText(current.trim(), textX, currentY);
+        if (maxLines && lineCount >= maxLines - 1) {
+          drawLine(current);
+          ctx.restore();
+          return currentY;
+        }
+        drawLine(current);
         current = `${word} `;
-        currentY += line;
       } else current = test;
-    });
-    ctx.fillText(current.trim(), textX, currentY);
+    }
+    if (current && (!maxLines || lineCount < maxLines)) drawLine(current);
     ctx.restore();
+    return currentY;
   }
 
   function drawGame() {
@@ -1415,90 +1441,89 @@
 
   function drawLodge() {
     const stage = Math.min(4, Math.floor((state.trial - 1) / 5));
-    panel(384, 24, 512, 88 + stage * 5, "rgba(255,246,223,0.9)", "rgba(201,154,53,0.92)", 18);
+    const plaqueX = board.x + 110;
+    const plaqueY = 112;
+    const plaqueW = board.w - 220;
+    panel(plaqueX, plaqueY, plaqueW, 46, "rgba(6,26,54,0.9)", "rgba(201,154,53,0.82)", 14);
     ctx.save();
-    ctx.shadowColor = "rgba(201,154,53,0.35)";
-    ctx.shadowBlur = 18;
-    ctx.fillStyle = gradientFill(414, 76, 452, 32, [[0, palette.navy], [0.5, palette.royal], [1, palette.navy]]);
-    roundRect(414, 76, 452, 32, 10);
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = gradientFill(plaqueX + 20, plaqueY + 12, plaqueW - 40, 20, [[0, palette.royal], [0.5, palette.lightBlue], [1, palette.royal]]);
+    roundRect(plaqueX + 20, plaqueY + 12, plaqueW - 40, 20, 8);
     ctx.fill();
-    ctx.shadowColor = "rgba(201,154,53,0.8)";
-    ctx.shadowBlur = 18;
     ctx.strokeStyle = palette.gold;
-    ctx.lineWidth = 3;
-    roundRect(496, 64, 288, 50, 14);
+    ctx.lineWidth = 2;
+    roundRect(plaqueX + 6, plaqueY + 6, plaqueW - 12, 34, 10);
     ctx.stroke();
     ctx.restore();
     for (let i = 0; i < 4 + stage; i += 1) {
-      const x = 442 + i * (368 / Math.max(1, 3 + stage));
-      ctx.fillStyle = gradientFill(x, 40, 20, 44, [[0, i % 2 ? "#2175bf" : "#b93342"], [1, i % 2 ? "#082b56" : "#5b1018"]]);
-      roundRect(x, 40, 20, 44, 5);
+      const x = plaqueX + 48 + i * ((plaqueW - 96) / Math.max(1, 3 + stage));
+      ctx.fillStyle = gradientFill(x, plaqueY - 36, 18, 42, [[0, i % 2 ? "#2175bf" : "#b93342"], [1, i % 2 ? "#082b56" : "#5b1018"]]);
+      roundRect(x, plaqueY - 36, 18, 42, 5);
       ctx.fill();
       ctx.fillStyle = palette.gold;
-      roundRect(x - 3, 38, 26, 6, 3);
+      roundRect(x - 3, plaqueY - 38, 24, 6, 3);
       ctx.fill();
     }
-    label(["Small Lodge", "Established Lodge", "Masonic Hall", "Provincial Hall", "Grand Temple"][stage], 640, 46, 22, palette.navy, 900, "center");
-    label("THE LODGE", 640, 84, 15, palette.gold, 900, "center");
+    label(["Small Lodge", "Established Lodge", "Masonic Hall", "Provincial Hall", "Grand Temple"][stage], W / 2, plaqueY + 8, 12, palette.lightBlue, 900, "center");
+    label("THE LODGE", W / 2, plaqueY + 24, 17, palette.gold, 900, "center");
   }
 
   function drawTopBar() {
-    panel(28, 20, 1224, 56, "rgba(6,26,54,0.9)", "rgba(201,154,53,0.65)", 18);
-    label(levelCounter(), 56, 37, 19, palette.cream, 900);
-    label(`SWAPS ${state.swaps}`, 460, 38, 18, palette.gold, 900, "center");
-    label(`SECURITY ${state.security}/${state.maxSecurity}`, 642, 38, 18, palette.cream, 900, "center");
-    label(`SCORE ${state.score}`, 842, 38, 18, palette.lightBlue, 900, "center");
+    panel(34, 28, 1532, 76, "rgba(6,26,54,0.92)", "rgba(201,154,53,0.68)", 22);
+    label(levelCounter(), 70, 55, 24, palette.cream, 900, "left", 430);
+    label(`SWAPS ${state.swaps}`, 568, 55, 24, palette.gold, 900, "center");
+    label(`SECURITY ${state.security}/${state.maxSecurity}`, 800, 55, 24, palette.cream, 900, "center");
+    label(`SCORE ${state.score}`, 1062, 55, 24, palette.lightBlue, 900, "center");
     if (images.logo) {
       ctx.save();
       ctx.fillStyle = "rgba(255,246,223,0.96)";
       ctx.beginPath();
-      ctx.arc(1112, 48, 24, 0, Math.PI * 2);
+      ctx.arc(1406, 66, 30, 0, Math.PI * 2);
       ctx.fill();
-      ctx.drawImage(images.logo, 1091, 27, 42, 42);
+      ctx.drawImage(images.logo, 1380, 40, 52, 52);
       ctx.restore();
     }
-    label("Surrey 1837 Club", 1144, 39, 15, palette.gold, 900, "left", 92);
+    label("Surrey 1837 Club", 1446, 56, 18, palette.gold, 900, "left", 110);
   }
 
   function drawObjectivePanel() {
     if (!state.objective || ["menu", "how", "achievements", "game-over"].includes(state.mode)) return;
     const completed = state.objective.completed;
-    panel(954, 492, 268, 48, completed ? "rgba(77,150,88,0.86)" : "rgba(255,246,223,0.1)", completed ? "rgba(255,246,223,0.55)" : "rgba(159,212,255,0.38)", 12);
-    label("Objective", 970, 503, 11, completed ? palette.cream : palette.gold, 900);
-    label(objectiveProgressText(), 1206, 503, 11, completed ? palette.cream : palette.lightBlue, 900, "right", 74);
-    label(state.objective.text, 970, 520, 11, palette.cream, 900, "left", 228);
+    panel(1210, 616, 318, 66, completed ? "rgba(77,150,88,0.86)" : "rgba(255,246,223,0.1)", completed ? "rgba(255,246,223,0.55)" : "rgba(159,212,255,0.38)", 14);
+    label("Objective", 1230, 630, 14, completed ? palette.cream : palette.gold, 900);
+    label(objectiveProgressText(), 1504, 630, 14, completed ? palette.cream : palette.lightBlue, 900, "right", 86);
+    wrap(state.objective.text, 1230, 650, 258, 16, 13, palette.cream, 900, "left", 1);
   }
 
   function drawSidePanels() {
-    panel(30, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
-    label("The Tyler", 58, 120, 22, palette.lightBlue, 900);
-    wrap(state.message, 58, 154, 254, 20, 14, palette.cream);
-    drawInspectCard(58, 404, 252, 102);
-    label("Abilities", 58, 510, 16, palette.gold, 900);
+    panel(42, 124, 386, 718, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 20);
+    label("The Tyler", 76, 154, 30, palette.lightBlue, 900);
+    wrap(state.message, 76, 198, 308, 24, 18, palette.cream, 900, "left", 3);
+    drawInspectCard(76, 520, 310, 126);
+    label("Abilities", 76, 670, 22, palette.gold, 900);
     const hoveredAbility = abilityRects().find((button) => rectHit(button, pointer));
     const abilityText = hoveredAbility
       ? abilityGuide[hoveredAbility.id]
       : "Use Installation during setup. Other abilities work during combat.";
-    wrap(abilityText, 58, 530, 252, 13, 10.5, "rgba(255,255,255,0.76)", 800);
+    wrap(abilityText, 76, 696, 308, 16, 12.5, "rgba(255,255,255,0.76)", 800, "left", 2);
     abilityRects().forEach((button) => drawButton(button, abilityDisabled(button.id)));
 
-    panel(926, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
-    label("Defence Guide", 954, 120, 22, palette.lightBlue, 900);
+    panel(1172, 124, 386, 718, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 20);
+    label("Defence Guide", 1210, 154, 30, palette.lightBlue, 900);
     resourceKeys.forEach((keyName, index) => {
-      const y = 150 + index * 65;
+      const y = 196 + index * 76;
       const def = resources[keyName];
-      const hover = rectHit({ x: 954, y: y - 4, w: 268, h: 58 }, pointer);
-      panel(954, y - 4, 268, 58, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 12);
-      drawDefenceSprite(keyName, 963, y + 5, 42, 0, false);
-      label(def.short, 1012, y + 3, 13, palette.cream, 900, "left", 188);
-      label(def.role, 1012, y + 18, 10, def.color, 900, "left", 184);
-      wrap(defenceGuide[keyName], 1012, y + 31, 184, 11, 9, "rgba(255,255,255,0.76)", 800);
+      const hover = rectHit({ x: 1210, y: y - 4, w: 318, h: 66 }, pointer);
+      panel(1210, y - 4, 318, 66, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 14);
+      drawDefenceSprite(keyName, 1224, y + 5, 54, 0, false);
+      label(def.short, 1294, y + 5, 18, palette.cream, 900, "left", 190);
+      label(defenceSummary[keyName], 1294, y + 33, 14, def.color, 900, "left", 190);
     });
     drawObjectivePanel();
     drawButton(buttonRects().find((button) => button.id === "scores"), false);
     drawButton(buttonRects().find((button) => button.id === "help"), false);
     drawButton(buttonRects().find((button) => button.id === "begin"), state.mode !== "prep");
-    wrap("Inspect tiles and threats for counters. Match resources to build; match defences to merge.", 954, 656, 248, 15, 11, "rgba(255,255,255,0.78)", 800);
+    wrap("Inspect tiles and threats for counters. Match resources to build; match defences to merge.", 1210, 836, 318, 18, 13, "rgba(255,255,255,0.78)", 800, "center", 2);
   }
 
   function drawInspectCard(x, y, w, h) {
@@ -1506,21 +1531,21 @@
     panel(x, y, w, h, "rgba(255,255,255,0.07)", "rgba(159,212,255,0.22)", 12);
     label("Inspect", x + 14, y + 12, 13, palette.gold, 900);
     if (!cell) {
-      wrap("Hover or tap a tile to see what it does.", x + 14, y + 36, w - 28, 15, 11, "rgba(255,255,255,0.74)", 800);
+      wrap("Hover or tap a tile to see what it does.", x + 14, y + 42, w - 28, 18, 13, "rgba(255,255,255,0.74)", 800, "left", 2);
       return;
     }
     const tile = state.board[cell.row]?.[cell.col]?.tile;
     if (!tile) {
-      wrap("Path or Lodge entrance. Keep threats away from here.", x + 14, y + 36, w - 28, 15, 11, "rgba(255,255,255,0.74)", 800);
+      wrap("Path or Lodge entrance. Keep threats away from here.", x + 14, y + 42, w - 28, 18, 13, "rgba(255,255,255,0.74)", 800, "left", 2);
       return;
     }
     const def = resources[tile.kind];
     const name = tile.tower ? def.tower[tile.level] : def.label;
-    label(name, x + 14, y + 34, 13, def.color, 900, "left", w - 28);
+    label(name, x + 14, y + 38, 15, def.color, 900, "left", w - 28);
     const text = tile.tower
-      ? `${def.role}. ${defenceGuide[tile.kind]}`
-      : `Resource tile. Match three to build ${def.short}. ${def.role}.`;
-    wrap(text, x + 14, y + 54, w - 28, 14, 10.5, "rgba(255,255,255,0.76)", 800);
+      ? `${def.role}. ${def.tower[tile.level]}.`
+      : `Resource tile. Match three to build ${def.short}.`;
+    wrap(text, x + 14, y + 62, w - 28, 17, 12.5, "rgba(255,255,255,0.76)", 800, "left", 3);
   }
 
   function drawButton(rect, disabled) {
@@ -1533,7 +1558,7 @@
       ctx.restore();
     }
     ctx.save();
-    ctx.font = "900 13px Inter, Arial, sans-serif";
+    ctx.font = `900 ${rect.h >= 54 ? 15 : 13}px Inter, Arial, sans-serif`;
     ctx.fillStyle = disabled ? "rgba(23,36,58,0.45)" : palette.navy;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -1705,8 +1730,8 @@
     ctx.save();
     ctx.fillStyle = (row + col) % 2 ? "#0d1725" : "#f6f1e6";
     ctx.globalAlpha = 0.28;
-    ctx.fillRect(x + 8, y + 8, 20, 20);
-    ctx.fillRect(x + 36, y + 36, 20, 20);
+    ctx.fillRect(x + CELL * 0.12, y + CELL * 0.12, CELL * 0.28, CELL * 0.28);
+    ctx.fillRect(x + CELL * 0.55, y + CELL * 0.55, CELL * 0.28, CELL * 0.28);
     ctx.restore();
   }
 
@@ -1728,7 +1753,7 @@
     ctx.lineTo(x + CELL * 0.27, y + CELL * 0.8);
     ctx.closePath();
     ctx.stroke();
-    label("ENTRANCE", x + CELL / 2, y + 10, 8, palette.navy, 900, "center", CELL - 10);
+    label("ENTRANCE", x + CELL / 2, y + 10, 9.5, palette.navy, 900, "center", CELL - 10);
     ctx.restore();
   }
 
@@ -1765,10 +1790,10 @@
         ctx.fillStyle = palette.lightBlue;
         ctx.strokeStyle = palette.navy;
         ctx.lineWidth = 1.5;
-        roundRect(x + 6, y + size - 18, 34, 13, 5);
+        roundRect(x + 7, y + size - 21, 42, 16, 6);
         ctx.fill();
         ctx.stroke();
-        label("SPD", x + 23, y + size - 15.5, 8, palette.navy, 900, "center");
+        label("SPD", x + 28, y + size - 18.5, 9.5, palette.navy, 900, "center");
         ctx.restore();
       }
       if (tile.charged) {
@@ -1880,22 +1905,22 @@
   }
 
   function drawTyler() {
-    const x = 145;
-    const y = 230 + (!reducedMotion ? Math.sin(clock * 2) * 2 : 0);
+    const x = 226;
+    const y = 276 + (!reducedMotion ? Math.sin(clock * 2) * 2 : 0);
     if (images.tylerSheet) {
       const pose = tylerPoseIndex[state.tyler.stance] ?? 0;
       ctx.save();
       if (state.tyler.stance === "strike" || state.tyler.stance === "pleased") ctx.filter = "brightness(1.12) saturate(1.12)";
       ctx.shadowColor = "rgba(0,0,0,0.38)";
       ctx.shadowBlur = 16;
-      drawSpriteSheet(images.tylerSheet, pose, spriteColumns.tyler, { y: 0.05, h: 0.9, xPad: 0.05 }, x - 62, y - 8, 152, 216);
+      drawSpriteSheet(images.tylerSheet, pose, spriteColumns.tyler, { y: 0.05, h: 0.9, xPad: 0.05 }, x - 72, y - 10, 176, 250);
       ctx.restore();
     } else if (images.character) {
       ctx.save();
       if (state.tyler.stance === "strike") ctx.filter = "brightness(1.15) saturate(1.15)";
       ctx.shadowColor = "rgba(0,0,0,0.38)";
       ctx.shadowBlur = 16;
-      ctx.drawImage(images.character, x - 54, y, 136, 204);
+      ctx.drawImage(images.character, x - 68, y, 168, 252);
       ctx.restore();
     } else {
       ctx.fillStyle = palette.navy;
@@ -1905,7 +1930,7 @@
       ctx.strokeStyle = "rgba(159,212,255,0.8)";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(x + 40, y + 90, 58, 0, Math.PI * 2);
+      ctx.arc(x + 44, y + 104, 70, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
@@ -2006,32 +2031,32 @@
     if (!state.eventCard) return;
     ctx.fillStyle = "rgba(3,12,24,0.7)";
     ctx.fillRect(0, 0, W, H);
-    panel(376, 190, 528, 380, "rgba(255,246,223,0.98)", "rgba(201,154,53,0.9)", 24);
-    label(state.eventCard.title, 640, 238, 34, palette.navy, 900, "center");
-    wrap(state.eventCard.body, 468, 304, 344, 28, 18, palette.blue, 800, "center");
-    drawButton({ x: 477, y: 484, w: 326, h: 54, label: "ACCEPT AND CONTINUE" }, false);
+    panel(470, 220, 660, 470, "rgba(255,246,223,0.98)", "rgba(201,154,53,0.9)", 28);
+    label(state.eventCard.title, W / 2, 282, 42, palette.navy, 900, "center");
+    wrap(state.eventCard.body, 570, 366, 460, 32, 22, palette.blue, 800, "center", 5);
+    drawButton({ x: 610, y: 620, w: 380, h: 58, label: "ACCEPT AND CONTINUE" }, false);
   }
 
   function drawHelpOverlay() {
     ctx.save();
     ctx.fillStyle = "rgba(3,12,24,0.78)";
     ctx.fillRect(0, 0, W, H);
-    panel(260, 92, 760, 560, "rgba(255,246,223,0.97)", "rgba(201,154,53,0.9)", 24);
-    label("Tyler's Trial Field Guide", 640, 126, 30, palette.navy, 900, "center");
-    label("Swap, match, build, merge, defend.", 640, 164, 15, palette.blue, 900, "center");
-    drawButton({ x: 976, y: 124, w: 40, h: 40, label: "X" }, false);
+    panel(310, 110, 980, 700, "rgba(255,246,223,0.97)", "rgba(201,154,53,0.9)", 28);
+    label("Tyler's Trial Field Guide", W / 2, 148, 38, palette.navy, 900, "center");
+    label("Swap, match, build, merge, defend.", W / 2, 194, 18, palette.blue, 900, "center");
+    drawButton({ x: 1238, y: 136, w: 46, h: 46, label: "X" }, false);
 
-    label("Defences", 310, 204, 17, palette.gold, 900);
+    label("Defences", 370, 250, 21, palette.gold, 900);
     resourceKeys.forEach((keyName, index) => {
       const def = resources[keyName];
-      const y = 232 + index * 62;
-      panel(300, y, 318, 52, "rgba(6,26,54,0.08)", "rgba(13,55,109,0.14)", 12);
-      drawDefenceSprite(keyName, 312, y + 7, 38, 0, false);
-      label(def.short, 360, y + 7, 13, palette.navy, 900, "left", 130);
-      wrap(def.detail, 360, y + 24, 232, 11, 9, palette.ink, 800);
+      const y = 282 + index * 78;
+      panel(360, y, 400, 64, "rgba(6,26,54,0.08)", "rgba(13,55,109,0.14)", 14);
+      drawDefenceSprite(keyName, 378, y + 8, 48, 0, false);
+      label(def.short, 442, y + 8, 16, palette.navy, 900, "left", 150);
+      wrap(def.detail, 442, y + 30, 290, 13, 10.5, palette.ink, 800, "left", 2);
     });
 
-    label("Challenge Counters", 662, 204, 17, palette.gold, 900);
+    label("Challenge Counters", 824, 250, 21, palette.gold, 900);
     const counters = [
       ["Fast", "Use the officer's Wand to slow late arrivals and moving paperwork."],
       ["Heavy", "Ashlar and Candle work best against large summons bundles."],
@@ -2039,41 +2064,41 @@
       ["Boss", "A formal challenge appears every tenth Trial. Focus fire and guard the entrance."],
     ];
     counters.forEach(([name, text], index) => {
-      const y = 232 + index * 64;
-      panel(650, y, 318, 52, "rgba(6,26,54,0.08)", "rgba(13,55,109,0.14)", 12);
-      label(name, 668, y + 9, 13, palette.navy, 900, "left", 88);
-      wrap(text, 760, y + 8, 188, 12, 9.5, palette.ink, 800);
+      const y = 282 + index * 78;
+      panel(810, y, 410, 64, "rgba(6,26,54,0.08)", "rgba(13,55,109,0.14)", 14);
+      label(name, 832, y + 12, 16, palette.navy, 900, "left", 110);
+      wrap(text, 942, y + 10, 244, 14, 11, palette.ink, 800, "left", 3);
     });
 
-    label("Controls and Scoring", 662, 500, 17, palette.gold, 900);
-    wrap("Setup: tap two adjacent tiles to swap them. Three resources build a defence. Three matching defences merge into a stronger defence. Combat: defences fire automatically; use Tyler abilities when the entrance is under pressure. Objectives award bonus score.", 650, 528, 318, 17, 12, palette.ink, 800);
-    drawButton({ x: 466, y: 614, w: 348, h: 48, label: "RETURN TO THE TRIAL" }, false);
+    label("Controls and Scoring", 824, 610, 21, palette.gold, 900);
+    wrap("Setup: tap two adjacent tiles to swap them. Three resources build a defence. Three matching defences merge into a stronger defence. Combat: defences fire automatically; use Tyler abilities when the entrance is under pressure. Objectives award bonus score.", 810, 642, 410, 19, 14, palette.ink, 800, "left", 5);
+    drawButton({ x: 626, y: 766, w: 348, h: 54, label: "RETURN TO THE TRIAL" }, false);
     ctx.restore();
   }
 
   function drawMenu() {
     ctx.fillStyle = "rgba(3,12,24,0.72)";
     ctx.fillRect(0, 0, W, H);
-    panel(330, 90, 620, 580, "rgba(6,26,54,0.94)", "rgba(201,154,53,0.88)", 26);
-    label("TYLER'S TRIAL", 640, 136, 54, palette.cream, 900, "center");
-    label("A Masonic puzzle of preparation, harmony, and defence", 640, 202, 18, palette.lightBlue, 900, "center");
+    panel(410, 110, 780, 720, "rgba(6,26,54,0.94)", "rgba(201,154,53,0.88)", 30);
+    label("TYLER'S TRIAL", W / 2, 164, 66, palette.cream, 900, "center");
+    label("A Masonic puzzle of preparation, harmony, and defence", W / 2, 242, 22, palette.lightBlue, 900, "center");
     if (state.mode === "how") {
-      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. Each Trial has an objective for bonus score. Ashlar is balanced, Candle reaches far, Lewis boosts nearby defences, Wand slows fast threats, and Jewels provide rewards. During setup, Installation deliberately randomises the board once. Between Degrees, only non-upgraded defences are reshuffled so stronger work stays in place.", 430, 248, 420, 22, 14, palette.cream);
+      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. Each Trial has an objective for bonus score. Ashlar is balanced, Candle reaches far, Lewis boosts nearby defences, Wand slows fast threats, and Jewels provide rewards. During setup, Installation deliberately randomises the board once. Between Degrees, only non-upgraded defences are reshuffled so stronger work stays in place.", 520, 302, 560, 26, 17, palette.cream, 800, "center", 11);
     } else if (state.mode === "achievements") {
-      wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 430, 288, 420, 24, 16, palette.cream);
+      wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 520, 330, 560, 28, 20, palette.cream, 800, "center", 7);
     } else {
-      wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 400, 238, 480, 20, 13, "rgba(255,255,255,0.82)", 800, "center");
-      wrap("Every ten Trials you move to the next Degree. Enemies become harder, the board gets busier, and non-upgraded defences are reshuffled so new matches can be found while stronger work stays in place.", 400, 300, 480, 20, 13, "rgba(255,255,255,0.74)", 800, "center");
+      wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 500, 298, 600, 24, 16, "rgba(255,255,255,0.82)", 800, "center", 4);
+      wrap("Every ten Trials you move to the next Degree. Enemies become harder, the board gets busier, and non-upgraded defences are reshuffled so new matches can be found while stronger work stays in place.", 500, 378, 600, 24, 16, "rgba(255,255,255,0.74)", 800, "center", 4);
       menuRects().forEach((rect) => drawButton(rect, false));
     }
-    if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 505, y: 552, w: 270, h: 50 }, false);
+    if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 650, y: 746, w: 300, h: 56 }, false);
   }
 
   function drawGameOver() {
     ctx.fillStyle = "rgba(3,12,24,0.78)";
     ctx.fillRect(0, 0, W, H);
-    panel(330, 130, 620, 500, "rgba(6,26,54,0.96)", "rgba(201,154,53,0.9)", 26);
-    label("THE LODGE HAS BEEN BREACHED", 640, 174, 30, palette.gold, 900, "center");
+    panel(410, 160, 780, 620, "rgba(6,26,54,0.96)", "rgba(201,154,53,0.9)", 30);
+    label("THE LODGE HAS BEEN BREACHED", W / 2, 214, 38, palette.gold, 900, "center");
     const lines = [
       `Trials Survived: ${Math.max(0, state.trial - 1)}`,
       `Enemies Turned Away: ${state.stats.defeated}`,
@@ -2083,9 +2108,9 @@
       `Final Score: ${state.score}`,
       `High Score: ${state.highScore}`,
     ];
-    lines.forEach((line, index) => label(line, 468, 242 + index * 34, 18, index >= 5 ? palette.gold : palette.cream, 900));
-    drawButton({ x: 440, y: 538, w: 190, h: 54, label: "TRY AGAIN" }, false);
-    drawButton({ x: 650, y: 538, w: 190, h: 54, label: "RETURN" }, false);
+    lines.forEach((line, index) => label(line, 580, 308 + index * 42, 22, index >= 5 ? palette.gold : palette.cream, 900));
+    drawButton({ x: 560, y: 690, w: 220, h: 60, label: "TRY AGAIN" }, false);
+    drawButton({ x: 820, y: 690, w: 220, h: 60, label: "RETURN" }, false);
   }
 
   function roman(number) {
