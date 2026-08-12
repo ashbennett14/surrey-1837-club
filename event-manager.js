@@ -10,6 +10,7 @@
   const form = document.querySelector("#eventForm");
   const calendarType = document.querySelector("#calendarType");
   const nameLabelText = document.querySelector("#nameLabelText");
+  const numberLabelText = document.querySelector("#numberLabelText");
   const meetingOnly = [...document.querySelectorAll(".meeting-only")];
   const socialOnly = [...document.querySelectorAll(".social-only")];
   const bulkInput = document.querySelector("#bulkInput");
@@ -60,6 +61,7 @@
       element.hidden = !isSocial;
     });
     nameLabelText.textContent = isSocial ? "Event title" : isChapter ? "Chapter name" : "Lodge name";
+    numberLabelText.textContent = isChapter ? "Chapter number" : "Lodge number";
   }
 
   function addSingleEvent(event) {
