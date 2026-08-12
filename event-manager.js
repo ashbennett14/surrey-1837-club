@@ -18,6 +18,7 @@
   const loadCurrent = document.querySelector("#loadCurrent");
   const downloadJson = document.querySelector("#downloadJson");
   const downloadJs = document.querySelector("#downloadJs");
+  const eventImageFile = document.querySelector("#eventImageFile");
   const copyJson = document.querySelector("#copyJson");
   const clearManaged = document.querySelector("#clearManaged");
   const publishGithub = document.querySelector("#publishGithub");
@@ -26,6 +27,7 @@
   const managedList = document.querySelector("#managedList");
   const managerSummary = document.querySelector("#managerSummary");
   const managerStatus = document.querySelector("#managerStatus");
+  const pendingAssets = new Map();
 
   const savedToken = localStorage.getItem("surrey1837GithubToken");
   if (savedToken) {
@@ -92,7 +94,7 @@
   function buildSocialEvent(formData, key) {
     const title = clean(formData.get("title"));
     const category = clean(formData.get("category")) || "Community Event";
-    const poster = clean(formData.get("poster"));
+    const poster = getManagedImagePath(formData, title);
 
     return removeEmpty({
       id: createId(formData.get("date"), title),
@@ -115,7 +117,7 @@
     const lodgeNumber = clean(formData.get("lodgeNumber"));
     const degree =
       key === "chapterEvents" ? clean(formData.get("degree")) || "Royal Arch" : clean(formData.get("degree")) || "Other";
-    const poster = clean(formData.get("poster"));
+    const poster = getManagedImagePath(formData, lodgeName);
     const type = key === "chapterEvents" ? "chapter" : "lodge";
     const host = `${lodgeName}${lodgeNumber ? ` No. ${lodgeNumber}` : ""}`;
 
@@ -375,6 +377,15 @@
     publishGithub.disabled = true;
 
     try {
+      if (pendingAssets.size > 0) {
+        setStatus(`Uploading ${pendingAssets.size} image${pendingAssets.size === 1 ? "" : "s"}...`);
+      }
+
+      for (const [path, asset] of pendingAssets) {
+        const base64Content = await fileToBase64(asset.file);
+        await updateGithubFile(token, path, base64Content, `Upload calendar image ${path}`, true);
+      }
+
       await updateGithubFile(token, managedFile, stringifyState(), "Update managed calendar events");
       await updateGithubFile(
         token,
@@ -384,6 +395,7 @@
       );
 
       setStatus("Published. GitHub Pages should update shortly.");
+      pendingAssets.clear();
     } catch (error) {
       setStatus(`Publish failed: ${error.message}`, true);
     } finally {
@@ -530,7 +542,7 @@
     return `window.surrey1837ManagedCalendarData = ${JSON.stringify(state, null, 2)};\n`;
   }
 
-  async function updateGithubFile(token, path, content, message) {
+  async function updateGithubFile(token, path, content, message, contentIsBase64 = false) {
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
     const currentResponse = await fetch(`${apiUrl}?ref=${branch}`, {
       headers: githubHeaders(token),
@@ -538,7 +550,7 @@
     const currentFile = currentResponse.ok ? await currentResponse.json() : {};
     const body = {
       message,
-      content: toBase64Unicode(content),
+      content: contentIsBase64 ? content : toBase64Unicode(content),
       branch,
       sha: currentFile.sha,
     };
@@ -553,6 +565,44 @@
       const error = await updateResponse.json().catch(() => ({}));
       throw new Error(error.message || `GitHub rejected the update for ${path}.`);
     }
+  }
+
+  function getManagedImagePath(formData, title) {
+    const selectedFile = eventImageFile.files[0];
+    if (!selectedFile) {
+      return clean(formData.get("poster"));
+    }
+
+    const extension = getFileExtension(selectedFile);
+    const path = `assets/${createId(formData.get("date"), title)}${extension}`;
+    pendingAssets.set(path, { file: selectedFile });
+    return path;
+  }
+
+  function getFileExtension(file) {
+    const fromName = file.name.match(/\.[a-z0-9]+$/i)?.[0]?.toLowerCase();
+    if (fromName) {
+      return fromName;
+    }
+
+    const extensionByType = {
+      "image/jpeg": ".jpg",
+      "image/png": ".png",
+      "image/webp": ".webp",
+      "image/gif": ".gif",
+    };
+    return extensionByType[file.type] || ".png";
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        resolve(String(reader.result).split(",")[1]);
+      });
+      reader.addEventListener("error", () => reject(reader.error));
+      reader.readAsDataURL(file);
+    });
   }
 
   function githubHeaders(token) {
