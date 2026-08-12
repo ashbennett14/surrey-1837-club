@@ -12,8 +12,6 @@ window.surrey1837ManagedCalendarData = {
       "location": "Sutton",
       "host": "Triumvirate Lodge No. 9505",
       "type": "lodge",
-      "poster": "assets/triumvirate-lodge-crest",
-      "posterAlt": "Triumvirate Lodge No. 9505 crest",
       "tags": [
         "Installation",
         "No. 9505",
