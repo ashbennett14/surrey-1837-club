@@ -288,7 +288,7 @@
     refillEmptyTiles();
     if ((state.trial - 1) % 10 === 0) {
       randomiseEntryLevelDefences();
-      say("A new Degree begins: the entry-level positions have been refreshed.");
+      say("A new Degree begins. The board has been randomised, but only non-upgraded defences have moved.");
     } else {
       say("THE LODGE IS SECURE. Prepare for the next Trial.");
     }
@@ -529,7 +529,7 @@
       for (let col = 0; col < GRID; col += 1) {
         const cell = state.board[row][col];
         const tile = cell.tile;
-        if (!cell.path && tile && (!tile.tower || tile.level === 0)) {
+        if (!cell.path && tile?.tower && tile.level === 0) {
           slots.push({ row, col });
           tiles.push(tile);
         }
@@ -543,7 +543,9 @@
       state.board[slot.row][slot.col].tile = tiles[index];
       particle(boardPoint(slot.row, slot.col), palette.lightBlue, 4);
     });
-    floatText("NEW DEGREE REFRESH", board.x + board.w / 2, board.y - 28, palette.lightBlue, 24);
+    if (slots.length) {
+      floatText("BOARD RANDOMISED", board.x + board.w / 2, board.y - 28, palette.lightBlue, 24);
+    }
   }
 
   function upgradeRandomTower() {
@@ -1060,11 +1062,11 @@
 
   function menuRects() {
     return [
-      { id: "begin", label: "BEGIN THE TRIAL", x: 505, y: 330, w: 270, h: 56 },
-      { id: "how", label: "HOW TO PLAY", x: 505, y: 400, w: 270, h: 50 },
-      { id: "achievements", label: "ACHIEVEMENTS", x: 505, y: 462, w: 270, h: 50 },
-      { id: "settings", label: state.muted ? "SOUND: OFF" : "SOUND: ON", x: 505, y: 524, w: 270, h: 50 },
-      { id: "return", label: "RETURN TO LODGE", x: 505, y: 586, w: 270, h: 50 },
+      { id: "begin", label: "BEGIN THE TRIAL", x: 505, y: 374, w: 270, h: 52 },
+      { id: "how", label: "HOW TO PLAY", x: 505, y: 436, w: 270, h: 46 },
+      { id: "achievements", label: "ACHIEVEMENTS", x: 505, y: 492, w: 270, h: 46 },
+      { id: "settings", label: state.muted ? "SOUND: OFF" : "SOUND: ON", x: 505, y: 548, w: 270, h: 46 },
+      { id: "return", label: "RETURN TO LODGE", x: 505, y: 604, w: 270, h: 46 },
     ];
   }
 
@@ -1185,23 +1187,25 @@
     ctx.restore();
   }
 
-  function wrap(text, x, y, w, line, size, color, weight) {
+  function wrap(text, x, y, w, line, size, color, weight, align) {
     const words = text.split(" ");
     let current = "";
     let currentY = y;
     ctx.save();
     ctx.font = `${weight || 800} ${size}px Inter, Arial, sans-serif`;
     ctx.fillStyle = color;
+    ctx.textAlign = align || "left";
     ctx.textBaseline = "top";
+    const textX = align === "center" ? x + w / 2 : x;
     words.forEach((word) => {
       const test = `${current}${word} `;
       if (ctx.measureText(test).width > w && current) {
-        ctx.fillText(current.trim(), x, currentY);
+        ctx.fillText(current.trim(), textX, currentY);
         current = `${word} `;
         currentY += line;
       } else current = test;
     });
-    ctx.fillText(current.trim(), x, currentY);
+    ctx.fillText(current.trim(), textX, currentY);
     ctx.restore();
   }
 
@@ -1325,7 +1329,13 @@
   function drawButton(rect, disabled) {
     const hover = rectHit(rect, pointer);
     panel(rect.x, rect.y, rect.w, rect.h, disabled ? "rgba(255,246,223,0.48)" : hover ? "rgba(255,246,223,1)" : "rgba(255,246,223,0.9)", hover ? palette.lightBlue : "rgba(201,154,53,0.76)", 14);
-    label(rect.label, rect.x + rect.w / 2, rect.y + 14, 13, disabled ? "rgba(23,36,58,0.45)" : palette.navy, 900, "center");
+    ctx.save();
+    ctx.font = "900 13px Inter, Arial, sans-serif";
+    ctx.fillStyle = disabled ? "rgba(23,36,58,0.45)" : palette.navy;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(rect.label, rect.x + rect.w / 2, rect.y + rect.h / 2 + 1, rect.w - 18);
+    ctx.restore();
   }
 
   function drawBoard() {
@@ -1748,7 +1758,7 @@
     ctx.fillRect(0, 0, W, H);
     panel(376, 190, 528, 380, "rgba(255,246,223,0.98)", "rgba(201,154,53,0.9)", 24);
     label(state.eventCard.title, 640, 238, 34, palette.navy, 900, "center");
-    wrap(state.eventCard.body, 468, 304, 344, 28, 18, palette.blue);
+    wrap(state.eventCard.body, 468, 304, 344, 28, 18, palette.blue, 800, "center");
     drawButton({ x: 477, y: 484, w: 326, h: 54, label: "ACCEPT AND CONTINUE" }, false);
   }
 
@@ -1763,6 +1773,8 @@
     } else if (state.mode === "achievements") {
       wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 430, 288, 420, 24, 16, palette.cream);
     } else {
+      wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 400, 238, 480, 20, 13, "rgba(255,255,255,0.82)", 800, "center");
+      wrap("Every ten Trials you move to the next Degree. Enemies become harder, the board gets busier, and non-upgraded defences are reshuffled so new matches can be found while stronger work stays in place.", 400, 300, 480, 20, 13, "rgba(255,255,255,0.74)", 800, "center");
       menuRects().forEach((rect) => drawButton(rect, false));
     }
     if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 505, y: 552, w: 270, h: 50 }, false);
