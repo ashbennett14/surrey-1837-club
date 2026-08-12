@@ -43,6 +43,7 @@
       damage: [16, 34, 72],
       rate: [0.92, 0.78, 0.64],
       icon: "stone",
+      role: "Reliable balanced damage",
     },
     candle: {
       label: "Candle",
@@ -54,6 +55,7 @@
       damage: [12, 25, 48],
       rate: [1.15, 0.95, 0.78],
       icon: "flame",
+      role: "Long-range slower attack",
     },
     tool: {
       label: "Lewis",
@@ -66,6 +68,7 @@
       rate: [0.72, 0.58, 0.46],
       support: [1.18, 1.28, 1.42],
       icon: "lewis",
+      role: "Nearby attack-speed support",
     },
     acacia: {
       label: "Wand",
@@ -78,6 +81,7 @@
       rate: [1.0, 0.82, 0.66],
       slow: [0.62, 0.5, 0.38],
       icon: "wand",
+      role: "Slows fast-moving threats",
     },
     gold: {
       label: "Jewels",
@@ -90,16 +94,17 @@
       rate: [1.25, 1.05, 0.88],
       reward: true,
       icon: "jewel",
+      role: "Bonus and reward structure",
     },
   };
 
   const resourceKeys = Object.keys(resources);
   const defenceGuide = {
     ashlar: "Balanced medium-range defence with steady damage and reliable coverage.",
-    candle: "Long-range golden ray attack. Reaches far but fires at a measured pace.",
-    tool: "Support defence. Boosts nearby towers' attack speed but does not attack directly.",
-    acacia: "Slowing defence. Wands hinder threats on the path while adding light damage.",
-    gold: "Reward defence. Jewels can trigger bonuses, repairs, upgrades, or a board refresh.",
+    candle: "Long-range golden ray attack. Best against heavy or disruptive threats.",
+    tool: "Support defence. Boosts nearby defences' attack speed. Does not attack directly.",
+    acacia: "Slowing defence. Wands hinder fast threats while adding light damage.",
+    gold: "Reward defence. Jewels add score and can trigger swaps, repairs, or upgrades.",
   };
   const abilityGuide = {
     sword: "Combat: turn away the nearest threat. Uses one Tyler charge.",
@@ -134,11 +139,11 @@
   ];
 
   const enemyTypes = {
-    cowan: { name: "Cowan", color: "#6e70c8", hp: 34, speed: 42, reward: 11, size: 12 },
-    ruffian: { name: "Ruffian", color: "#9b4b37", hp: 90, speed: 27, reward: 22, size: 17 },
-    mischief: { name: "Mischief", color: "#28324d", hp: 46, speed: 55, reward: 15, size: 11 },
-    discord: { name: "Discord", color: "#a82468", hp: 72, speed: 34, reward: 20, size: 14, aura: true },
-    lewis: { name: "Lewis Breaker", color: "#77736a", hp: 230, speed: 22, reward: 75, size: 24, boss: true },
+    cowan: { name: "Cowan", trait: "Fast", counter: "Wand slow", color: "#6e70c8", hp: 34, speed: 44, reward: 11, size: 12, weakTo: ["acacia"] },
+    ruffian: { name: "Ruffian", trait: "Heavy", counter: "Ashlar or Candle", color: "#9b4b37", hp: 90, speed: 27, reward: 22, size: 17, weakTo: ["ashlar", "candle"] },
+    mischief: { name: "Mischief", trait: "Swift", counter: "Wand slow", color: "#28324d", hp: 46, speed: 56, reward: 15, size: 11, weakTo: ["acacia"] },
+    discord: { name: "Discord", trait: "Disruptive", counter: "Candle focus", color: "#a82468", hp: 72, speed: 34, reward: 20, size: 14, aura: true, disrupt: 0.78, weakTo: ["candle"] },
+    lewis: { name: "Lewis Breaker", trait: "Boss", counter: "Focused fire", color: "#77736a", hp: 230, speed: 22, reward: 75, size: 24, boss: true, weakTo: ["ashlar", "candle", "gold"] },
   };
 
   let state;
@@ -164,7 +169,17 @@
       supportPulses: [],
       wave: { timer: 0, spawned: 0, total: 0, done: false, bossAnnounced: false },
       tyler: { charges: 3, guard: 0, alarm: 0, closed: 0, installation: 1, stance: "idle" },
-      stats: { defeated: 0, highest: 0, bestChain: 0, bosses: 0 },
+      stats: {
+        defeated: 0,
+        defeatedThisTrial: 0,
+        highest: 0,
+        bestChain: 0,
+        bosses: 0,
+        builtThisTrial: 0,
+        mergedThisTrial: 0,
+      },
+      objective: null,
+      tutorial: { active: false, step: 0, targetA: null, targetB: null },
       message: "Begin the Trial and prepare the Lodge.",
       chest: null,
       eventCard: null,
@@ -252,17 +267,26 @@
     state.board = createBoard();
     state.mode = "prep";
     hideLeaderboard();
-    state.message = "Prepare the Lodge: swap adjacent tiles to form three of a kind.";
-    say("Prepare the Lodge. Swap adjacent tiles; three resources become defences.");
+    setTrialObjective();
+    startTutorial();
   }
 
   function beginCombat() {
     if (state.mode !== "prep") return;
+    if (state.tutorial.active && state.tutorial.step === 0) {
+      say("First make the highlighted swap so you can see how a defence is created.");
+      return;
+    }
     state.mode = "combat";
     state.selected = null;
     state.wave = makeWave();
     state.transition = 1.6;
-    say("THE TRIAL BEGINS. Your defences will work automatically.");
+    if (state.tutorial.active) {
+      state.tutorial.step = Math.max(state.tutorial.step, 3);
+      say("THE TRIAL BEGINS. Your defences now work automatically. Watch how each one counters different threats.");
+    } else {
+      say("THE TRIAL BEGINS. Your defences will work automatically.");
+    }
     state.tyler.stance = "ready";
     knock();
   }
@@ -274,6 +298,7 @@
   }
 
   function nextTrial() {
+    checkEndOfTrialObjective();
     state.trial += 1;
     state.mode = "prep";
     state.swaps = swapsForTrial(state.trial);
@@ -285,6 +310,7 @@
     state.tyler.alarm = 0;
     state.tyler.closed = 0;
     state.tyler.installation = 1;
+    state.tutorial.active = false;
     refillEmptyTiles();
     if ((state.trial - 1) % 10 === 0) {
       randomiseEntryLevelDefences();
@@ -292,8 +318,100 @@
     } else {
       say("THE LODGE IS SECURE. Prepare for the next Trial.");
     }
+    setTrialObjective();
     if (state.trial % 5 === 1) {
       state.eventCard = randomEventCard();
+    }
+  }
+
+  function resetTrialStats() {
+    state.stats.defeatedThisTrial = 0;
+    state.stats.builtThisTrial = 0;
+    state.stats.mergedThisTrial = 0;
+  }
+
+  function setTrialObjective() {
+    resetTrialStats();
+    const trial = state.trial;
+    const templates = [
+      { kind: "build", text: "Build 2 defences", target: 2, bonus: 140 },
+      { kind: "merge", text: "Merge one stronger defence", target: 1, bonus: 170 },
+      { kind: "security", text: "Keep Lodge Security above 8", target: 9, bonus: 190 },
+      { kind: "defeat", text: "Defeat all threats", target: makeWave().total, bonus: 210 },
+    ];
+    const objective = trial === 1 ? templates[0] : templates[(trial - 1) % templates.length];
+    if (trial % 10 === 0) {
+      state.objective = { kind: "boss", text: "Turn away the boss threat", target: 1, progress: 0, bonus: 360, completed: false };
+    } else {
+      state.objective = { ...objective, progress: 0, completed: false };
+    }
+  }
+
+  function recordObjective(kind, amount = 1) {
+    const objective = state.objective;
+    if (!objective || objective.completed || objective.kind !== kind) return;
+    objective.progress = Math.min(objective.target, objective.progress + amount);
+    if (objective.progress >= objective.target) completeObjective();
+  }
+
+  function checkEndOfTrialObjective() {
+    const objective = state.objective;
+    if (!objective || objective.completed) return;
+    if (objective.kind === "security" && state.security >= objective.target) completeObjective();
+    if (objective.kind === "defeat" && state.wave.spawned >= state.wave.total && !state.enemies.length) completeObjective();
+  }
+
+  function completeObjective() {
+    const objective = state.objective;
+    if (!objective || objective.completed) return;
+    objective.completed = true;
+    state.score += objective.bonus;
+    floatText(`OBJECTIVE +${objective.bonus}`, board.x + board.w / 2, board.y - 56, palette.gold, 20);
+    say(`Objective complete: ${objective.text}. Bonus awarded.`);
+  }
+
+  function objectiveProgressText() {
+    const objective = state.objective;
+    if (!objective) return "";
+    if (objective.completed) return `Complete +${objective.bonus}`;
+    if (objective.kind === "security") return `${state.security}/${objective.target}+ security`;
+    return `${Math.min(objective.progress, objective.target)}/${objective.target}`;
+  }
+
+  function startTutorial() {
+    state.tutorial = {
+      active: true,
+      step: 0,
+      targetA: { row: 6, col: 3 },
+      targetB: { row: 6, col: 2 },
+    };
+    [[6, 2, "ashlar"], [6, 3, "candle"], [6, 4, "ashlar"], [6, 5, "ashlar"]].forEach(([row, col, kind]) => {
+      if (!state.board[row][col].path) state.board[row][col].tile = makeTile(kind);
+    });
+    state.message = "Guided first Trial: swap the highlighted Candle and Ashlar to make three Ashlars.";
+    say("Guided first Trial: swap the highlighted Candle and Ashlar to make three Ashlars.");
+  }
+
+  function tutorialAllowsSwap(a, b) {
+    if (!state.tutorial.active || state.tutorial.step !== 0) return true;
+    const { targetA, targetB } = state.tutorial;
+    const first = a.row === targetA.row && a.col === targetA.col && b.row === targetB.row && b.col === targetB.col;
+    const second = a.row === targetB.row && a.col === targetB.col && b.row === targetA.row && b.col === targetA.col;
+    if (first || second) return true;
+    say("For this first move, use the highlighted pair so you can see a defence being made.");
+    return false;
+  }
+
+  function advanceTutorialAfterSwap(chain) {
+    if (!state.tutorial.active) return;
+    if (state.tutorial.step === 0 && chain > 0) {
+      state.tutorial.step = 1;
+      say("Good. Three matching resources have formed a defence. Three matching defences will merge into a stronger one.");
+      return;
+    }
+    if (state.tutorial.step === 1) {
+      state.tutorial.step = 2;
+      say("Use your remaining swaps to build more defences, then press Begin Trial to test the Lodge.");
     }
   }
 
@@ -369,6 +487,10 @@
   }
 
   function swapCells(a, b) {
+    if (!tutorialAllowsSwap(a, b)) {
+      state.selected = null;
+      return;
+    }
     const ca = state.board[a.row][a.col];
     const cb = state.board[b.row][b.col];
     if (ca.path || cb.path || !ca.tile || !cb.tile) return;
@@ -378,6 +500,7 @@
     particle(boardPoint(b.row, b.col), palette.lightBlue, 18);
     say("Tiles swapped. Matches may build or strengthen your defences.");
     const chain = resolveMatches(false, [a, b]);
+    advanceTutorialAfterSwap(chain);
     if (chain === 0) say("No match this time. Positioning still matters.");
     if (state.swaps <= 0) beginCombat();
   }
@@ -456,6 +579,7 @@
     const anchor = cells[Math.floor(cells.length / 2)];
     const tile = state.board[anchor.row][anchor.col].tile;
     if (!tile) return { anchor, cleared: [] };
+    const wasTower = tile.tower;
     const next = { kind: tile.kind, level: tile.level, tower: true, charged: cells.length >= 4, id: Math.random().toString(36).slice(2) };
     if (tile.tower) next.level = Math.min(2, tile.level + 1);
     state.board[anchor.row][anchor.col].tile = next;
@@ -472,6 +596,13 @@
     state.score += 25 + cells.length * 10 + next.level * 35;
     particle(point, definition.color, cells.length >= 5 ? 42 : 26);
     floatText(label, point.x, point.y - 18, definition.color, 17);
+    if (wasTower) {
+      state.stats.mergedThisTrial += 1;
+      recordObjective("merge", 1);
+    } else {
+      state.stats.builtThisTrial += 1;
+      recordObjective("build", 1);
+    }
     if (next.kind === "gold" && next.tower) openChest();
     return { anchor, cleared };
   }
@@ -492,7 +623,7 @@
       () => { state.swaps += 3; say("Treasurer's Chest: +3 swaps."); },
       () => { state.security = Math.min(state.maxSecurity, state.security + 1); say("Treasurer's Chest: Lodge Security restored."); },
       () => { upgradeRandomTower(); say("Treasurer's Chest: one defence upgraded."); },
-      () => { shuffleBoard(); say("Treasurer's Chest: the board has been refreshed."); },
+      () => { state.score += 180; say("Treasurer's Chest: charity bonus awarded."); },
     ];
     state.chest = 1.4;
     rand(rewards)();
@@ -612,9 +743,13 @@
         const origin = boardPoint(row, col);
         const target = nearestEnemy(origin, def.range[tile.level]);
         if (!target) continue;
-        tile.cooldown = def.rate[tile.level] / speedBoost;
-        const damage = def.damage[tile.level] * (tile.charged ? 1.22 : 1);
+        const disrupted = towerDisruption(origin);
+        tile.cooldown = def.rate[tile.level] / Math.max(0.3, speedBoost * disrupted);
+        const damage = def.damage[tile.level] * (tile.charged ? 1.22 : 1) * enemyCounterMultiplier(tile.kind, target);
         fireProjectile(origin, target, tile.kind, damage);
+        if (disrupted < 1) {
+          floatText("Disrupted", origin.x, origin.y - 42, palette.crimson, 11);
+        }
         if (supportBoost > 1) {
           tile.supportFlash = 0.45;
           state.supportPulses.push({ row, col, life: 0.65, boost: supportBoost });
@@ -653,6 +788,24 @@
     return best?.enemy || null;
   }
 
+  function towerDisruption(origin) {
+    let multiplier = 1;
+    state.enemies.forEach((enemy) => {
+      if (!enemy.type.disrupt) return;
+      const pos = pathPoint(enemy);
+      const distance = Math.hypot(pos.x - origin.x, pos.y - origin.y);
+      if (distance <= 94) multiplier = Math.min(multiplier, enemy.type.disrupt);
+    });
+    return multiplier;
+  }
+
+  function enemyCounterMultiplier(kind, enemy) {
+    if (enemy.type.weakTo?.includes(kind)) return enemy.type.boss ? 1.16 : 1.28;
+    if (kind === "gold" && !enemy.type.boss) return 0.86;
+    if (kind === "acacia" && enemy.type.trait === "Heavy") return 0.78;
+    return 1;
+  }
+
   function fireProjectile(origin, enemy, kind, damage) {
     const def = resources[kind];
     if (kind === "acacia") enemy.slow = Math.min(enemy.slow, def.slow[Math.min(2, Math.max(0, Math.floor(damage / 12)))]);
@@ -678,6 +831,8 @@
     if (enemy.hp <= 0) {
       state.score += enemy.type.reward;
       state.stats.defeated += 1;
+      state.stats.defeatedThisTrial += 1;
+      recordObjective(enemy.type.boss ? "boss" : "defeat", 1);
       if (enemy.type.boss) state.stats.bosses += 1;
       particle(pos, enemy.type.color, enemy.type.boss ? 50 : 22);
       state.enemies = state.enemies.filter((item) => item !== enemy);
@@ -700,6 +855,10 @@
       state.tyler.stance = "strike";
       particle(pos, palette.gold, 30);
       state.score += Math.round(enemy.type.reward * 0.7);
+      state.stats.defeated += 1;
+      state.stats.defeatedThisTrial += 1;
+      if (enemy.type.boss) state.stats.bosses += 1;
+      recordObjective(enemy.type.boss ? "boss" : "defeat", 1);
       state.enemies = state.enemies.filter((item) => item !== enemy);
       say("The Tyler turned one away at the door.");
       return;
@@ -1219,6 +1378,7 @@
     drawLodge();
     drawTopBar();
     drawSidePanels();
+    drawObjectivePanel();
     drawBoard();
     drawTyler();
     drawEnemies();
@@ -1279,6 +1439,15 @@
     label("Surrey 1837 Club", 1144, 39, 15, palette.gold, 900, "left", 92);
   }
 
+  function drawObjectivePanel() {
+    if (!state.objective || ["menu", "how", "achievements", "game-over"].includes(state.mode)) return;
+    const completed = state.objective.completed;
+    panel(424, 82, 432, 38, completed ? "rgba(77,150,88,0.9)" : "rgba(6,26,54,0.88)", completed ? "rgba(255,246,223,0.55)" : "rgba(159,212,255,0.5)", 13);
+    label("Objective", 446, 94, 11, completed ? palette.cream : palette.gold, 900);
+    label(state.objective.text, 522, 93, 13, palette.cream, 900, "left", 236);
+    label(objectiveProgressText(), 830, 93, 12, completed ? palette.cream : palette.lightBlue, 900, "right", 80);
+  }
+
   function drawSidePanels() {
     panel(30, 96, 324, 584, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 18);
     label("The Tyler", 58, 120, 22, palette.lightBlue, 900);
@@ -1301,10 +1470,11 @@
       panel(954, y - 4, 268, 70, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 12);
       drawIcon(keyName, 965, y + 8, 42, 0, false);
       label(def.short, 1018, y + 5, 13, palette.cream, 900, "left", 182);
-      wrap(defenceGuide[keyName], 1018, y + 25, 178, 13, 10.5, "rgba(255,255,255,0.76)", 800);
+      label(def.role, 1018, y + 20, 10, def.color, 900, "left", 178);
+      wrap(defenceGuide[keyName], 1018, y + 34, 178, 12, 9.5, "rgba(255,255,255,0.76)", 800);
     });
     drawButton(buttonRects()[0], state.mode !== "prep");
-    label("Match, build, merge, defend. Lewis supports nearby towers.", 954, 557, 13, "rgba(255,255,255,0.78)", 800, "left", 248);
+    wrap("Inspect tiles and threats for counters. Match resources to build; match defences to merge.", 954, 552, 248, 15, 11, "rgba(255,255,255,0.78)", 800);
   }
 
   function drawInspectCard(x, y, w, h) {
@@ -1323,7 +1493,10 @@
     const def = resources[tile.kind];
     const name = tile.tower ? def.tower[tile.level] : def.label;
     label(name, x + 14, y + 34, 13, def.color, 900, "left", w - 28);
-    wrap(tile.tower ? defenceGuide[tile.kind] : "Resource tile. Match three to build this defence.", x + 14, y + 54, w - 28, 14, 10.5, "rgba(255,255,255,0.76)", 800);
+    const text = tile.tower
+      ? `${def.role}. ${defenceGuide[tile.kind]}`
+      : `Resource tile. Match three to build ${def.short}. ${def.role}.`;
+    wrap(text, x + 14, y + 54, w - 28, 14, 10.5, "rgba(255,255,255,0.76)", 800);
   }
 
   function drawButton(rect, disabled) {
@@ -1379,8 +1552,45 @@
       }
     }
     drawTowerRanges();
+    drawTutorialPrompt();
     drawEntranceGateway();
     drawSupportPulses();
+  }
+
+  function drawTutorialPrompt() {
+    if (!state.tutorial.active || state.mode !== "prep") return;
+    const { targetA, targetB, step } = state.tutorial;
+    if (step === 0 && targetA && targetB) {
+      [targetA, targetB].forEach((cell) => {
+        const x = board.x + cell.col * CELL;
+        const y = board.y + cell.row * CELL;
+        ctx.save();
+        ctx.shadowColor = palette.gold;
+        ctx.shadowBlur = 18;
+        ctx.strokeStyle = palette.gold;
+        ctx.lineWidth = 5;
+        roundRect(x + 4, y + 4, CELL - 8, CELL - 8, 12);
+        ctx.stroke();
+        ctx.restore();
+      });
+      const a = boardPoint(targetA.row, targetA.col);
+      const b = boardPoint(targetB.row, targetB.col);
+      ctx.save();
+      ctx.strokeStyle = palette.lightBlue;
+      ctx.lineWidth = 5;
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      ctx.restore();
+      panel(board.x + 24, board.y + board.h - 92, board.w - 48, 62, "rgba(6,26,54,0.92)", "rgba(201,154,53,0.72)", 14);
+      label("Guided first move", board.x + board.w / 2, board.y + board.h - 78, 14, palette.gold, 900, "center");
+      label("Swap the highlighted pair to create three Ashlars and build your first defence.", board.x + board.w / 2, board.y + board.h - 54, 12, palette.cream, 900, "center", board.w - 78);
+    } else if (step < 3) {
+      panel(board.x + 34, board.y + board.h - 84, board.w - 68, 54, "rgba(6,26,54,0.88)", "rgba(159,212,255,0.5)", 14);
+      label("Three resources build a defence. Three matching defences merge into a stronger one.", board.x + board.w / 2, board.y + board.h - 64, 12, palette.cream, 900, "center", board.w - 98);
+    }
   }
 
   function drawTowerRanges() {
@@ -1690,6 +1900,13 @@
         ctx.arc(pos.x, pos.y, 32, 0, Math.PI * 2);
         ctx.stroke();
       }
+      if (state.trial <= 6 || enemy.type.boss || enemy.type.aura) {
+        const labelWidth = enemy.type.boss ? 86 : 58;
+        ctx.fillStyle = "rgba(6,26,54,0.9)";
+        roundRect(pos.x - labelWidth / 2, pos.y + enemy.type.size + 8, labelWidth, 18, 7);
+        ctx.fill();
+        label(enemy.type.trait, pos.x, pos.y + enemy.type.size + 11, 9, palette.cream, 900, "center", labelWidth - 8);
+      }
       ctx.fillStyle = palette.crimson;
       ctx.fillRect(pos.x - 18, pos.y - enemy.type.size - 13, 36, 5);
       ctx.fillStyle = palette.green;
@@ -1769,7 +1986,7 @@
     label("TYLER'S TRIAL", 640, 136, 54, palette.cream, 900, "center");
     label("A Masonic puzzle of preparation, harmony, and defence", 640, 202, 18, palette.lightBlue, 900, "center");
     if (state.mode === "how") {
-      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. During setup, Installation randomises the whole board once. During combat, towers defend automatically while Tyler abilities buy time. Lewis supports nearby towers but does not attack directly. Jewels can reward swaps, repairs, upgrades, or a deliberate board refresh.", 430, 264, 420, 22, 14, palette.cream);
+      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. Each Trial has an objective for bonus score. Ashlar is balanced, Candle reaches far, Lewis boosts nearby defences, Wand slows fast threats, and Jewels provide rewards. During setup, Installation deliberately randomises the board once. Between Degrees, only non-upgraded defences are reshuffled so stronger work stays in place.", 430, 248, 420, 22, 14, palette.cream);
     } else if (state.mode === "achievements") {
       wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 430, 288, 420, 24, 16, palette.cream);
     } else {
