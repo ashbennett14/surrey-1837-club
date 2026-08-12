@@ -11,7 +11,7 @@
   const ctx = canvas.getContext("2d");
   const W = 1280;
   const H = 720;
-  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const DPR = Math.max(1, Math.min(1.5, window.devicePixelRatio || 1));
   const GRID = 8;
   const CELL = 64;
   const board = { x: 386, y: 128, w: GRID * CELL, h: GRID * CELL };
@@ -441,6 +441,7 @@
       });
       refillClearedCells(clearedCells);
       activeCells = nextActive.size ? nextActive : null;
+      if (seedCells?.length) break;
     }
     state.stats.bestChain = Math.max(state.stats.bestChain, chains);
     if (!silent && chains > 0) {
@@ -1006,6 +1007,7 @@
 
   function particle(origin, color, count) {
     if (reducedMotion) return;
+    count = Math.min(count, 18);
     for (let i = 0; i < count; i += 1) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 30 + Math.random() * 90;
@@ -1252,7 +1254,7 @@
       ctx.fill();
     }
     label(["Small Lodge", "Established Lodge", "Masonic Hall", "Provincial Hall", "Grand Temple"][stage], 640, 46, 22, palette.navy, 900, "center");
-    label("LODGE ENTRANCE", 640, 84, 15, palette.gold, 900, "center");
+    label("THE LODGE", 640, 84, 15, palette.gold, 900, "center");
   }
 
   function drawTopBar() {
@@ -1294,7 +1296,7 @@
       const hover = rectHit({ x: 954, y: y - 4, w: 268, h: 70 }, pointer);
       panel(954, y - 4, 268, 70, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 12);
       drawIcon(keyName, 965, y + 8, 42, 0, false);
-      label(`${def.short} / ${def.tower[0]}`, 1018, y + 5, 13, palette.cream, 900, "left", 182);
+      label(def.short, 1018, y + 5, 13, palette.cream, 900, "left", 182);
       wrap(defenceGuide[keyName], 1018, y + 25, 178, 13, 10.5, "rgba(255,255,255,0.76)", 800);
     });
     drawButton(buttonRects()[0], state.mode !== "prep");
@@ -1363,27 +1365,43 @@
           drawPathMark(x, y, row, col);
           if (isLodgeDoor(row, col)) drawEntranceCell(x, y, row, col);
         }
-        if (cell.tile?.tower) drawTowerRange(cell.tile, row, col);
         if (cell.tile) drawTile(cell.tile, x + 6, y + 6, CELL - 12, selected, row, col);
       }
     }
+    drawTowerRanges();
+    drawEntranceGateway();
     drawSupportPulses();
+  }
+
+  function drawTowerRanges() {
+    for (let row = 0; row < GRID; row += 1) {
+      for (let col = 0; col < GRID; col += 1) {
+        const tile = state.board[row][col].tile;
+        if (tile?.tower) drawTowerRange(tile, row, col);
+      }
+    }
   }
 
   function drawTowerRange(tile, row, col) {
     const def = resources[tile.kind];
     const point = boardPoint(row, col);
     const inspected = state.inspect?.row === row && state.inspect?.col === col;
-    const supported = tile.kind !== "tool" && isSupportedTower(row, col);
-    if (!inspected && tile.kind !== "tool" && !supported && !(tile.supportFlash > 0)) return;
+    if (!inspected && !(tile.supportFlash > 0)) return;
     ctx.save();
-    ctx.globalAlpha = tile.kind === "tool" ? 0.16 : inspected ? 0.14 : 0.09;
-    ctx.strokeStyle = tile.kind === "tool" ? palette.lightBlue : supported ? palette.gold : def.color;
-    ctx.lineWidth = tile.kind === "tool" ? 3 : 2;
+    ctx.globalAlpha = inspected ? 0.48 : 0.16;
+    ctx.strokeStyle = tile.kind === "tool" ? palette.lightBlue : def.color;
+    ctx.lineWidth = inspected ? 6 : 2;
     ctx.beginPath();
     ctx.arc(point.x, point.y, def.range[tile.level], 0, Math.PI * 2);
     ctx.stroke();
-    if (tile.kind === "tool") {
+    if (inspected) {
+      ctx.globalAlpha = 0.07;
+      ctx.fillStyle = tile.kind === "tool" ? palette.lightBlue : def.color;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, def.range[tile.level], 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (inspected && tile.kind === "tool") {
       ctx.globalAlpha = 0.08 + (Math.sin(clock * 3) + 1) * 0.03;
       ctx.fillStyle = palette.lightBlue;
       ctx.beginPath();
@@ -1431,6 +1449,36 @@
     ctx.lineTo(x + CELL * 0.27, y + CELL * 0.8);
     ctx.closePath();
     ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawEntranceGateway() {
+    const x = board.x + CELL * 3 - 4;
+    const y = board.y - 24;
+    const w = CELL * 2 + 8;
+    const h = CELL + 28;
+    const pulse = 0.76 + (!reducedMotion ? Math.sin(clock * 2.2) * 0.1 : 0);
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.shadowColor = "rgba(201,154,53,0.78)";
+    ctx.shadowBlur = 24;
+    ctx.strokeStyle = palette.gold;
+    ctx.lineWidth = 5;
+    roundRect(x, y, w, h, 18);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(6,26,54,0.94)";
+    roundRect(x + 9, y + 5, w - 18, 24, 10);
+    ctx.fill();
+    label("LODGE ENTRANCE", x + w / 2, y + 11, 11, palette.gold, 900, "center");
+    ctx.fillStyle = "rgba(255,246,223,0.92)";
+    ctx.beginPath();
+    ctx.moveTo(x + w / 2, y + h + 9);
+    ctx.lineTo(x + w / 2 - 12, y + h - 12);
+    ctx.lineTo(x + w / 2 + 12, y + h - 12);
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
   }
 
