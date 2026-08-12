@@ -2,6 +2,26 @@ window.surrey1837ManagedCalendarData = {
   "socialEvents": [],
   "lodgeEvents": [
     {
+      "id": "2026-09-17-welcome-lodge-raising",
+      "date": "2026-09-17",
+      "title": "Welcome Lodge",
+      "lodgeName": "Welcome Lodge",
+      "lodgeNumber": "5055",
+      "degree": "Raising",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Welcome Lodge No. 5055",
+      "type": "lodge",
+      "poster": "assets/2026-09-17-welcome-lodge.png",
+      "posterAlt": "Welcome Lodge No. 5055 crest",
+      "tags": [
+        "Raising",
+        "No. 5055",
+        "Surbiton"
+      ],
+      "description": "Welcome Lodge No. 5055 meeting in Surbiton for Raising."
+    },
+    {
       "id": "2026-09-21-triumvirate-lodge-installation",
       "date": "2026-09-21",
       "title": "Triumvirate Lodge",
