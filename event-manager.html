@@ -78,22 +78,18 @@
                 Date
                 <input id="eventDate" name="date" type="date" required />
               </label>
-              <label>
+              <label class="social-only">
                 Time
                 <input id="eventTime" name="time" type="text" placeholder="19:30 or TBC" />
               </label>
             </div>
 
             <label>
-              Title / Lodge / Chapter name
+              <span id="nameLabelText">Event title</span>
               <input id="eventTitle" name="title" type="text" required />
             </label>
 
-            <div class="manager-two-columns meeting-only">
-              <label>
-                Number
-                <input id="lodgeNumber" name="lodgeNumber" type="text" placeholder="e.g. 1981" />
-              </label>
+            <div class="meeting-only">
               <label>
                 Meeting type
                 <select id="degree" name="degree">
@@ -120,7 +116,7 @@
               <input id="eventLocation" name="location" type="text" required />
             </label>
 
-            <label>
+            <label class="social-only">
               Host
               <input id="eventHost" name="host" type="text" placeholder="Surrey 1837 Club" />
             </label>
@@ -135,12 +131,12 @@
               />
             </label>
 
-            <label>
+            <label class="social-only">
               Tags
               <input id="eventTags" name="tags" type="text" placeholder="Separate tags with commas" />
             </label>
 
-            <label>
+            <label class="social-only">
               Description
               <textarea id="eventDescription" name="description" rows="4"></textarea>
             </label>

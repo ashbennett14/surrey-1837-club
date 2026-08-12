@@ -9,6 +9,7 @@
 
   const form = document.querySelector("#eventForm");
   const calendarType = document.querySelector("#calendarType");
+  const nameLabelText = document.querySelector("#nameLabelText");
   const meetingOnly = [...document.querySelectorAll(".meeting-only")];
   const socialOnly = [...document.querySelectorAll(".social-only")];
   const bulkInput = document.querySelector("#bulkInput");
@@ -51,12 +52,14 @@
 
   function syncCalendarFields() {
     const isSocial = calendarType.value === "socialEvents";
+    const isChapter = calendarType.value === "chapterEvents";
     meetingOnly.forEach((element) => {
       element.hidden = isSocial;
     });
     socialOnly.forEach((element) => {
       element.hidden = !isSocial;
     });
+    nameLabelText.textContent = isSocial ? "Event title" : isChapter ? "Chapter name" : "Lodge name";
   }
 
   function addSingleEvent(event) {

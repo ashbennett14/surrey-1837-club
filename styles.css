@@ -2318,6 +2318,11 @@ body[data-calendar="chapter"] .detail-date {
   text-transform: uppercase;
 }
 
+.manager-form [hidden],
+.manager-card [hidden] {
+  display: none !important;
+}
+
 .manager-form input,
 .manager-form select,
 .manager-form textarea,
@@ -2354,6 +2359,10 @@ body[data-calendar="chapter"] .detail-date {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.manager-two-columns:has([hidden]) {
+  grid-template-columns: 1fr;
 }
 
 .manager-actions {
