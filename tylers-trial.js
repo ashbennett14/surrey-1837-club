@@ -44,6 +44,7 @@
       rate: [0.92, 0.78, 0.64],
       icon: "stone",
       role: "Reliable balanced damage",
+      detail: "Balanced medium-range defence with steady damage. Good all-round coverage and reliable against heavy threats.",
     },
     candle: {
       label: "Candle",
@@ -56,6 +57,7 @@
       rate: [1.15, 0.95, 0.78],
       icon: "flame",
       role: "Long-range slower attack",
+      detail: "Long-range golden ray. Fires more slowly, but reaches deep into the Lodge floor and counters heavy or disruptive threats.",
     },
     tool: {
       label: "Lewis",
@@ -69,6 +71,7 @@
       support: [1.18, 1.28, 1.42],
       icon: "lewis",
       role: "Nearby attack-speed support",
+      detail: "Support defence. Does not attack directly, but boosts nearby defences so they fire faster.",
     },
     acacia: {
       label: "Wand",
@@ -82,6 +85,7 @@
       slow: [0.62, 0.5, 0.38],
       icon: "wand",
       role: "Slows fast-moving threats",
+      detail: "Slowing defence. Wands are best placed where fast threats can be held in range of stronger towers.",
     },
     gold: {
       label: "Jewels",
@@ -95,16 +99,17 @@
       reward: true,
       icon: "jewel",
       role: "Bonus and reward structure",
+      detail: "Reward structure. Lower direct damage, but creates bonus score and helpful rewards when merged.",
     },
   };
 
   const resourceKeys = Object.keys(resources);
   const defenceGuide = {
-    ashlar: "Balanced medium-range defence with steady damage and reliable coverage.",
-    candle: "Long-range golden ray attack. Best against heavy or disruptive threats.",
-    tool: "Support defence. Boosts nearby defences' attack speed. Does not attack directly.",
-    acacia: "Slowing defence. Wands hinder fast threats while adding light damage.",
-    gold: "Reward defence. Jewels add score and can trigger swaps, repairs, or upgrades.",
+    ashlar: resources.ashlar.detail,
+    candle: resources.candle.detail,
+    tool: resources.tool.detail,
+    acacia: resources.acacia.detail,
+    gold: resources.gold.detail,
   };
   const abilityGuide = {
     sword: "Combat: turn away the nearest threat. Uses one Tyler charge.",
@@ -125,9 +130,21 @@
     character: "assets/tylers-lodge-character-v3.png",
     items: "assets/tylers-lodge-items.webp",
     ui: "assets/tylers-lodge-ui.webp",
+    tylerSheet: "assets/tylers-trial-tyler-sheet-v1.png",
+    defenceSheet: "assets/tylers-trial-defences-v1.png",
+    enemySheet: "assets/tylers-trial-enemies-v1.png",
+    uiSheet: "assets/tylers-trial-ui-v1.png",
     logo: "assets/surrey-1837-club-badge.png",
   };
   const images = {};
+  const spriteColumns = {
+    tyler: 5,
+    defence: 5,
+    enemy: 4,
+  };
+  const defenceSpriteIndex = { ashlar: 0, candle: 1, tool: 2, acacia: 3, gold: 4 };
+  const enemySpriteIndex = { cowan: 0, mischief: 0, ruffian: 1, discord: 2, lewis: 3 };
+  const tylerPoseIndex = { idle: 0, ready: 1, pleased: 2, guard: 3, strike: 4, warning: 3 };
 
   const pathCells = [
     [7, 0], [7, 1], [6, 1], [5, 1], [5, 2], [4, 2], [4, 3],
@@ -167,6 +184,7 @@
       particles: [],
       floaters: [],
       supportPulses: [],
+      matchHighlights: [],
       wave: { timer: 0, spawned: 0, total: 0, done: false, bossAnnounced: false },
       tyler: { charges: 3, guard: 0, alarm: 0, closed: 0, installation: 1, stance: "idle" },
       stats: {
@@ -184,6 +202,7 @@
       eventCard: null,
       inspect: null,
       leaderboardOpen: false,
+      helpOpen: false,
       transition: 0,
       shake: 0,
       highScore: Number(localStorage.getItem("tylersTrialHighScore") || 0),
@@ -275,7 +294,7 @@
     state.mode = "combat";
     state.selected = null;
     state.wave = makeWave();
-    state.transition = 1.6;
+    state.transition = 0.85;
     say("THE TRIAL BEGINS. Your defences will work automatically.");
     state.tyler.stance = "ready";
     knock();
@@ -317,15 +336,19 @@
     state.stats.defeatedThisTrial = 0;
     state.stats.builtThisTrial = 0;
     state.stats.mergedThisTrial = 0;
+    state.stats.heavyDefeatedThisTrial = 0;
+    state.stats.swapsAtStart = state.swaps;
   }
 
   function setTrialObjective() {
     resetTrialStats();
     const trial = state.trial;
     const templates = [
-      { kind: "build", text: "Build 2 defences", target: 2, bonus: 140 },
+      { kind: "build", text: "Build 3 defences", target: 3, bonus: 180 },
       { kind: "merge", text: "Merge one stronger defence", target: 1, bonus: 170 },
-      { kind: "security", text: "Keep Lodge Security above 8", target: 9, bonus: 190 },
+      { kind: "defeatHeavy", text: "Defeat a heavy threat", target: 1, bonus: 210 },
+      { kind: "efficient", text: "Keep 3 swaps in reserve", target: 3, bonus: 190 },
+      { kind: "security", text: "Keep Lodge Security above 8", target: 9, bonus: 210 },
       { kind: "defeat", text: "Defeat all threats", target: makeWave().total, bonus: 210 },
     ];
     const objective = trial === 1 ? templates[0] : templates[(trial - 1) % templates.length];
@@ -348,6 +371,7 @@
     if (!objective || objective.completed) return;
     if (objective.kind === "security" && state.security >= objective.target) completeObjective();
     if (objective.kind === "defeat" && state.wave.spawned >= state.wave.total && !state.enemies.length) completeObjective();
+    if (objective.kind === "efficient" && state.swaps >= objective.target) completeObjective();
   }
 
   function completeObjective() {
@@ -364,6 +388,7 @@
     if (!objective) return "";
     if (objective.completed) return `Complete +${objective.bonus}`;
     if (objective.kind === "security") return `${state.security}/${objective.target}+ security`;
+    if (objective.kind === "efficient") return `${state.swaps}/${objective.target}+ swaps`;
     return `${Math.min(objective.progress, objective.target)}/${objective.target}`;
   }
 
@@ -540,6 +565,11 @@
     const point = boardPoint(anchor.row, anchor.col);
     const definition = resources[next.kind];
     const label = next.tower ? definition.tower[next.level] : definition.label;
+    state.matchHighlights.push({
+      cells: cells.map((cell) => ({ row: cell.row, col: cell.col })),
+      color: definition.color,
+      life: 0.7,
+    });
     state.score += 25 + cells.length * 10 + next.level * 35;
     particle(point, definition.color, cells.length >= 5 ? 42 : 26);
     floatText(label, point.x, point.y - 18, definition.color, 17);
@@ -648,6 +678,7 @@
     const path = Math.random() > 0.52 ? pathCells : secondPathCells;
     state.enemies.push({
       type,
+      typeKey: Object.entries(enemyTypes).find(([, value]) => value === type)?.[0] || "cowan",
       hp: type.hp * hpScale,
       maxHp: type.hp * hpScale,
       progress: 0,
@@ -772,14 +803,23 @@
   }
 
   function damageEnemy(enemy, amount, kind) {
+    const weakHit = enemy.type.weakTo?.includes(kind);
     enemy.hp -= amount;
     const pos = pathPoint(enemy);
     floatText(`-${Math.round(amount)}`, pos.x, pos.y - 18, resources[kind].color, 14);
+    if (weakHit && (enemy.hitNotice || 0) <= 0) {
+      floatText("Counter!", pos.x, pos.y - 34, palette.gold, 12);
+      enemy.hitNotice = 0.8;
+    }
     if (enemy.hp <= 0) {
       state.score += enemy.type.reward;
       state.stats.defeated += 1;
       state.stats.defeatedThisTrial += 1;
       recordObjective(enemy.type.boss ? "boss" : "defeat", 1);
+      if (enemy.type.trait === "Heavy") {
+        state.stats.heavyDefeatedThisTrial += 1;
+        recordObjective("defeatHeavy", 1);
+      }
       if (enemy.type.boss) state.stats.bosses += 1;
       particle(pos, enemy.type.color, enemy.type.boss ? 50 : 22);
       state.enemies = state.enemies.filter((item) => item !== enemy);
@@ -791,6 +831,13 @@
       const speed = enemy.type.speed * enemy.slow * (state.tyler.closed > 0 ? 0 : 1);
       enemy.progress += (speed * dt) / CELL;
       enemy.slow = Math.min(1, enemy.slow + dt * 0.22);
+      enemy.hitNotice = Math.max(0, (enemy.hitNotice || 0) - dt);
+      if (!enemy.warned && enemy.progress > enemy.path.length - 2.35) {
+        enemy.warned = true;
+        state.tyler.stance = "warning";
+        floatText("Entrance threatened", board.x + board.w / 2, board.y - 48, palette.crimson, 18);
+        say("A threat is close to the Lodge entrance.");
+      }
       if (enemy.progress >= enemy.path.length - 1) reachDoor(enemy);
     });
   }
@@ -805,6 +852,10 @@
       state.stats.defeated += 1;
       state.stats.defeatedThisTrial += 1;
       if (enemy.type.boss) state.stats.bosses += 1;
+      if (enemy.type.trait === "Heavy") {
+        state.stats.heavyDefeatedThisTrial += 1;
+        recordObjective("defeatHeavy", 1);
+      }
       recordObjective(enemy.type.boss ? "boss" : "defeat", 1);
       state.enemies = state.enemies.filter((item) => item !== enemy);
       say("The Tyler turned one away at the door.");
@@ -875,6 +926,9 @@
     state.supportPulses = state.supportPulses
       .map((pulse) => ({ ...pulse, life: pulse.life - dt }))
       .filter((pulse) => pulse.life > 0);
+    state.matchHighlights = state.matchHighlights
+      .map((highlight) => ({ ...highlight, life: highlight.life - dt }))
+      .filter((highlight) => highlight.life > 0);
     state.board.forEach((line) => line.forEach((cell) => {
       if (cell.tile) {
         cell.tile.supportFlash = Math.max(0, (cell.tile.supportFlash || 0) - dt);
@@ -1154,7 +1208,8 @@
   function buttonRects() {
     return [
       { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1018, y: 602, w: 190, h: 48 },
-      { id: "scores", label: "HIGH SCORES", x: 1018, y: 548, w: 190, h: 40 },
+      { id: "scores", label: "SCORES", x: 954, y: 548, w: 128, h: 40 },
+      { id: "help", label: "HELP", x: 1094, y: 548, w: 128, h: 40 },
       { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 54, y: 566, w: 132, h: 36 },
       { id: "guard", label: "GUARD", x: 198, y: 566, w: 112, h: 36 },
       { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 54, y: 610, w: 132, h: 36 },
@@ -1167,7 +1222,7 @@
   }
 
   function abilityDisabled(id) {
-    if (id === "scores") return false;
+    if (id === "scores" || id === "help") return false;
     if (id === "installation") return state.mode !== "prep" || state.tyler.installation <= 0;
     return state.mode !== "combat";
   }
@@ -1184,6 +1239,10 @@
 
   function handlePointer(point) {
     pointer = point;
+    if (state.helpOpen) {
+      if (rectHit({ x: 976, y: 124, w: 40, h: 40 }, point) || rectHit({ x: 466, y: 614, w: 348, h: 48 }, point)) state.helpOpen = false;
+      return;
+    }
     if (state.eventCard) {
       if (rectHit({ x: 477, y: 484, w: 326, h: 54 }, point)) {
         state.eventCard.apply();
@@ -1220,6 +1279,10 @@
         showLeaderboard();
         return;
       }
+      if (button.id === "help") {
+        state.helpOpen = true;
+        return;
+      }
       if (button.id !== "begin") useAbility(button.id);
       return;
     }
@@ -1247,6 +1310,7 @@
 
   function onPointerMove(event) {
     pointer = canvasPoint(event);
+    if (state.helpOpen) return;
     const cell = hitCell(pointer);
     if (cell) state.inspect = cell;
   }
@@ -1343,6 +1407,7 @@
     drawFloaters();
     drawTransition();
     drawEventCard();
+    if (state.helpOpen) drawHelpOverlay();
     if (state.mode === "menu" || state.mode === "how" || state.mode === "achievements") drawMenu();
     if (state.mode === "game-over") drawGameOver();
     ctx.restore();
@@ -1424,13 +1489,14 @@
       const def = resources[keyName];
       const hover = rectHit({ x: 954, y: y - 4, w: 268, h: 58 }, pointer);
       panel(954, y - 4, 268, 58, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 12);
-      drawIcon(keyName, 965, y + 7, 38, 0, false);
+      drawDefenceSprite(keyName, 963, y + 5, 42, 0, false);
       label(def.short, 1012, y + 3, 13, palette.cream, 900, "left", 188);
       label(def.role, 1012, y + 18, 10, def.color, 900, "left", 184);
       wrap(defenceGuide[keyName], 1012, y + 31, 184, 11, 9, "rgba(255,255,255,0.76)", 800);
     });
     drawObjectivePanel();
     drawButton(buttonRects().find((button) => button.id === "scores"), false);
+    drawButton(buttonRects().find((button) => button.id === "help"), false);
     drawButton(buttonRects().find((button) => button.id === "begin"), state.mode !== "prep");
     wrap("Inspect tiles and threats for counters. Match resources to build; match defences to merge.", 954, 656, 248, 15, 11, "rgba(255,255,255,0.78)", 800);
   }
@@ -1460,6 +1526,12 @@
   function drawButton(rect, disabled) {
     const hover = rectHit(rect, pointer);
     panel(rect.x, rect.y, rect.w, rect.h, disabled ? "rgba(255,246,223,0.48)" : hover ? "rgba(255,246,223,1)" : "rgba(255,246,223,0.9)", hover ? palette.lightBlue : "rgba(201,154,53,0.76)", 14);
+    if (images.uiSheet && rect.w >= 120 && rect.h >= 38 && !disabled) {
+      ctx.save();
+      ctx.globalAlpha = hover ? 0.5 : 0.32;
+      ctx.drawImage(images.uiSheet, 48, 92, 640, 152, rect.x - 5, rect.y - 4, rect.w + 10, rect.h + 8);
+      ctx.restore();
+    }
     ctx.save();
     ctx.font = "900 13px Inter, Arial, sans-serif";
     ctx.fillStyle = disabled ? "rgba(23,36,58,0.45)" : palette.navy;
@@ -1467,6 +1539,69 @@
     ctx.textBaseline = "middle";
     ctx.fillText(rect.label, rect.x + rect.w / 2, rect.y + rect.h / 2 + 1, rect.w - 18);
     ctx.restore();
+  }
+
+  function drawSpriteSheet(img, index, columns, sourceOptions, x, y, w, h) {
+    if (!img) return false;
+    const sourceW = img.width / columns;
+    const sx = sourceW * index + (sourceOptions?.xPad || 0) * sourceW;
+    const sy = (sourceOptions?.y || 0) * img.height;
+    const sw = sourceW * (1 - (sourceOptions?.xPad || 0) * 2);
+    const sh = img.height * (sourceOptions?.h || 1);
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    return true;
+  }
+
+  function drawDefenceSprite(kind, x, y, size, level, tower) {
+    const img = images.defenceSheet;
+    const index = defenceSpriteIndex[kind] ?? 0;
+    ctx.save();
+    ctx.shadowColor = tower ? "rgba(201,154,53,0.48)" : "rgba(0,0,0,0.18)";
+    ctx.shadowBlur = tower ? 12 : 4;
+    const drawn = drawSpriteSheet(img, index, spriteColumns.defence, { y: 0.2, h: 0.68, xPad: 0.03 }, x, y, size, size);
+    ctx.restore();
+    if (!drawn) drawIcon(kind, x, y, size, level, tower);
+    if (tower) {
+      ctx.save();
+      ctx.strokeStyle = resources[kind].color;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.arc(x + size / 2, y + size / 2, size * (0.42 + level * 0.04), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawEnemySprite(enemy, pos, size, wobble) {
+    const img = images.enemySheet;
+    const index = enemySpriteIndex[enemy.typeKey] ?? enemySpriteIndex[enemy.type.name] ?? 0;
+    if (!img) return false;
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.42)";
+    ctx.shadowBlur = enemy.type.boss ? 16 : 10;
+    drawSpriteSheet(img, index, spriteColumns.enemy, { y: 0.12, h: 0.74, xPad: 0.04 }, pos.x - size / 2, pos.y - size / 2 + wobble, size, size);
+    ctx.restore();
+    return true;
+  }
+
+  function drawMatchHighlights() {
+    state.matchHighlights.forEach((highlight) => {
+      const alpha = Math.max(0, highlight.life / 0.7);
+      highlight.cells.forEach((cell) => {
+        const x = board.x + cell.col * CELL;
+        const y = board.y + cell.row * CELL;
+        ctx.save();
+        ctx.globalAlpha = 0.16 + alpha * 0.28;
+        ctx.fillStyle = highlight.color;
+        roundRect(x + 4, y + 4, CELL - 8, CELL - 8, 12);
+        ctx.fill();
+        ctx.strokeStyle = palette.gold;
+        ctx.lineWidth = 2 + alpha * 3;
+        ctx.stroke();
+        ctx.restore();
+      });
+    });
   }
 
   function drawBoard() {
@@ -1509,6 +1644,7 @@
         if (cell.tile) drawTile(cell.tile, x + 6, y + 6, CELL - 12, selected, row, col);
       }
     }
+    drawMatchHighlights();
     drawTowerRanges();
     drawSupportPulses();
   }
@@ -1621,7 +1757,7 @@
       ctx.fill();
       ctx.restore();
     }
-    drawIcon(tile.kind, x + 8, y + 8, size - 16, tile.level, tile.tower);
+    drawDefenceSprite(tile.kind, x + 5, y + 5, size - 10, tile.level, tile.tower);
     if (tile.tower) {
       label(roman(tile.level + 1), x + size - 14, y + 7, 12, palette.gold, 900, "center");
       if (tile.kind !== "tool" && isSupportedTower(row, col)) {
@@ -1746,7 +1882,15 @@
   function drawTyler() {
     const x = 145;
     const y = 230 + (!reducedMotion ? Math.sin(clock * 2) * 2 : 0);
-    if (images.character) {
+    if (images.tylerSheet) {
+      const pose = tylerPoseIndex[state.tyler.stance] ?? 0;
+      ctx.save();
+      if (state.tyler.stance === "strike" || state.tyler.stance === "pleased") ctx.filter = "brightness(1.12) saturate(1.12)";
+      ctx.shadowColor = "rgba(0,0,0,0.38)";
+      ctx.shadowBlur = 16;
+      drawSpriteSheet(images.tylerSheet, pose, spriteColumns.tyler, { y: 0.05, h: 0.9, xPad: 0.05 }, x - 62, y - 8, 152, 216);
+      ctx.restore();
+    } else if (images.character) {
       ctx.save();
       if (state.tyler.stance === "strike") ctx.filter = "brightness(1.15) saturate(1.15)";
       ctx.shadowColor = "rgba(0,0,0,0.38)";
@@ -1770,25 +1914,19 @@
     state.enemies.forEach((enemy) => {
       const pos = pathPoint(enemy);
       const wobble = !reducedMotion ? Math.sin(clock * 5 + enemy.wobble) * 2 : 0;
+      const spriteSize = enemy.type.boss ? 76 : enemy.type.trait === "Heavy" ? 58 : 46;
       ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,0.38)";
-      ctx.shadowBlur = enemy.type.boss ? 14 : 8;
-      ctx.fillStyle = gradientFill(pos.x - enemy.type.size, pos.y - enemy.type.size, enemy.type.size * 2, enemy.type.size * 2, [[0, enemy.type.color], [1, "#101827"]]);
-      ctx.strokeStyle = enemy.type.boss ? palette.gold : palette.cream;
-      ctx.lineWidth = enemy.type.boss ? 3 : 2;
-      ctx.beginPath();
-      ctx.moveTo(pos.x, pos.y - enemy.type.size - 4 + wobble);
-      ctx.quadraticCurveTo(pos.x + enemy.type.size * 1.1, pos.y - enemy.type.size * 0.2 + wobble, pos.x + enemy.type.size * 0.72, pos.y + enemy.type.size * 0.92 + wobble);
-      ctx.quadraticCurveTo(pos.x, pos.y + enemy.type.size * 1.24 + wobble, pos.x - enemy.type.size * 0.72, pos.y + enemy.type.size * 0.92 + wobble);
-      ctx.quadraticCurveTo(pos.x - enemy.type.size * 1.1, pos.y - enemy.type.size * 0.2 + wobble, pos.x, pos.y - enemy.type.size - 4 + wobble);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = "rgba(255,255,255,0.82)";
-      ctx.beginPath();
-      ctx.arc(pos.x - enemy.type.size * 0.28, pos.y - enemy.type.size * 0.1 + wobble, 2.2, 0, Math.PI * 2);
-      ctx.arc(pos.x + enemy.type.size * 0.28, pos.y - enemy.type.size * 0.1 + wobble, 2.2, 0, Math.PI * 2);
-      ctx.fill();
+      if (!drawEnemySprite(enemy, pos, spriteSize, wobble)) {
+        ctx.shadowColor = "rgba(0,0,0,0.38)";
+        ctx.shadowBlur = enemy.type.boss ? 14 : 8;
+        ctx.fillStyle = gradientFill(pos.x - enemy.type.size, pos.y - enemy.type.size, enemy.type.size * 2, enemy.type.size * 2, [[0, enemy.type.color], [1, "#101827"]]);
+        ctx.strokeStyle = enemy.type.boss ? palette.gold : palette.cream;
+        ctx.lineWidth = enemy.type.boss ? 3 : 2;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y + wobble, enemy.type.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
       if (enemy.type.aura) {
         ctx.strokeStyle = "rgba(168,36,104,0.35)";
         ctx.beginPath();
@@ -1798,14 +1936,14 @@
       if (state.trial <= 6 || enemy.type.boss || enemy.type.aura) {
         const labelWidth = enemy.type.boss ? 86 : 58;
         ctx.fillStyle = "rgba(6,26,54,0.9)";
-        roundRect(pos.x - labelWidth / 2, pos.y + enemy.type.size + 8, labelWidth, 18, 7);
+        roundRect(pos.x - labelWidth / 2, pos.y + spriteSize / 2 + 8, labelWidth, 18, 7);
         ctx.fill();
-        label(enemy.type.trait, pos.x, pos.y + enemy.type.size + 11, 9, palette.cream, 900, "center", labelWidth - 8);
+        label(enemy.type.trait, pos.x, pos.y + spriteSize / 2 + 11, 9, palette.cream, 900, "center", labelWidth - 8);
       }
       ctx.fillStyle = palette.crimson;
-      ctx.fillRect(pos.x - 18, pos.y - enemy.type.size - 13, 36, 5);
+      ctx.fillRect(pos.x - 18, pos.y - spriteSize / 2 - 13, 36, 5);
       ctx.fillStyle = palette.green;
-      ctx.fillRect(pos.x - 18, pos.y - enemy.type.size - 13, 36 * Math.max(0, enemy.hp / enemy.maxHp), 5);
+      ctx.fillRect(pos.x - 18, pos.y - spriteSize / 2 - 13, 36 * Math.max(0, enemy.hp / enemy.maxHp), 5);
       ctx.restore();
     });
   }
@@ -1874,6 +2012,45 @@
     drawButton({ x: 477, y: 484, w: 326, h: 54, label: "ACCEPT AND CONTINUE" }, false);
   }
 
+  function drawHelpOverlay() {
+    ctx.save();
+    ctx.fillStyle = "rgba(3,12,24,0.78)";
+    ctx.fillRect(0, 0, W, H);
+    panel(260, 92, 760, 560, "rgba(255,246,223,0.97)", "rgba(201,154,53,0.9)", 24);
+    label("Tyler's Trial Field Guide", 640, 126, 30, palette.navy, 900, "center");
+    label("Swap, match, build, merge, defend.", 640, 164, 15, palette.blue, 900, "center");
+    drawButton({ x: 976, y: 124, w: 40, h: 40, label: "X" }, false);
+
+    label("Defences", 310, 204, 17, palette.gold, 900);
+    resourceKeys.forEach((keyName, index) => {
+      const def = resources[keyName];
+      const y = 232 + index * 62;
+      panel(300, y, 318, 52, "rgba(6,26,54,0.08)", "rgba(13,55,109,0.14)", 12);
+      drawDefenceSprite(keyName, 312, y + 7, 38, 0, false);
+      label(def.short, 360, y + 7, 13, palette.navy, 900, "left", 130);
+      wrap(def.detail, 360, y + 24, 232, 11, 9, palette.ink, 800);
+    });
+
+    label("Threat Counters", 662, 204, 17, palette.gold, 900);
+    const counters = [
+      ["Fast", "Use Wand slow so other defences can finish them."],
+      ["Heavy", "Ashlar and Candle hit hardest against these."],
+      ["Disruptor", "Candle focus removes their speed-reducing aura."],
+      ["Boss", "Appears every tenth Trial. Focus fire and protect the entrance."],
+    ];
+    counters.forEach(([name, text], index) => {
+      const y = 232 + index * 64;
+      panel(650, y, 318, 52, "rgba(6,26,54,0.08)", "rgba(13,55,109,0.14)", 12);
+      label(name, 668, y + 9, 13, palette.navy, 900, "left", 88);
+      wrap(text, 760, y + 8, 188, 12, 9.5, palette.ink, 800);
+    });
+
+    label("Controls and Scoring", 662, 500, 17, palette.gold, 900);
+    wrap("Setup: tap two adjacent tiles to swap them. Three resources build a defence. Three matching defences merge into a stronger defence. Combat: defences fire automatically; use Tyler abilities when the entrance is under pressure. Objectives award bonus score.", 650, 528, 318, 17, 12, palette.ink, 800);
+    drawButton({ x: 466, y: 614, w: 348, h: 48, label: "RETURN TO THE TRIAL" }, false);
+    ctx.restore();
+  }
+
   function drawMenu() {
     ctx.fillStyle = "rgba(3,12,24,0.72)";
     ctx.fillRect(0, 0, W, H);
@@ -1928,7 +2105,7 @@
 
   function update(dt) {
     updateTimers(dt);
-    if (state.mode === "combat") updateCombat(dt);
+    if (state.mode === "combat" && !state.helpOpen && !state.leaderboardOpen) updateCombat(dt);
     updateDomControls();
   }
 
@@ -1971,7 +2148,14 @@
     restartButton?.addEventListener("click", startGame);
     document.addEventListener("keydown", (event) => {
       const key = event.key.toLowerCase();
+      if (key === "escape" && state.helpOpen) {
+        state.helpOpen = false;
+        return;
+      }
       if (key === "escape") window.location.href = "index.html";
+      if (key === "h") {
+        state.helpOpen = !state.helpOpen;
+      }
       if (key === " " && state.mode === "prep") {
         event.preventDefault();
         beginCombat();
