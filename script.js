@@ -936,27 +936,143 @@ const chapterEvents = lodgeEvents
   }));
 const craftLodgeEvents = lodgeEvents.filter((event) => event.degree !== "Royal Arch");
 
-window.surrey1837CalendarData = {
+const builtInCalendarData = {
   socialEvents,
   lodgeEvents: craftLodgeEvents,
   chapterEvents,
 };
 
-if (document.querySelector("#calendarGrid")) {
+window.surrey1837CalendarData = builtInCalendarData;
+
+function normalizeManagedEvent(event, calendarType) {
+  const managedEvent = { ...event };
+  const isMeeting = calendarType === "lodge" || calendarType === "chapter";
+
+  managedEvent.id = managedEvent.id || createManagedEventId(managedEvent);
+  managedEvent.type = calendarType;
+  managedEvent.time = managedEvent.time || (isMeeting ? "TBC" : "");
+  managedEvent.location = managedEvent.location || "TBC";
+  managedEvent.host =
+    managedEvent.host ||
+    (isMeeting
+      ? `${managedEvent.lodgeName || managedEvent.title || "Meeting"}${
+          managedEvent.lodgeNumber ? ` No. ${managedEvent.lodgeNumber}` : ""
+        }`
+      : "Surrey 1837 Club");
+  managedEvent.tags = Array.isArray(managedEvent.tags)
+    ? managedEvent.tags
+    : String(managedEvent.tags || "")
+        .split("|")
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+  managedEvent.description =
+    managedEvent.description ||
+    (isMeeting
+      ? `${managedEvent.host} meeting in ${managedEvent.location}${
+          managedEvent.degree ? ` for ${managedEvent.degree}.` : "."
+        }`
+      : "");
+
+  if (isMeeting) {
+    managedEvent.lodgeName = managedEvent.lodgeName || managedEvent.title || managedEvent.host;
+    managedEvent.lodgeNumber = managedEvent.lodgeNumber || "";
+    managedEvent.degree = managedEvent.degree || "Other";
+    managedEvent.title = managedEvent.title || managedEvent.lodgeName;
+    managedEvent.posterAlt =
+      managedEvent.posterAlt ||
+      `${managedEvent.lodgeName}${managedEvent.lodgeNumber ? ` No. ${managedEvent.lodgeNumber}` : ""} crest`;
+    if (managedEvent.tags.length === 0) {
+      managedEvent.tags = [
+        managedEvent.degree,
+        managedEvent.lodgeNumber ? `No. ${managedEvent.lodgeNumber}` : "",
+        managedEvent.location,
+      ].filter(Boolean);
+    }
+  } else {
+    managedEvent.category = managedEvent.category || "Community Event";
+    managedEvent.posterAlt = managedEvent.posterAlt || `${managedEvent.title} poster`;
+    if (managedEvent.tags.length === 0) {
+      managedEvent.tags = [managedEvent.category, managedEvent.location].filter(Boolean);
+    }
+  }
+
+  return managedEvent;
+}
+
+function createManagedEventId(event) {
+  return [event.date, event.title || event.lodgeName || event.host || "event"]
+    .filter(Boolean)
+    .join("-")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function mergeManagedCalendarEvents(managedData) {
+  const nextData = {
+    socialEvents: [...builtInCalendarData.socialEvents],
+    lodgeEvents: [...builtInCalendarData.lodgeEvents],
+    chapterEvents: [...builtInCalendarData.chapterEvents],
+  };
+
+  ["socialEvents", "lodgeEvents", "chapterEvents"].forEach((key) => {
+    const managedEvents = Array.isArray(managedData?.[key]) ? managedData[key] : [];
+    const calendarType = key.replace("Events", "");
+    const merged = new Map(nextData[key].map((event) => [event.id, event]));
+
+    managedEvents
+      .map((event) => normalizeManagedEvent(event, calendarType))
+      .forEach((event) => merged.set(event.id, event));
+
+    nextData[key] = [...merged.values()];
+  });
+
+  window.surrey1837CalendarData = nextData;
+  return nextData;
+}
+
+async function loadManagedCalendarEvents() {
+  if (window.surrey1837ManagedCalendarData) {
+    mergeManagedCalendarEvents(window.surrey1837ManagedCalendarData);
+  }
+
+  try {
+    if (window.location.protocol === "file:") {
+      return window.surrey1837CalendarData;
+    }
+
+    const response = await fetch("calendar-events.json", { cache: "no-cache" });
+    if (!response.ok) {
+      return window.surrey1837CalendarData;
+    }
+
+    const managedData = await response.json();
+    return mergeManagedCalendarEvents(managedData);
+  } catch (error) {
+    console.warn("Managed calendar events could not be loaded.", error);
+    return window.surrey1837CalendarData;
+  }
+}
+
+window.surrey1837CalendarDataReady = loadManagedCalendarEvents();
+
+function initializeCalendarPage() {
 const today = new Date();
 const todayKey = toKey(today);
 const calendarType = document.body.dataset.calendar || "social";
+const calendarData = window.surrey1837CalendarData || builtInCalendarData;
 const calendarConfig = {
   social: {
-    events: socialEvents,
+    events: calendarData.socialEvents,
     initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
   },
   lodge: {
-    events: craftLodgeEvents,
+    events: calendarData.lodgeEvents,
     initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
   },
   chapter: {
-    events: chapterEvents,
+    events: calendarData.chapterEvents,
     initialDate: new Date(today.getFullYear(), today.getMonth(), 1),
   },
 };
@@ -1289,6 +1405,10 @@ if (initialEvent) {
   renderCalendar();
   selectEvent(initialEvent.id);
 }
+}
+
+if (document.querySelector("#calendarGrid")) {
+  window.surrey1837CalendarDataReady.finally(initializeCalendarPage);
 }
 
 function createPosterLightbox() {

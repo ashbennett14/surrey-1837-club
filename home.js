@@ -1,4 +1,10 @@
-(() => {
+window.surrey1837CalendarDataReady?.finally(renderHomeNextEvents);
+
+if (!window.surrey1837CalendarDataReady) {
+  renderHomeNextEvents();
+}
+
+function renderHomeNextEvents() {
   const nextEvent = document.querySelector("#homeNextEvent");
   const title = document.querySelector("#homeNextTitle");
   const meta = document.querySelector("#homeNextMeta");
@@ -69,4 +75,4 @@
     const [year, month, day] = key.split("-").map(Number);
     return new Date(year, month - 1, day);
   }
-})();
+}

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZXL9CHXXT3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZXL9CHXXT3');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#071f3f" />
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <title>Event Manager | The Surrey 1837 Club</title>
+    <link rel="stylesheet" href="styles.css?v=event-manager" />
+    <script src="auth.js?v=login-gate"></script>
+    <script src="motion.js?v=visual-polish" defer></script>
+  </head>
+  <body>
+    <main class="manager-shell">
+      <section class="manager-panel" aria-label="1837 Club event manager">
+        <div class="brand-strip" aria-label="1837 Club">
+          <div class="brand-lockup">
+            <img
+              class="brand-crest"
+              src="assets/surrey-1837-club-badge.png"
+              alt="The Surrey 1837 Club Light Blues badge"
+              width="552"
+              height="530"
+            />
+            <div>
+              <p class="brand-name">Event Manager</p>
+            </div>
+          </div>
+          <span class="brand-place">Private</span>
+        </div>
+
+        <nav class="page-nav" aria-label="Admin pages">
+          <a href="index.html">Home</a>
+          <a href="social-events.html">Social Events</a>
+          <a href="lodge-meetings.html">Lodge Meetings</a>
+          <a href="chapter-meetings.html">Chapter Meetings</a>
+          <a href="stats.html">Stats</a>
+        </nav>
+
+        <header class="manager-hero">
+          <p class="section-kicker">Calendar Admin</p>
+          <h1>Add calendar items without editing code</h1>
+          <p>
+            Add one event at a time or paste a batch from a spreadsheet, then publish the
+            managed events file to GitHub or download it as a backup.
+          </p>
+        </header>
+
+        <section class="manager-grid">
+          <form class="manager-card manager-form" id="eventForm">
+            <div class="manager-card-heading">
+              <p class="section-kicker">Single Entry</p>
+              <h2>Add an item</h2>
+            </div>
+
+            <label>
+              Calendar
+              <select id="calendarType" name="calendarType">
+                <option value="socialEvents">Social Events</option>
+                <option value="lodgeEvents">Lodge Meetings</option>
+                <option value="chapterEvents">Chapter Meetings</option>
+              </select>
+            </label>
+
+            <div class="manager-two-columns">
+              <label>
+                Date
+                <input id="eventDate" name="date" type="date" required />
+              </label>
+              <label>
+                Time
+                <input id="eventTime" name="time" type="text" placeholder="19:30 or TBC" />
+              </label>
+            </div>
+
+            <label>
+              Title / Lodge / Chapter name
+              <input id="eventTitle" name="title" type="text" required />
+            </label>
+
+            <div class="manager-two-columns meeting-only">
+              <label>
+                Number
+                <input id="lodgeNumber" name="lodgeNumber" type="text" placeholder="e.g. 1981" />
+              </label>
+              <label>
+                Meeting type
+                <select id="degree" name="degree">
+                  <option value="Installation">Installation</option>
+                  <option value="Initiation">Initiation</option>
+                  <option value="Passing">Passing</option>
+                  <option value="Raising">Raising</option>
+                  <option value="Other">Other</option>
+                  <option value="Royal Arch">Royal Arch</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="social-only">
+              Event category
+              <select id="eventCategory" name="category">
+                <option value="1837 Club Event">1837 Club Event</option>
+                <option value="Community Event">Community Event</option>
+              </select>
+            </label>
+
+            <label>
+              Location
+              <input id="eventLocation" name="location" type="text" required />
+            </label>
+
+            <label>
+              Host
+              <input id="eventHost" name="host" type="text" placeholder="Surrey 1837 Club" />
+            </label>
+
+            <label>
+              Image path
+              <input
+                id="eventPoster"
+                name="poster"
+                type="text"
+                placeholder="assets/example-poster.jpg"
+              />
+            </label>
+
+            <label>
+              Tags
+              <input id="eventTags" name="tags" type="text" placeholder="Separate tags with commas" />
+            </label>
+
+            <label>
+              Description
+              <textarea id="eventDescription" name="description" rows="4"></textarea>
+            </label>
+
+            <button class="login-button" type="submit">Add to managed file</button>
+          </form>
+
+          <section class="manager-card">
+            <div class="manager-card-heading">
+              <p class="section-kicker">Batch Entry</p>
+              <h2>Paste from a spreadsheet</h2>
+            </div>
+            <p class="manager-help">
+              Paste CSV or tab-separated rows with headings. Useful headings include:
+              <code>calendar</code>, <code>date</code>, <code>title</code>, <code>number</code>,
+              <code>degree</code>, <code>location</code>, <code>category</code>,
+              <code>poster</code>, <code>description</code>.
+            </p>
+            <textarea
+              id="bulkInput"
+              rows="11"
+              spellcheck="false"
+              placeholder="calendar,date,title,number,degree,location&#10;lodge,2026-09-18,Operative Lodge,8783,Other,Croydon"
+            ></textarea>
+            <div class="manager-actions">
+              <button class="small-action-link" id="importBulk" type="button">Import Batch</button>
+              <button class="small-action-link secondary" id="loadCurrent" type="button">
+                Reload Managed File
+              </button>
+            </div>
+          </section>
+
+          <section class="manager-card manager-output">
+            <div class="manager-card-heading">
+              <p class="section-kicker">Managed Items</p>
+              <h2>Review and publish</h2>
+            </div>
+            <div class="manager-summary" id="managerSummary"></div>
+            <div class="managed-list" id="managedList"></div>
+            <div class="manager-actions">
+              <button class="small-action-link" id="downloadJson" type="button">Download JSON</button>
+              <button class="small-action-link" id="downloadJs" type="button">Download JS</button>
+              <button class="small-action-link" id="copyJson" type="button">Copy JSON</button>
+              <button class="small-action-link danger" id="clearManaged" type="button">
+                Clear Managed Items
+              </button>
+            </div>
+          </section>
+
+          <section class="manager-card manager-github">
+            <div class="manager-card-heading">
+              <p class="section-kicker">Optional Publishing</p>
+              <h2>Publish to GitHub</h2>
+            </div>
+            <p class="manager-help">
+              Use a fine-grained GitHub token with contents read/write access for
+              <code>ashbennett14/surrey-1837-club</code>. The token is only used in this browser
+              to update <code>calendar-events.json</code> and its local-preview companion.
+            </p>
+            <label>
+              GitHub token
+              <input id="githubToken" type="password" autocomplete="off" />
+            </label>
+            <label class="manager-checkbox">
+              <input id="rememberToken" type="checkbox" />
+              Remember token on this device
+            </label>
+            <button class="login-button" id="publishGithub" type="button">
+              Publish calendar-events.json
+            </button>
+            <p class="manager-status" id="managerStatus" role="status"></p>
+          </section>
+        </section>
+      </section>
+
+      <footer class="site-footer" aria-label="Site footer">
+        <p class="footer-title">The Surrey 1837 Club</p>
+        <p>Supporting Surrey Light Blues Across the Province</p>
+        <p>© 2026 The Surrey 1837 Club</p>
+      </footer>
+    </main>
+
+    <script src="calendar-events.js?v=managed-events"></script>
+    <script src="event-manager.js?v=event-manager" defer></script>
+    <script src="easter-egg.js?v=tylers-trial-click3"></script>
+  </body>
+</html>
