@@ -148,7 +148,6 @@ const eventCount = document.querySelector("#eventCount");
 const meetingTypeFilter = document.querySelector("#meetingTypeFilter");
 const meetingLocationFilter = document.querySelector("#meetingLocationFilter");
 const socialCategoryFilter = document.querySelector("#socialCategoryFilter");
-const calendarSearch = document.querySelector("#calendarSearch");
 const calendarEmptyMessage = document.querySelector("#calendarEmptyMessage");
 const emptyState = document.querySelector("#emptyState");
 const eventDetails = document.querySelector("#eventDetails");
@@ -169,7 +168,6 @@ let selectedEventId = null;
 let activeMeetingType = "";
 let activeMeetingLocation = "";
 let activeSocialCategory = "";
-let activeSearchTerm = "";
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   weekday: "long",
@@ -211,7 +209,6 @@ function getMonthDays(date) {
 }
 
 function matchesActiveFilters(event) {
-  const matchesSearch = matchesCalendarSearch(event);
   const matchesCategory =
     calendarType !== "social" ||
     !activeSocialCategory ||
@@ -227,28 +224,7 @@ function matchesActiveFilters(event) {
     (calendarType !== "lodge" && calendarType !== "chapter") ||
     !activeMeetingLocation || event.location === activeMeetingLocation;
 
-  return matchesSearch && matchesCategory && matchesType && matchesLocation;
-}
-
-function matchesCalendarSearch(event) {
-  if (!activeSearchTerm) {
-    return true;
-  }
-
-  const sharedFields = [
-    event.title,
-    event.location,
-    event.host,
-    ...(Array.isArray(event.tags) ? event.tags : []),
-  ];
-  const searchableFields =
-    calendarType === "social"
-      ? [...sharedFields, event.category]
-      : [...sharedFields, event.lodgeName, event.lodgeNumber, event.degree];
-
-  return searchableFields
-    .filter(Boolean)
-    .some((value) => String(value).toLowerCase().includes(activeSearchTerm));
+  return matchesCategory && matchesType && matchesLocation;
 }
 
 function resetDetails() {
@@ -259,25 +235,15 @@ function resetDetails() {
 
 function getEmptyMessage() {
   if (calendarType === "social") {
-    if (activeSearchTerm) {
-      return "No social events match that search this month. Try a different search or move to another month.";
-    }
     return activeSocialCategory
       ? "No events match this category this month. Try another category or move to a different month."
       : "No social events are listed for this month. Try moving to the next month.";
   }
 
   if (calendarType === "chapter") {
-    if (activeSearchTerm) {
-      return "No chapter meetings match that search this month. Try a different search or move to another month.";
-    }
     return activeMeetingType || activeMeetingLocation
       ? "No chapter meetings match these filters this month. Try changing the type or location."
       : "No chapter meetings are listed for this month. Try moving to the next month.";
-  }
-
-  if (activeSearchTerm) {
-    return "No lodge meetings match that search this month. Try a different search or move to another month.";
   }
 
   if (activeMeetingType || activeMeetingLocation) {
@@ -471,14 +437,6 @@ if (meetingLocationFilter) {
 if (socialCategoryFilter) {
   socialCategoryFilter.addEventListener("change", () => {
     activeSocialCategory = socialCategoryFilter.value;
-    resetDetails();
-    renderCalendar();
-  });
-}
-
-if (calendarSearch) {
-  calendarSearch.addEventListener("input", () => {
-    activeSearchTerm = calendarSearch.value.trim().toLowerCase();
     resetDetails();
     renderCalendar();
   });

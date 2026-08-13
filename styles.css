@@ -1522,9 +1522,12 @@ body[data-calendar="chapter"] .detail-date {
   gap: 18px;
   border-color: rgba(197, 154, 54, 0.26);
   background:
-    linear-gradient(110deg, rgba(255, 255, 255, 0.94), rgba(247, 252, 255, 0.88)),
-    url("assets/home-ornamental-band.webp") center / cover no-repeat,
+    linear-gradient(105deg, rgba(255, 255, 255, 0.82), rgba(241, 248, 255, 0.72)),
+    url("assets/home-featured-event-bg.jpg") center / cover no-repeat,
     #ffffff;
+  box-shadow:
+    0 18px 42px rgba(5, 20, 42, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.58);
 }
 
 .home-featured-event::after {
@@ -3031,8 +3034,8 @@ body[data-calendar="chapter"] .event-pill:hover {
 }
 
 .social-filters {
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  width: min(430px, 100%);
+  grid-template-columns: minmax(0, 1fr);
+  width: min(240px, 100%);
 }
 
 .social-filters .meeting-filter select {
@@ -3070,31 +3073,7 @@ body[data-calendar="chapter"] .event-pill:hover {
   cursor: pointer;
 }
 
-.meeting-filter input {
-  flex: 1;
-  min-width: 0;
-  min-height: 30px;
-  max-width: 180px;
-  padding: 3px 10px;
-  border: 0;
-  border-radius: 999px;
-  color: var(--navy-deep);
-  background: var(--panel-strong);
-  font: inherit;
-  font-size: 0.76rem;
-  font-weight: 850;
-}
-
-.meeting-filter input::placeholder {
-  color: rgba(82, 96, 117, 0.72);
-}
-
 .meeting-filter select:focus {
-  outline: 2px solid rgba(13, 55, 109, 0.22);
-  outline-offset: 1px;
-}
-
-.meeting-filter input:focus {
   outline: 2px solid rgba(13, 55, 109, 0.22);
   outline-offset: 1px;
 }
