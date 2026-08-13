@@ -11,6 +11,10 @@ const ga4LocationStats = document.querySelector("#ga4LocationStats");
 const ga4LocationStatus = document.querySelector("#ga4LocationStatus");
 const trendStats = document.querySelector("#trendStats");
 const statsStatus = document.querySelector("#statsStatus");
+const rangeControls = document.querySelectorAll("[data-range]");
+let allStatsRows = [];
+let activeRange = "7";
+let activeStatsSource = "online";
 
 function getConfig() {
   const config = window.SURREY1837_STATS_SUPABASE;
@@ -157,11 +161,29 @@ function renderNamedBreakdown(container, counts, formatter = titleCase) {
     : `<p class="stats-empty">No data yet.</p>`;
 }
 
+function getRangeLabel() {
+  if (activeRange === "all") return "all time";
+  return `the last ${activeRange} days`;
+}
+
+function filterRowsByRange(rows) {
+  if (activeRange === "all") return rows;
+  const rangeStart = new Date();
+  rangeStart.setHours(0, 0, 0, 0);
+  rangeStart.setDate(rangeStart.getDate() - (Number(activeRange) - 1));
+  return rows.filter((row) => new Date(row.viewed_at) >= rangeStart);
+}
+
+function renderActiveStats() {
+  renderStats(filterRowsByRange(allStatsRows), activeStatsSource);
+}
+
 function renderTrend(rows) {
-  const days = Array.from({ length: 14 }, (_, index) => {
+  const trendLength = activeRange === "7" ? 7 : 14;
+  const days = Array.from({ length: trendLength }, (_, index) => {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - (13 - index));
+    date.setDate(date.getDate() - (trendLength - 1 - index));
     return date;
   });
 
@@ -176,7 +198,7 @@ function renderTrend(rows) {
   const max = Math.max(...counts, 1);
 
   trendStats.innerHTML = `
-    <div class="stats-trend" aria-label="Views over the last 14 days">
+    <div class="stats-trend" aria-label="Views over ${getRangeLabel()}">
       ${days
         .map(
           (day, index) => `
@@ -254,11 +276,12 @@ function renderStats(rows, source = "online") {
   const visitors = new Set(rows.map((row) => row.visitor_key).filter(Boolean)).size;
   const todayViews = rows.filter((row) => new Date(row.viewed_at) >= startOfToday).length;
   const mostViewed = pages[0]?.title || "No views yet";
+  const latestActivity = rows[0]?.viewed_at ? formatDate(rows[0].viewed_at) : "No visits yet";
 
   statsSummary.innerHTML = `
     <article>
       <span>${rows.length}</span>
-      <p>Total views</p>
+      <p>Views in ${escapeHtml(getRangeLabel())}</p>
     </article>
     <article>
       <span>${visitors}</span>
@@ -275,6 +298,10 @@ function renderStats(rows, source = "online") {
     <article>
       <span class="stats-small-metric">${escapeHtml(mostViewed)}</span>
       <p>Most viewed page</p>
+    </article>
+    <article>
+      <span class="stats-small-metric">${escapeHtml(latestActivity)}</span>
+      <p>Latest activity</p>
     </article>
   `;
 
@@ -315,8 +342,8 @@ function renderStats(rows, source = "online") {
   renderTrend(rows);
 
   statsStatus.textContent = source === "online"
-    ? "Live Supabase stats loaded."
-    : "Supabase stats are unavailable, so this page is showing fallback stats from this device.";
+    ? `Live Supabase page-view stats loaded for ${getRangeLabel()}.`
+    : `Supabase stats are unavailable, so this page is showing fallback stats from this device for ${getRangeLabel()}.`;
   statsStatus.dataset.state = source === "online" ? "ok" : "error";
 }
 
@@ -325,9 +352,13 @@ async function loadStats() {
   statsStatus.dataset.state = "";
   try {
     const rows = await fetchRows();
-    renderStats(rows, "online");
+    allStatsRows = rows;
+    activeStatsSource = "online";
+    renderActiveStats();
   } catch {
-    renderStats(readFallbackRows(), "fallback");
+    allStatsRows = readFallbackRows();
+    activeStatsSource = "fallback";
+    renderActiveStats();
   }
 
   try {
@@ -339,5 +370,15 @@ async function loadStats() {
 }
 
 refreshStats.addEventListener("click", loadStats);
+
+rangeControls.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeRange = button.dataset.range || "7";
+    rangeControls.forEach((control) => {
+      control.classList.toggle("is-active", control === button);
+    });
+    renderActiveStats();
+  });
+});
 
 loadStats();

@@ -2153,7 +2153,7 @@
     ctx.fillStyle = "rgba(3,12,24,0.78)";
     ctx.fillRect(0, 0, W, H);
     panel(310, 110, 980, 700, "rgba(255,246,223,0.97)", "rgba(201,154,53,0.9)", 28);
-    label("Tyler's Trial Field Guide", W / 2, 148, 38, palette.navy, 900, "center");
+    label("How Tyler's Trial Works", W / 2, 148, 38, palette.navy, 900, "center");
     label("Swap, match, build, merge, defend.", W / 2, 194, 18, palette.blue, 900, "center");
     drawButton({ x: 1238, y: 136, w: 46, h: 46, label: "X" }, false);
 
@@ -2182,7 +2182,7 @@
     });
 
     label("Controls and Scoring", 824, 610, 21, palette.gold, 900);
-    wrap("Setup: tap two adjacent tiles to swap them. Three resources build a defence. Three matching defences merge into a stronger defence. Combat: defences fire automatically; use Tyler abilities when the entrance is under pressure. Objectives award bonus score.", 810, 642, 410, 19, 14, palette.ink, 800, "left", 5);
+    wrap("Setup: swap adjacent tiles. Three matching resources build a defence; three matching defences merge into a stronger one. Combat: defences fire automatically. Use Tyler abilities only when they matter. Objectives award bonus score.", 810, 642, 410, 19, 14, palette.ink, 800, "left", 5);
     drawButton({ x: 626, y: 766, w: 348, h: 54, label: "RETURN TO THE TRIAL" }, false);
     ctx.restore();
   }
@@ -2192,14 +2192,14 @@
     ctx.fillRect(0, 0, W, H);
     panel(410, 110, 780, 720, "rgba(6,26,54,0.94)", "rgba(201,154,53,0.88)", 30);
     label("TYLER'S TRIAL", W / 2, 164, 66, palette.cream, 900, "center");
-    label("A Masonic puzzle of preparation, harmony, and defence", W / 2, 242, 22, palette.lightBlue, 900, "center");
+    label("A match-and-defend challenge of preparation, harmony, and defence", W / 2, 242, 22, palette.lightBlue, 900, "center");
     if (state.mode === "how") {
       wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. Each Trial has an objective for bonus score. Ashlar is balanced, Candle reaches far, Lewis boosts nearby defences, Wand slows fast threats, and Jewels provide rewards. During setup, Installation deliberately randomises the board once. Between Degrees, only unbuilt resource tiles are reshuffled so all defences stay in place.", 520, 302, 560, 26, 17, palette.cream, 800, "center", 11);
     } else if (state.mode === "achievements") {
       drawMenuHighScores();
     } else {
-      wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 500, 296, 600, 22, 15, "rgba(255,255,255,0.82)", 800, "center", 3);
-      wrap("Every ten Trials you move to the next Degree. Enemies become harder, and unbuilt resource tiles reshuffle while all defences stay in place.", 500, 358, 600, 22, 15, "rgba(255,255,255,0.74)", 800, "center", 3);
+      wrap("Swap adjacent tiles to create matches. Three resources build a defence; three matching defences merge into a stronger one. When you are ready, begin the Trial and protect the Lodge entrance.", 500, 296, 600, 22, 15, "rgba(255,255,255,0.82)", 800, "center", 4);
+      wrap("Every ten Trials you move to the next Degree. Challenges become harder, and only unbuilt resource tiles reshuffle while your improved defences stay in place.", 500, 376, 600, 22, 15, "rgba(255,255,255,0.74)", 800, "center", 3);
       menuRects().forEach((rect) => drawButton(rect, false));
     }
     if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 650, y: 746, w: 300, h: 56 }, false);

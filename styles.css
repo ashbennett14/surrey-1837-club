@@ -1503,6 +1503,7 @@ body[data-calendar="chapter"] .detail-date {
   word-break: normal;
 }
 
+.home-featured-event,
 .home-next-event,
 .about-club-card {
   padding: clamp(18px, 3vw, 28px);
@@ -1510,6 +1511,29 @@ body[data-calendar="chapter"] .detail-date {
   border-radius: 8px;
   background: #ffffff;
   box-shadow: 0 14px 30px rgba(5, 20, 42, 0.1);
+}
+
+.home-featured-event {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(260px, 1.1fr);
+  align-items: stretch;
+  gap: 18px;
+  border-color: rgba(197, 154, 54, 0.26);
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.94), rgba(247, 252, 255, 0.88)),
+    url("assets/home-ornamental-band.webp") center / cover no-repeat,
+    #ffffff;
+}
+
+.home-featured-event::after {
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(197, 154, 54, 0.16);
+  border-radius: 6px;
+  content: "";
+  pointer-events: none;
 }
 
 .home-next-event {
@@ -1535,6 +1559,7 @@ body[data-calendar="chapter"] .detail-date {
 }
 
 .home-next-event:hover,
+.home-featured-event:hover,
 .about-club-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 20px 38px rgba(5, 20, 42, 0.14);
@@ -1550,6 +1575,7 @@ body[data-calendar="chapter"] .detail-date {
 }
 
 .home-next-event h2,
+.home-featured-event h2,
 .about-club-card h2 {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
@@ -1558,9 +1584,15 @@ body[data-calendar="chapter"] .detail-date {
 }
 
 .home-next-event p:not(.section-kicker),
+.home-featured-event p:not(.section-kicker),
 .about-club-card p {
   margin: 9px 0 0;
   line-height: 1.55;
+}
+
+.home-featured-event p:not(.section-kicker) {
+  color: var(--muted);
+  font-weight: 750;
 }
 
 .home-next-event p:not(.section-kicker) {
@@ -1594,6 +1626,66 @@ body[data-calendar="chapter"] .detail-date {
 .home-next-event > * {
   position: relative;
   z-index: 1;
+}
+
+.home-featured-event > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-featured-card {
+  display: grid;
+}
+
+.home-featured-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 100%;
+  padding: 16px;
+  border: 1px solid rgba(13, 55, 109, 0.14);
+  border-radius: 8px;
+  color: var(--navy-deep);
+  background: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.46);
+}
+
+.home-featured-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(197, 154, 54, 0.54);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.home-featured-date {
+  display: grid;
+  min-width: 90px;
+  padding: 9px 10px;
+  border: 1px solid rgba(197, 154, 54, 0.48);
+  border-radius: 7px;
+  color: var(--navy-deep);
+  background: linear-gradient(180deg, #fffdf6, #edf6ff);
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.home-featured-link b {
+  display: block;
+  color: var(--gold-dark);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.home-featured-link span span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-weight: 750;
+  line-height: 1.42;
 }
 
 .home-next-list {
@@ -1778,6 +1870,82 @@ body[data-calendar="chapter"] .detail-date {
   font-size: 0.86rem;
   font-weight: 850;
   text-decoration: none;
+}
+
+.stats-range-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.stats-range-controls button {
+  min-height: 38px;
+  padding: 0 15px;
+  border: 1px solid rgba(13, 55, 109, 0.18);
+  border-radius: 999px;
+  color: var(--navy-deep);
+  background: rgba(255, 255, 255, 0.82);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.stats-range-controls button:hover,
+.stats-range-controls button.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(197, 154, 54, 0.58);
+  background: var(--navy-deep);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(5, 20, 42, 0.12);
+}
+
+.admin-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-tool-card,
+.admin-public-card {
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+  border: 1px solid rgba(13, 55, 109, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.96)),
+    url("assets/home-ornamental-band.webp") center / cover no-repeat,
+    #ffffff;
+  box-shadow: 0 12px 28px rgba(5, 20, 42, 0.08);
+}
+
+.admin-tool-card {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.admin-tool-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(197, 154, 54, 0.48);
+  box-shadow: 0 18px 34px rgba(5, 20, 42, 0.12);
+}
+
+.admin-tool-card span {
+  display: block;
+  color: var(--navy-deep);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.admin-tool-card p {
+  margin: 8px 0 0;
+  line-height: 1.48;
+  font-weight: 700;
+}
+
+.admin-public-card {
+  margin-top: 16px;
 }
 
 .facebook-link {
@@ -2863,8 +3031,8 @@ body[data-calendar="chapter"] .event-pill:hover {
 }
 
 .social-filters {
-  grid-template-columns: minmax(0, 1fr);
-  width: min(240px, 100%);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  width: min(430px, 100%);
 }
 
 .social-filters .meeting-filter select {
@@ -2902,7 +3070,31 @@ body[data-calendar="chapter"] .event-pill:hover {
   cursor: pointer;
 }
 
+.meeting-filter input {
+  flex: 1;
+  min-width: 0;
+  min-height: 30px;
+  max-width: 180px;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--navy-deep);
+  background: var(--panel-strong);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.meeting-filter input::placeholder {
+  color: rgba(82, 96, 117, 0.72);
+}
+
 .meeting-filter select:focus {
+  outline: 2px solid rgba(13, 55, 109, 0.22);
+  outline-offset: 1px;
+}
+
+.meeting-filter input:focus {
   outline: 2px solid rgba(13, 55, 109, 0.22);
   outline-offset: 1px;
 }
@@ -3626,6 +3818,7 @@ body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-de
     grid-template-columns: 1fr;
   }
 
+  .home-featured-event,
   .home-next-event {
     grid-template-columns: 1fr;
   }
@@ -3635,7 +3828,8 @@ body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-de
   }
 
   .stats-summary,
-  .stats-grid {
+  .stats-grid,
+  .admin-card-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3748,10 +3942,12 @@ body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-de
   }
 
   .meeting-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
   }
 
   .social-filters {
+    grid-template-columns: 1fr;
     width: 100%;
   }
 

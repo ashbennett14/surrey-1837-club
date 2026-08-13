@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
     <title>1837 Club Website Stats</title>
-    <link rel="stylesheet" href="styles.css?v=site-stats-v3" />
+    <link rel="stylesheet" href="styles.css?v=ui-ux-polish-v1" />
     <script src="auth.js?v=login-gate"></script>
     <script src="motion.js?v=visual-polish" defer></script>
   </head>
@@ -44,15 +44,22 @@
         <p class="manager-status stats-status" id="statsStatus" aria-live="polite">
           Loading stats...
         </p>
+        <div class="stats-range-controls" aria-label="Stats date range">
+          <button class="is-active" type="button" data-range="7">7 days</button>
+          <button type="button" data-range="30">30 days</button>
+          <button type="button" data-range="all">All time</button>
+        </div>
         <section class="stats-card">
+          <p class="section-kicker">Supabase Page Views</p>
           <h1>Page Views</h1>
           <div class="stats-table" id="pageStats"></div>
         </section>
         <section class="stats-card">
-          <h2>Last 14 Days</h2>
+          <h2>Recent Trend</h2>
           <div id="trendStats"></div>
         </section>
         <section class="stats-card">
+          <p class="section-kicker">Google Analytics 4</p>
           <h2>GA4 Towns and Cities</h2>
           <p class="stats-empty" id="ga4LocationStatus">Loading Google Analytics location data...</p>
           <div class="ga4-location-table" id="ga4LocationStats"></div>
@@ -84,6 +91,7 @@
           <p class="manager-help">
             Add social events, lodge meetings, and chapter meetings without editing the calendar code.
           </p>
+          <a class="small-action-link" href="admin.html">Open Admin Home</a>
           <a class="small-action-link" href="event-manager.html">Open Event Manager</a>
         </section>
         <button class="login-button reset-stats-button" id="refreshStats" type="button">
@@ -98,7 +106,7 @@
     </main>
 
     <script src="site-stats-config.js?v=site-stats-v3"></script>
-    <script src="stats.js?v=site-stats-v3"></script>
+    <script src="stats.js?v=ui-ux-polish-v1"></script>
     <script src="easter-egg.js?v=tylers-trial-click3"></script>
   </body>
 </html>
