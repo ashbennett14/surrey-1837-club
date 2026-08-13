@@ -1143,6 +1143,26 @@ window.surrey1837ManagedCalendarData = {
       "description": "Surrey United Services Lodge No. 9999 meeting in Surbiton."
     },
     {
+      "id": "2026-10-07-woolsack-lodge-initiation",
+      "date": "2026-10-07",
+      "title": "Woolsack Lodge",
+      "lodgeName": "Woolsack Lodge",
+      "lodgeNumber": "8221",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Godalming",
+      "host": "Woolsack Lodge No. 8221",
+      "type": "lodge",
+      "poster": "assets/2026-10-07-woolsack-lodge.png",
+      "posterAlt": "Woolsack Lodge No. 8221 crest",
+      "tags": [
+        "Initiation",
+        "No. 8221",
+        "Godalming"
+      ],
+      "description": "Woolsack Lodge No. 8221 meeting in Godalming for Initiation."
+    },
+    {
       "id": "lumen-lodge-installation-october",
       "date": "2026-10-08",
       "title": "Lumen Lodge",
