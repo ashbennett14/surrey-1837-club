@@ -1263,7 +1263,7 @@
     return [
       { id: "begin", label: "BEGIN THE TRIAL", x: 650, y: 472, w: 300, h: 58 },
       { id: "how", label: "HOW TO PLAY", x: 650, y: 542, w: 300, h: 52 },
-      { id: "achievements", label: "ACHIEVEMENTS", x: 650, y: 606, w: 300, h: 52 },
+      { id: "achievements", label: "HIGH SCORES", x: 650, y: 606, w: 300, h: 52 },
       { id: "settings", label: state.muted ? "SOUND: OFF" : "SOUND: ON", x: 650, y: 670, w: 300, h: 52 },
       { id: "return", label: "RETURN TO LODGE", x: 650, y: 734, w: 300, h: 52 },
     ];
@@ -2176,29 +2176,39 @@
     if (state.mode === "how") {
       wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. Each Trial has an objective for bonus score. Ashlar is balanced, Candle reaches far, Lewis boosts nearby defences, Wand slows fast threats, and Jewels provide rewards. During setup, Installation deliberately randomises the board once. Between Degrees, only non-upgraded defences are reshuffled so stronger work stays in place.", 520, 302, 560, 26, 17, palette.cream, 800, "center", 11);
     } else if (state.mode === "achievements") {
-      wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 520, 330, 560, 28, 20, palette.cream, 800, "center", 7);
+      drawMenuHighScores();
     } else {
       wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 500, 296, 600, 22, 15, "rgba(255,255,255,0.82)", 800, "center", 3);
       wrap("Every ten Trials you move to the next Degree. Enemies become harder, and non-upgraded tiles reshuffle while stronger work stays in place.", 500, 358, 600, 22, 15, "rgba(255,255,255,0.74)", 800, "center", 3);
-      drawMenuHighScores();
       menuRects().forEach((rect) => drawButton(rect, false));
     }
     if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 650, y: 746, w: 300, h: 56 }, false);
   }
 
   function drawMenuHighScores() {
-    const scores = (state.leaderboardScores?.length ? state.leaderboardScores : loadLocalScores()).slice(0, 3);
-    panel(530, 420, 540, 132, "rgba(255,255,255,0.08)", "rgba(159,212,255,0.2)", 18);
-    label("High Scores", W / 2, 438, 18, palette.gold, 900, "center");
+    const online = Boolean(state.leaderboardScores?.length);
+    const scores = (online ? state.leaderboardScores : loadLocalScores()).slice(0, 8);
+    label("HIGH SCORES", W / 2, 304, 34, palette.gold, 900, "center");
+    wrap(online ? "All-time scores from the Tyler's Trial leaderboard." : "Online scores are not available yet, so this shows scores saved on this device.", 500, 340, 600, 20, 13, "rgba(255,255,255,0.72)", 800, "center", 2);
+    panel(500, 390, 600, 312, "rgba(255,255,255,0.08)", "rgba(159,212,255,0.22)", 20);
+    label("#", 536, 426, 13, palette.gold, 900, "center", 36);
+    label("Name", 580, 426, 13, palette.gold, 900, "left", 250);
+    label("Score", 1048, 426, 13, palette.gold, 900, "right", 120);
     if (!scores.length) {
-      label("No scores yet. Yours can be first.", W / 2, 480, 15, "rgba(255,255,255,0.76)", 800, "center", 420);
+      label("No scores yet. Yours can be first.", W / 2, 540, 18, "rgba(255,255,255,0.78)", 800, "center", 460);
       return;
     }
     scores.forEach((score, index) => {
-      const y = 468 + index * 24;
-      const lodge = score.lodge_number ? ` No. ${score.lodge_number}` : "";
-      label(`${index + 1}. ${score.first_name || "Player"}${lodge}`, 568, y, 14, palette.cream, 900, "left", 280);
-      label(Number(score.score || 0).toLocaleString(), 1030, y, 14, palette.lightBlue, 900, "right", 120);
+      const y = 462 + index * 30;
+      const firstName = score.first_name || "Player";
+      const lodge = [score.lodge_name, score.lodge_number ? `No. ${score.lodge_number}` : ""].filter(Boolean).join(" ");
+      ctx.fillStyle = index % 2 ? "rgba(255,255,255,0.035)" : "rgba(255,255,255,0.065)";
+      roundRect(522, y - 17, 556, 28, 10);
+      ctx.fill();
+      label(String(index + 1), 540, y, 14, palette.gold, 900, "center", 34);
+      label(firstName, 580, y - (lodge ? 4 : 0), 15, palette.cream, 900, "left", 240);
+      if (lodge) label(lodge, 580, y + 12, 10, "rgba(255,255,255,0.62)", 800, "left", 290);
+      label(Number(score.score || 0).toLocaleString(), 1048, y, 15, palette.lightBlue, 900, "right", 120);
     });
   }
 
