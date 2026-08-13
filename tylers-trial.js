@@ -125,6 +125,7 @@
     close: "Freezes all threats briefly. Once per Trial.",
   };
   const localLeaderboardKey = "tylersTrialLocalScores";
+  const localLeaderboardResetKey = "tylersTrialLocalScoresResetV1";
   const chapters = [
     { name: "Entered Apprentice", min: 1 },
     { name: "Fellow Craft", min: 11 },
@@ -185,6 +186,7 @@
   let leaderboardUi;
 
   function emptyState() {
+    clearLegacyLocalScores();
     return {
       mode: "menu",
       trial: 1,
@@ -1147,6 +1149,12 @@
     } catch {
       return [];
     }
+  }
+
+  function clearLegacyLocalScores() {
+    if (localStorage.getItem(localLeaderboardResetKey) === "true") return;
+    localStorage.removeItem(localLeaderboardKey);
+    localStorage.setItem(localLeaderboardResetKey, "true");
   }
 
   function renderLeaderboard(scores) {
@@ -2186,10 +2194,10 @@
   }
 
   function drawMenuHighScores() {
-    const online = Boolean(state.leaderboardScores?.length);
-    const scores = (online ? state.leaderboardScores : loadLocalScores()).slice(0, 8);
+    const hasOnlineConfig = Boolean(getSupabaseConfig());
+    const scores = (hasOnlineConfig ? state.leaderboardScores : loadLocalScores()).slice(0, 8);
     label("HIGH SCORES", W / 2, 304, 34, palette.gold, 900, "center");
-    wrap(online ? "All-time scores from the Tyler's Trial leaderboard." : "Online scores are not available yet, so this shows scores saved on this device.", 500, 340, 600, 20, 13, "rgba(255,255,255,0.72)", 800, "center", 2);
+    wrap(hasOnlineConfig ? "All-time scores from the Tyler's Trial leaderboard." : "Online scores are unavailable, so this shows scores saved on this device.", 500, 340, 600, 20, 13, "rgba(255,255,255,0.72)", 800, "center", 2);
     panel(500, 390, 600, 312, "rgba(255,255,255,0.08)", "rgba(159,212,255,0.22)", 20);
     label("#", 536, 426, 13, palette.gold, 900, "center", 36);
     label("Name", 580, 426, 13, palette.gold, 900, "left", 250);
