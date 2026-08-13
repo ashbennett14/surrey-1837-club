@@ -169,6 +169,14 @@
     discord: { name: "Distraction", trait: "Disruptive", counter: "Candle focus", color: "#a82468", hp: 72, speed: 34, reward: 20, size: 14, aura: true, disrupt: 0.78, weakTo: ["candle"] },
     lewis: { name: "Formal Challenge", trait: "Boss", counter: "Focused fire", color: "#17365d", hp: 230, speed: 22, reward: 75, size: 24, boss: true, weakTo: ["ashlar", "candle", "gold"] },
   };
+  const enemyKeys = Object.keys(enemyTypes);
+  const enemySummary = {
+    cowan: "Quick visitor. Slow with Wand.",
+    ruffian: "Heavy papers. Use Ashlar or Candle.",
+    mischief: "Swift interruption. Wand counters.",
+    discord: "Disrupts nearby defences.",
+    lewis: "Formal challenge. Focus fire.",
+  };
 
   let state;
   let pointer = { x: -1, y: -1 };
@@ -208,6 +216,7 @@
       chest: null,
       eventCard: null,
       inspect: null,
+      guideTab: "defences",
       leaderboardOpen: false,
       helpOpen: false,
       transition: 0,
@@ -328,8 +337,8 @@
     state.tyler.installation = 1;
     refillEmptyTiles();
     if ((state.trial - 1) % 10 === 0) {
-      randomiseEntryLevelDefences();
-      say("A new Degree begins. The board has been randomised, but only non-upgraded defences have moved.");
+      randomiseUnimprovedTiles();
+      say("A new Degree begins. The board has been randomised, but improved defences have stayed in place.");
     } else {
       say("THE LODGE IS SECURE. Prepare for the next Trial.");
     }
@@ -637,14 +646,15 @@
     }
   }
 
-  function randomiseEntryLevelDefences() {
+  function randomiseUnimprovedTiles() {
     const slots = [];
     const tiles = [];
     for (let row = 0; row < GRID; row += 1) {
       for (let col = 0; col < GRID; col += 1) {
         const cell = state.board[row][col];
         const tile = cell.tile;
-        if (!cell.path && tile?.tower && tile.level === 0) {
+        const canMove = tile && (!tile.tower || tile.level === 0);
+        if (!cell.path && canMove) {
           slots.push({ row, col });
           tiles.push(tile);
         }
@@ -659,7 +669,7 @@
       particle(boardPoint(slot.row, slot.col), palette.lightBlue, 4);
     });
     if (slots.length) {
-      floatText("BOARD RANDOMISED", board.x + board.w / 2, board.y - 28, palette.lightBlue, 24);
+      floatText("UNIMPROVED TILES RANDOMISED", board.x + board.w / 2, board.y - 28, palette.lightBlue, 24);
     }
   }
 
@@ -1279,6 +1289,11 @@
       if (rectHit({ x: 820, y: 690, w: 220, h: 60 }, point)) window.location.href = "index.html";
       return;
     }
+    const guideTab = guideTabAt(point);
+    if (guideTab) {
+      state.guideTab = guideTab;
+      return;
+    }
     const button = buttonRects().find((rect) => rectHit(rect, point));
     if (button) {
       if (button.id === "begin" && state.mode === "prep") beginCombat();
@@ -1509,21 +1524,41 @@
     abilityRects().forEach((button) => drawButton(button, abilityDisabled(button.id)));
 
     panel(1172, 124, 386, 718, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 20);
-    label("Defence Guide", 1210, 154, 30, palette.lightBlue, 900);
-    resourceKeys.forEach((keyName, index) => {
-      const y = 196 + index * 76;
-      const def = resources[keyName];
-      const hover = rectHit({ x: 1210, y: y - 4, w: 318, h: 66 }, pointer);
-      panel(1210, y - 4, 318, 66, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 14);
-      drawDefenceSprite(keyName, 1224, y + 5, 54, 0, false);
-      label(def.short, 1294, y + 5, 18, palette.cream, 900, "left", 190);
-      label(defenceSummary[keyName], 1294, y + 33, 14, def.color, 900, "left", 190);
-    });
+    label(state.guideTab === "enemies" ? "Enemy Guide" : "Defence Guide", 1210, 154, 30, palette.lightBlue, 900);
+    drawGuideTab("Defences", 1210, 196, 150, state.guideTab !== "enemies");
+    drawGuideTab("Enemies", 1378, 196, 150, state.guideTab === "enemies");
+    if (state.guideTab === "enemies") drawEnemyGuide();
+    else drawDefenceGuide();
     drawObjectivePanel();
     drawButton(buttonRects().find((button) => button.id === "scores"), false);
     drawButton(buttonRects().find((button) => button.id === "help"), false);
     drawButton(buttonRects().find((button) => button.id === "begin"), state.mode !== "prep");
     wrap("Inspect tiles and threats for counters. Match resources to build; match defences to merge.", 1210, 836, 318, 18, 13, "rgba(255,255,255,0.78)", 800, "center", 2);
+  }
+
+  function drawDefenceGuide() {
+    resourceKeys.forEach((keyName, index) => {
+      const y = 258 + index * 68;
+      const def = resources[keyName];
+      const hover = rectHit({ x: 1210, y: y - 4, w: 318, h: 60 }, pointer);
+      panel(1210, y - 4, 318, 60, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? def.color : "rgba(255,255,255,0.13)", 14);
+      drawDefenceSprite(keyName, 1224, y + 2, 52, 0, false);
+      label(def.short, 1292, y + 4, 17, palette.cream, 900, "left", 194);
+      label(defenceSummary[keyName], 1292, y + 30, 14, def.color, 900, "left", 194);
+    });
+  }
+
+  function drawEnemyGuide() {
+    enemyKeys.forEach((keyName, index) => {
+      const y = 258 + index * 68;
+      const enemy = enemyTypes[keyName];
+      const hover = rectHit({ x: 1210, y: y - 4, w: 318, h: 60 }, pointer);
+      panel(1210, y - 4, 318, 60, hover ? "rgba(255,246,223,0.16)" : "rgba(255,255,255,0.07)", hover ? enemy.color : "rgba(255,255,255,0.13)", 14);
+      drawEnemyGuideSprite(keyName, 1250, y + 28, enemy.boss ? 56 : 48);
+      label(enemy.name, 1292, y + 4, 16, palette.cream, 900, "left", 194);
+      label(enemy.trait, 1292, y + 24, 12, enemy.color, 900, "left", 90);
+      wrap(enemySummary[keyName], 1292, y + 38, 194, 13, 10.5, "rgba(255,255,255,0.76)", 800, "left", 1);
+    });
   }
 
   function drawInspectCard(x, y, w, h) {
@@ -1564,6 +1599,26 @@
     ctx.textBaseline = "middle";
     ctx.fillText(rect.label, rect.x + rect.w / 2, rect.y + rect.h / 2 + 1, rect.w - 18);
     ctx.restore();
+  }
+
+  function guideTabAt(point) {
+    if (rectHit({ x: 1210, y: 196, w: 150, h: 42 }, point)) return "defences";
+    if (rectHit({ x: 1378, y: 196, w: 150, h: 42 }, point)) return "enemies";
+    return null;
+  }
+
+  function drawGuideTab(labelText, x, y, w, active) {
+    const hover = rectHit({ x, y, w, h: 42 }, pointer);
+    panel(
+      x,
+      y,
+      w,
+      42,
+      active ? "rgba(255,246,223,0.94)" : hover ? "rgba(255,246,223,0.18)" : "rgba(255,255,255,0.08)",
+      active ? "rgba(201,154,53,0.86)" : "rgba(159,212,255,0.2)",
+      14,
+    );
+    label(labelText, x + w / 2, y + 12, 13.5, active ? palette.navy : palette.cream, 900, "center", w - 16);
   }
 
   function drawSpriteSheet(img, index, columns, sourceOptions, x, y, w, h) {
@@ -1608,6 +1663,27 @@
     drawSpriteSheet(img, index, spriteColumns.enemy, { y: 0.12, h: 0.74, xPad: 0.04 }, pos.x - size / 2, pos.y - size / 2 + wobble, size, size);
     ctx.restore();
     return true;
+  }
+
+  function drawEnemyGuideSprite(keyName, cx, cy, size) {
+    const type = enemyTypes[keyName];
+    const img = images.enemySheet;
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.32)";
+    ctx.shadowBlur = 8;
+    const drawn = img
+      ? drawSpriteSheet(img, enemySpriteIndex[keyName] ?? 0, spriteColumns.enemy, { y: 0.12, h: 0.74, xPad: 0.04 }, cx - size / 2, cy - size / 2, size, size)
+      : false;
+    if (!drawn) {
+      ctx.fillStyle = gradientFill(cx - size / 2, cy - size / 2, size, size, [[0, type.color], [1, "#101827"]]);
+      ctx.strokeStyle = type.boss ? palette.gold : palette.cream;
+      ctx.lineWidth = type.boss ? 3 : 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size / 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   function drawMatchHighlights() {
