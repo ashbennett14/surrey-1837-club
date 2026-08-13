@@ -1,5 +1,22 @@
 {
-  "socialEvents": [],
+  "socialEvents": [
+    {
+      "id": "2026-09-09-tracing-boards-in-craft-masonry-history-variations-and-use",
+      "date": "2026-09-09",
+      "title": "Tracing Boards in Craft Masonry - History, Variations and Use",
+      "time": "1700",
+      "location": "Croydon",
+      "host": "Surrey 1837 Club",
+      "type": "social",
+      "category": "1837 Club Event",
+      "poster": "assets/2026-09-09-tracing-boards-in-craft-masonry-history-variations-and-use.jpeg",
+      "posterAlt": "Tracing Boards in Craft Masonry - History, Variations and Use poster",
+      "tags": [
+        "1837 Club Event",
+        "Croydon"
+      ]
+    }
+  ],
   "lodgeEvents": [
     {
       "id": "2026-09-14-morden-lodge-other",
