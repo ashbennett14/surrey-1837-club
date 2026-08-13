@@ -5,6 +5,8 @@ const statsSummary = document.querySelector("#statsSummary");
 const refreshStats = document.querySelector("#refreshStats");
 const deviceStats = document.querySelector("#deviceStats");
 const referrerStats = document.querySelector("#referrerStats");
+const locationStats = document.querySelector("#locationStats");
+const timezoneStats = document.querySelector("#timezoneStats");
 const trendStats = document.querySelector("#trendStats");
 const statsStatus = document.querySelector("#statsStatus");
 
@@ -45,6 +47,16 @@ function titleCase(value) {
   return String(value || "unknown").replace(/^\w/, (letter) => letter.toUpperCase());
 }
 
+function formatLocation(value) {
+  if (!value || value === "unknown") return "Unknown";
+  return String(value).toUpperCase();
+}
+
+function formatTimezone(value) {
+  if (!value || value === "unknown") return "Unknown";
+  return String(value).replaceAll("_", " ");
+}
+
 function readFallbackRows() {
   try {
     const stats = JSON.parse(localStorage.getItem(fallbackStatsKey)) || { visits: [] };
@@ -54,6 +66,10 @@ function readFallbackRows() {
       device_type: visit.deviceType || "desktop",
       referrer_type: visit.referrerType || "direct",
       session_key: visit.sessionKey || `local-${visit.viewedAt}`,
+      visitor_key: visit.visitorKey || visit.sessionKey || `local-${visit.viewedAt}`,
+      country_hint: visit.country_hint || "unknown",
+      timezone: visit.timezone || "unknown",
+      browser_locale: visit.browser_locale || "unknown",
       viewed_at: visit.viewedAt,
     }));
   } catch {
@@ -66,7 +82,7 @@ async function fetchRows() {
   if (!config) throw new Error("Supabase stats config is missing.");
 
   const response = await fetch(
-    `${config.url}/rest/v1/site_page_views?select=page_path,page_title,device_type,referrer_type,session_key,viewed_at&order=viewed_at.desc&limit=5000`,
+    `${config.url}/rest/v1/site_page_views?select=page_path,page_title,device_type,referrer_type,session_key,visitor_key,country_hint,timezone,browser_locale,viewed_at&order=viewed_at.desc&limit=5000`,
     {
       headers: {
         apikey: config.anonKey,
@@ -96,6 +112,24 @@ function renderBreakdown(container, counts) {
           ([label, count]) => `
             <div class="stats-breakdown-row">
               <span>${escapeHtml(titleCase(label))}</span>
+              <div aria-hidden="true"><i style="width: ${(count / max) * 100}%"></i></div>
+              <b>${count}</b>
+            </div>
+          `,
+        )
+        .join("")
+    : `<p class="stats-empty">No data yet.</p>`;
+}
+
+function renderNamedBreakdown(container, counts, formatter = titleCase) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const max = Math.max(...entries.map((entry) => entry[1]), 1);
+  container.innerHTML = entries.length
+    ? entries
+        .map(
+          ([label, count]) => `
+            <div class="stats-breakdown-row">
+              <span>${escapeHtml(formatter(label))}</span>
               <div aria-hidden="true"><i style="width: ${(count / max) * 100}%"></i></div>
               <b>${count}</b>
             </div>
@@ -162,6 +196,7 @@ function renderStats(rows, source = "online") {
 
   const pages = Object.values(pageCounts).sort((a, b) => b.views - a.views);
   const sessions = new Set(rows.map((row) => row.session_key).filter(Boolean)).size;
+  const visitors = new Set(rows.map((row) => row.visitor_key).filter(Boolean)).size;
   const todayViews = rows.filter((row) => new Date(row.viewed_at) >= startOfToday).length;
   const mostViewed = pages[0]?.title || "No views yet";
 
@@ -169,6 +204,10 @@ function renderStats(rows, source = "online") {
     <article>
       <span>${rows.length}</span>
       <p>Total views</p>
+    </article>
+    <article>
+      <span>${visitors}</span>
+      <p>Estimated unique visitors</p>
     </article>
     <article>
       <span>${sessions}</span>
@@ -206,7 +245,7 @@ function renderStats(rows, source = "online") {
           (visit) => `
             <div class="visit-row">
               <strong>${escapeHtml(visit.page_title)}</strong>
-              <span>${escapeHtml(visit.page_path)} · ${escapeHtml(titleCase(visit.device_type))} · ${escapeHtml(titleCase(visit.referrer_type))}</span>
+              <span>${escapeHtml(visit.page_path)} · ${escapeHtml(titleCase(visit.device_type))} · ${escapeHtml(titleCase(visit.referrer_type))} · ${escapeHtml(formatLocation(visit.country_hint))}</span>
               <small>${formatDate(visit.viewed_at)}</small>
             </div>
           `,
@@ -216,6 +255,8 @@ function renderStats(rows, source = "online") {
 
   renderBreakdown(deviceStats, countBy(rows, "device_type"));
   renderBreakdown(referrerStats, countBy(rows, "referrer_type"));
+  renderNamedBreakdown(locationStats, countBy(rows, "country_hint"), formatLocation);
+  renderNamedBreakdown(timezoneStats, countBy(rows, "timezone"), formatTimezone);
   renderTrend(rows);
 
   statsStatus.textContent = source === "online"

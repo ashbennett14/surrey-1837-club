@@ -1,6 +1,7 @@
 (function () {
   const statsKey = "surrey1837SiteStatsFallback";
   const sessionKey = "surrey1837StatsSession";
+  const visitorKey = "surrey1837StatsVisitor";
   const publicPages = new Set([
     "index.html",
     "social-events.html",
@@ -35,6 +36,16 @@
     return value;
   }
 
+  function getVisitorKey() {
+    let value = localStorage.getItem(visitorKey);
+    if (!value) {
+      const random = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      value = `visitor-${random}`;
+      localStorage.setItem(visitorKey, value);
+    }
+    return value;
+  }
+
   function getDeviceType() {
     const width = window.innerWidth || document.documentElement.clientWidth || 1024;
     if (width < 720) return "mobile";
@@ -57,6 +68,19 @@
     } catch {
       return "external";
     }
+  }
+
+  function getLocationHints() {
+    const locale = navigator.language || navigator.languages?.[0] || "unknown";
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "unknown";
+    const localeParts = locale.split("-");
+    const countryHint = localeParts.length > 1 ? localeParts.at(-1).toUpperCase() : "unknown";
+
+    return {
+      browser_locale: locale,
+      timezone,
+      country_hint: countryHint,
+    };
   }
 
   function readFallbackStats() {
@@ -92,6 +116,8 @@
       deviceType: getDeviceType(),
       referrerType: getReferrerType(),
       sessionKey: getSessionKey(),
+      visitorKey: getVisitorKey(),
+      ...getLocationHints(),
       viewedAt: now.toISOString(),
     });
     stats.visits = stats.visits.slice(0, 100);
@@ -111,6 +137,8 @@
       device_type: getDeviceType(),
       referrer_type: getReferrerType(),
       session_key: getSessionKey(),
+      visitor_key: getVisitorKey(),
+      ...getLocationHints(),
       viewed_at: now.toISOString(),
     };
 

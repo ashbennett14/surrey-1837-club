@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
     <title>1837 Club Website Stats</title>
-    <link rel="stylesheet" href="styles.css?v=site-stats-v1" />
+    <link rel="stylesheet" href="styles.css?v=site-stats-v2" />
     <script src="auth.js?v=login-gate"></script>
     <script src="motion.js?v=visual-polish" defer></script>
   </head>
@@ -61,6 +61,14 @@
             <h2>Referrers</h2>
             <div class="stats-breakdown" id="referrerStats"></div>
           </section>
+          <section class="stats-card">
+            <h2>Country Hints</h2>
+            <div class="stats-breakdown" id="locationStats"></div>
+          </section>
+          <section class="stats-card">
+            <h2>Timezone Hints</h2>
+            <div class="stats-breakdown" id="timezoneStats"></div>
+          </section>
         </div>
         <section class="stats-card">
           <h2>Recent Visits</h2>
@@ -84,8 +92,8 @@
       </footer>
     </main>
 
-    <script src="site-stats-config.js?v=site-stats-v1"></script>
-    <script src="stats.js?v=site-stats-v1"></script>
+    <script src="site-stats-config.js?v=site-stats-v2"></script>
+    <script src="stats.js?v=site-stats-v2"></script>
     <script src="easter-egg.js?v=tylers-trial-click3"></script>
   </body>
 </html>
