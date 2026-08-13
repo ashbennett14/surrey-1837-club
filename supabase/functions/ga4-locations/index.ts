@@ -152,7 +152,8 @@ async function fetchGa4Locations() {
   );
 
   if (!reportResponse.ok) {
-    throw new Error(`GA4 report request failed: ${reportResponse.status}`);
+    const errorText = await reportResponse.text();
+    throw new Error(`GA4 report request failed: ${reportResponse.status} ${errorText}`);
   }
 
   const report = await reportResponse.json();
