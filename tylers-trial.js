@@ -119,10 +119,10 @@
     gold: "Bonus rewards",
   };
   const abilityGuide = {
-    sword: "Combat: turn away the nearest threat. Uses one Tyler charge.",
-    guard: "Combat: guard the Lodge entrance for five seconds.",
+    sword: "Nearest threat removed. Limited charges.",
+    guard: "Blocks entry for five seconds. Once per Trial.",
     installation: "Setup: randomise the whole board once before the Trial begins.",
-    close: "Combat: close the Lodge briefly, freezing all threats on the path.",
+    close: "Freezes all threats briefly. Once per Trial.",
   };
   const localLeaderboardKey = "tylersTrialLocalScores";
   const chapters = [
@@ -201,7 +201,7 @@
       supportPulses: [],
       matchHighlights: [],
       wave: { timer: 0, spawned: 0, total: 0, done: false, bossAnnounced: false },
-      tyler: { charges: 3, guard: 0, alarm: 0, closed: 0, installation: 1, stance: "idle" },
+      tyler: { charges: 3, guard: 0, guardUses: 1, alarm: 0, closed: 0, closeUses: 1, installation: 1, stance: "idle" },
       stats: {
         defeated: 0,
         defeatedThisTrial: 0,
@@ -218,6 +218,7 @@
       inspect: null,
       guideTab: "defences",
       leaderboardOpen: false,
+      leaderboardScores: loadLocalScores(),
       helpOpen: false,
       transition: 0,
       shake: 0,
@@ -332,8 +333,10 @@
     state.selected = null;
     state.tyler.charges = Math.min(4, state.tyler.charges + 1);
     state.tyler.guard = 0;
+    state.tyler.guardUses = 1;
     state.tyler.alarm = 0;
     state.tyler.closed = 0;
+    state.tyler.closeUses = 1;
     state.tyler.installation = 1;
     refillEmptyTiles();
     if ((state.trial - 1) % 10 === 0) {
@@ -916,7 +919,11 @@
       say("Tyler's Sword turned away the nearest threat.");
     }
     if (id === "guard") {
-      if (state.tyler.guard > 0) return;
+      if (state.tyler.guardUses <= 0 || state.tyler.guard > 0) {
+        say("Guard has already been used for this Trial.");
+        return;
+      }
+      state.tyler.guardUses -= 1;
       state.tyler.guard = 5;
       state.tyler.stance = "guard";
       say("Guard the Door: no enemy may enter for five seconds.");
@@ -927,7 +934,11 @@
       say("Festive Board: all defences work faster.");
     }
     if (id === "close") {
-      if (state.tyler.closed > 0) return;
+      if (state.tyler.closeUses <= 0 || state.tyler.closed > 0) {
+        say("Close has already been used for this Trial.");
+        return;
+      }
+      state.tyler.closeUses -= 1;
       state.tyler.closed = 4;
       say("Close the Lodge: the doors are protected.");
     }
@@ -1139,6 +1150,7 @@
   }
 
   function renderLeaderboard(scores) {
+    if (state) state.leaderboardScores = scores.slice(0, 10);
     if (!leaderboardUi) return;
     if (!scores.length) {
       leaderboardUi.list.innerHTML = "<li>No scores yet. Yours can be first.</li>";
@@ -1228,9 +1240,9 @@
       { id: "scores", label: "SCORES", x: 1234, y: 704, w: 144, h: 48 },
       { id: "help", label: "HELP", x: 1390, y: 704, w: 138, h: 48 },
       { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 74, y: 720, w: 160, h: 46 },
-      { id: "guard", label: "GUARD", x: 252, y: 720, w: 138, h: 46 },
+      { id: "guard", label: `GUARD ${state.tyler.guardUses}`, x: 252, y: 720, w: 138, h: 46 },
       { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 74, y: 780, w: 160, h: 46 },
-      { id: "close", label: "CLOSE", x: 252, y: 780, w: 138, h: 46 },
+      { id: "close", label: `CLOSE ${state.tyler.closeUses}`, x: 252, y: 780, w: 138, h: 46 },
     ];
   }
 
@@ -1241,6 +1253,9 @@
   function abilityDisabled(id) {
     if (id === "scores" || id === "help") return false;
     if (id === "installation") return state.mode !== "prep" || state.tyler.installation <= 0;
+    if (id === "sword") return state.mode !== "combat" || state.tyler.charges <= 0;
+    if (id === "guard") return state.mode !== "combat" || state.tyler.guardUses <= 0 || state.tyler.guard > 0;
+    if (id === "close") return state.mode !== "combat" || state.tyler.closeUses <= 0 || state.tyler.closed > 0;
     return state.mode !== "combat";
   }
 
@@ -1515,12 +1530,12 @@
     label("The Tyler", 76, 154, 30, palette.lightBlue, 900);
     wrap(state.message, 76, 198, 308, 24, 18, palette.cream, 900, "left", 3);
     drawInspectCard(76, 520, 310, 126);
-    label("Abilities", 76, 670, 22, palette.gold, 900);
+    label("Abilities", 76, 662, 22, palette.gold, 900);
     const hoveredAbility = abilityRects().find((button) => rectHit(button, pointer));
     const abilityText = hoveredAbility
       ? abilityGuide[hoveredAbility.id]
-      : "Use Installation during setup. Other abilities work during combat.";
-    wrap(abilityText, 76, 696, 308, 16, 12.5, "rgba(255,255,255,0.76)", 800, "left", 2);
+      : "Installation works in setup; other abilities work in combat.";
+    wrap(abilityText, 76, 688, 308, 14, 11.5, "rgba(255,255,255,0.76)", 800, "left", 2);
     abilityRects().forEach((button) => drawButton(button, abilityDisabled(button.id)));
 
     panel(1172, 124, 386, 718, "rgba(6,26,54,0.86)", "rgba(201,154,53,0.52)", 20);
@@ -2163,11 +2178,28 @@
     } else if (state.mode === "achievements") {
       wrap(`High Score: ${state.highScore}. Achievements are tracked by play: create stronger structures, survive Trials, and protect Lodge Security. This first version stores your best score locally.`, 520, 330, 560, 28, 20, palette.cream, 800, "center", 7);
     } else {
-      wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 500, 298, 600, 24, 16, "rgba(255,255,255,0.82)", 800, "center", 4);
-      wrap("Every ten Trials you move to the next Degree. Enemies become harder, the board gets busier, and non-upgraded defences are reshuffled so new matches can be found while stronger work stays in place.", 500, 378, 600, 24, 16, "rgba(255,255,255,0.74)", 800, "center", 4);
+      wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 500, 296, 600, 22, 15, "rgba(255,255,255,0.82)", 800, "center", 3);
+      wrap("Every ten Trials you move to the next Degree. Enemies become harder, and non-upgraded tiles reshuffle while stronger work stays in place.", 500, 358, 600, 22, 15, "rgba(255,255,255,0.74)", 800, "center", 3);
+      drawMenuHighScores();
       menuRects().forEach((rect) => drawButton(rect, false));
     }
     if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 650, y: 746, w: 300, h: 56 }, false);
+  }
+
+  function drawMenuHighScores() {
+    const scores = (state.leaderboardScores?.length ? state.leaderboardScores : loadLocalScores()).slice(0, 3);
+    panel(530, 420, 540, 132, "rgba(255,255,255,0.08)", "rgba(159,212,255,0.2)", 18);
+    label("High Scores", W / 2, 438, 18, palette.gold, 900, "center");
+    if (!scores.length) {
+      label("No scores yet. Yours can be first.", W / 2, 480, 15, "rgba(255,255,255,0.76)", 800, "center", 420);
+      return;
+    }
+    scores.forEach((score, index) => {
+      const y = 468 + index * 24;
+      const lodge = score.lodge_number ? ` No. ${score.lodge_number}` : "";
+      label(`${index + 1}. ${score.first_name || "Player"}${lodge}`, 568, y, 14, palette.cream, 900, "left", 280);
+      label(Number(score.score || 0).toLocaleString(), 1030, y, 14, palette.lightBlue, 900, "right", 120);
+    });
   }
 
   function drawGameOver() {
@@ -2319,7 +2351,9 @@
         state.security = 1;
         state.tyler.charges = 0;
         state.tyler.guard = 0;
+        state.tyler.guardUses = 0;
         state.tyler.closed = 0;
+        state.tyler.closeUses = 0;
         reachDoor({ type: enemyTypes.ruffian, path: pathCells, progress: pathCells.length - 1 });
       },
     };
@@ -2332,6 +2366,7 @@
     const loaded = await Promise.all(Object.entries(assets).map(async ([key, src]) => [key, await loadImage(src)]));
     loaded.forEach(([key, img]) => { images[key] = img; });
     loading?.setAttribute("hidden", "");
+    loadLeaderboardScores();
     installEvents();
     exposeDebugApi();
     requestAnimationFrame(render);
