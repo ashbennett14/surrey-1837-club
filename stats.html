@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
     <title>1837 Club Website Stats</title>
-    <link rel="stylesheet" href="styles.css?v=event-manager" />
+    <link rel="stylesheet" href="styles.css?v=site-stats-v1" />
     <script src="auth.js?v=login-gate"></script>
     <script src="motion.js?v=visual-polish" defer></script>
   </head>
@@ -41,10 +41,27 @@
         </div>
 
         <div class="stats-summary" id="statsSummary"></div>
+        <p class="manager-status stats-status" id="statsStatus" aria-live="polite">
+          Loading stats...
+        </p>
         <section class="stats-card">
           <h1>Page Views</h1>
           <div class="stats-table" id="pageStats"></div>
         </section>
+        <section class="stats-card">
+          <h2>Last 14 Days</h2>
+          <div id="trendStats"></div>
+        </section>
+        <div class="stats-grid">
+          <section class="stats-card">
+            <h2>Devices</h2>
+            <div class="stats-breakdown" id="deviceStats"></div>
+          </section>
+          <section class="stats-card">
+            <h2>Referrers</h2>
+            <div class="stats-breakdown" id="referrerStats"></div>
+          </section>
+        </div>
         <section class="stats-card">
           <h2>Recent Visits</h2>
           <div class="recent-visits" id="recentVisits"></div>
@@ -56,8 +73,8 @@
           </p>
           <a class="small-action-link" href="event-manager.html">Open Event Manager</a>
         </section>
-        <button class="login-button reset-stats-button" id="resetStats" type="button">
-          Reset Stats
+        <button class="login-button reset-stats-button" id="refreshStats" type="button">
+          Refresh Stats
         </button>
       </section>
       <footer class="site-footer" aria-label="Site footer">
@@ -67,7 +84,8 @@
       </footer>
     </main>
 
-    <script src="stats.js?v=stats"></script>
+    <script src="site-stats-config.js?v=site-stats-v1"></script>
+    <script src="stats.js?v=site-stats-v1"></script>
     <script src="easter-egg.js?v=tylers-trial-click3"></script>
   </body>
 </html>

@@ -2500,7 +2500,7 @@ body[data-calendar="chapter"] .detail-date {
 
 .stats-summary {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -2529,6 +2529,14 @@ body[data-calendar="chapter"] .detail-date {
   line-height: 1;
 }
 
+.stats-summary .stats-small-metric {
+  overflow: hidden;
+  font-family: inherit;
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  line-height: 1.12;
+  text-overflow: ellipsis;
+}
+
 .stats-summary p,
 .stats-card h1,
 .stats-card h2 {
@@ -2546,6 +2554,12 @@ body[data-calendar="chapter"] .detail-date {
   gap: 14px;
   margin-bottom: 18px;
   padding: 18px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 
 .stats-card h1,
@@ -2609,6 +2623,75 @@ body[data-calendar="chapter"] .detail-date {
 .stats-empty {
   margin: 0;
   font-weight: 750;
+}
+
+.stats-status {
+  margin: 0 0 18px;
+}
+
+.stats-breakdown {
+  display: grid;
+  gap: 12px;
+}
+
+.stats-breakdown-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.8fr) minmax(120px, 2fr) auto;
+  gap: 12px;
+  align-items: center;
+  color: var(--navy-deep);
+  font-weight: 850;
+}
+
+.stats-breakdown-row div {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(13, 55, 109, 0.1);
+}
+
+.stats-breakdown-row i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--light-blue), var(--gold));
+}
+
+.stats-breakdown-row b {
+  color: var(--navy);
+}
+
+.stats-trend {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(18px, 1fr));
+  gap: 10px;
+  align-items: end;
+  min-height: 190px;
+  padding-top: 10px;
+}
+
+.stats-trend-bar {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 8px;
+  align-items: end;
+  min-height: 170px;
+}
+
+.stats-trend-bar span {
+  display: block;
+  width: 100%;
+  min-height: 8px;
+  border-radius: 8px 8px 2px 2px;
+  background: linear-gradient(180deg, var(--gold), var(--navy));
+  box-shadow: 0 8px 18px rgba(5, 20, 42, 0.12);
+}
+
+.stats-trend-bar small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
 }
 
 .reset-stats-button {
@@ -3508,6 +3591,17 @@ body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-de
 
   .home-next-list {
     width: 100%;
+  }
+
+  .stats-summary,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-trend {
+    overflow-x: auto;
+    grid-template-columns: repeat(14, minmax(42px, 1fr));
+    padding-bottom: 4px;
   }
 }
 
