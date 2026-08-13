@@ -2694,6 +2694,47 @@ body[data-calendar="chapter"] .detail-date {
   text-align: center;
 }
 
+.ga4-location-table {
+  display: grid;
+  gap: 8px;
+}
+
+.ga4-location-head,
+.ga4-location-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.4fr) minmax(110px, 1fr) minmax(100px, 0.9fr) 72px 72px;
+  gap: 10px;
+  align-items: center;
+}
+
+.ga4-location-head {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.ga4-location-row {
+  padding: 12px;
+  border: 1px solid rgba(13, 55, 109, 0.12);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.ga4-location-row strong {
+  color: var(--navy-deep);
+}
+
+.ga4-location-row span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.ga4-location-row b {
+  justify-self: end;
+  color: var(--navy);
+}
+
 .reset-stats-button {
   width: min(220px, 100%);
   background: var(--badge-red);
@@ -3602,6 +3643,19 @@ body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-de
     overflow-x: auto;
     grid-template-columns: repeat(14, minmax(42px, 1fr));
     padding-bottom: 4px;
+  }
+
+  .ga4-location-head {
+    display: none;
+  }
+
+  .ga4-location-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .ga4-location-row strong,
+  .ga4-location-row span {
+    grid-column: 1 / -1;
   }
 }
 

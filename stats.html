@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
     <title>1837 Club Website Stats</title>
-    <link rel="stylesheet" href="styles.css?v=site-stats-v2" />
+    <link rel="stylesheet" href="styles.css?v=site-stats-v3" />
     <script src="auth.js?v=login-gate"></script>
     <script src="motion.js?v=visual-polish" defer></script>
   </head>
@@ -51,6 +51,11 @@
         <section class="stats-card">
           <h2>Last 14 Days</h2>
           <div id="trendStats"></div>
+        </section>
+        <section class="stats-card">
+          <h2>GA4 Towns and Cities</h2>
+          <p class="stats-empty" id="ga4LocationStatus">Loading Google Analytics location data...</p>
+          <div class="ga4-location-table" id="ga4LocationStats"></div>
         </section>
         <div class="stats-grid">
           <section class="stats-card">
@@ -92,8 +97,8 @@
       </footer>
     </main>
 
-    <script src="site-stats-config.js?v=site-stats-v2"></script>
-    <script src="stats.js?v=site-stats-v2"></script>
+    <script src="site-stats-config.js?v=site-stats-v3"></script>
+    <script src="stats.js?v=site-stats-v3"></script>
     <script src="easter-egg.js?v=tylers-trial-click3"></script>
   </body>
 </html>

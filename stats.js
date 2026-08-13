@@ -7,6 +7,8 @@ const deviceStats = document.querySelector("#deviceStats");
 const referrerStats = document.querySelector("#referrerStats");
 const locationStats = document.querySelector("#locationStats");
 const timezoneStats = document.querySelector("#timezoneStats");
+const ga4LocationStats = document.querySelector("#ga4LocationStats");
+const ga4LocationStatus = document.querySelector("#ga4LocationStatus");
 const trendStats = document.querySelector("#trendStats");
 const statsStatus = document.querySelector("#statsStatus");
 
@@ -16,6 +18,7 @@ function getConfig() {
   return {
     url: config.url.replace(/\/$/, ""),
     anonKey: config.anonKey,
+    ga4LocationFunction: config.ga4LocationFunction || "ga4-locations",
   };
 }
 
@@ -95,6 +98,21 @@ async function fetchRows() {
   return response.json();
 }
 
+async function fetchGa4Locations() {
+  const config = getConfig();
+  if (!config) throw new Error("Supabase stats config is missing.");
+
+  const response = await fetch(`${config.url}/functions/v1/${config.ga4LocationFunction}`, {
+    headers: {
+      apikey: config.anonKey,
+      Authorization: `Bearer ${config.anonKey}`,
+    },
+  });
+
+  if (!response.ok) throw new Error("GA4 location data could not be loaded.");
+  return response.json();
+}
+
 function countBy(rows, key) {
   return rows.reduce((counts, row) => {
     const value = row[key] || "unknown";
@@ -171,6 +189,43 @@ function renderTrend(rows) {
         .join("")}
     </div>
   `;
+}
+
+function renderGa4Locations(data) {
+  const locations = data.locations || [];
+  ga4LocationStatus.textContent = locations.length
+    ? `${escapeHtml(data.dateRange || "Recent activity")} from Google Analytics 4. Small volumes may be hidden or shown as “not set” by Google.`
+    : "Google Analytics returned no town or city data yet.";
+
+  ga4LocationStats.innerHTML = locations.length
+    ? `
+      <div class="ga4-location-head" aria-hidden="true">
+        <span>Town / City</span>
+        <span>Region</span>
+        <span>Country</span>
+        <span>Users</span>
+        <span>Views</span>
+      </div>
+      ${locations
+        .map(
+          (location) => `
+            <div class="ga4-location-row">
+              <strong>${escapeHtml(location.city)}</strong>
+              <span>${escapeHtml(location.region)}</span>
+              <span>${escapeHtml(location.country)}</span>
+              <b>${Number(location.activeUsers || 0).toLocaleString()}</b>
+              <b>${Number(location.views || 0).toLocaleString()}</b>
+            </div>
+          `,
+        )
+        .join("")}
+    `
+    : "";
+}
+
+function renderGa4LocationError() {
+  ga4LocationStatus.textContent = "GA4 town and city data is not available yet. Check the Supabase Edge Function secrets and deployment.";
+  ga4LocationStats.innerHTML = "";
 }
 
 function renderStats(rows, source = "online") {
@@ -273,6 +328,13 @@ async function loadStats() {
     renderStats(rows, "online");
   } catch {
     renderStats(readFallbackRows(), "fallback");
+  }
+
+  try {
+    const ga4Locations = await fetchGa4Locations();
+    renderGa4Locations(ga4Locations);
+  } catch {
+    renderGa4LocationError();
   }
 }
 
