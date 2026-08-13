@@ -1,6 +1,22 @@
 window.surrey1837ManagedCalendarData = {
   "socialEvents": [
     {
+      "id": "2026-09-01-tales-from-the-secretariat",
+      "date": "2026-09-01",
+      "title": "Tales from the Secretariat",
+      "time": "1700",
+      "location": "Surbiton",
+      "host": "Surrey Secretaries' Golden Jubilee Lodge",
+      "type": "social",
+      "category": "Community Event",
+      "poster": "assets/2026-09-01-tales-from-the-secretariat.jpeg",
+      "posterAlt": "Tales from the Secretariat poster",
+      "tags": [
+        "Community Event",
+        "Surbiton"
+      ]
+    },
+    {
       "id": "2026-09-09-tracing-boards-in-craft-masonry-history-variations-and-use",
       "date": "2026-09-09",
       "title": "Tracing Boards in Craft Masonry - History, Variations and Use",
