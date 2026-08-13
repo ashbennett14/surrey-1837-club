@@ -1,3 +1,5 @@
 .DS_Store
 Thumbs.db
 supabase-ga4-secrets.env
+supabase-ga4-secrets.env.*
+supabase/.temp/

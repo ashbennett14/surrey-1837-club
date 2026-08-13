@@ -1,5 +1,6 @@
 const propertyId = Deno.env.get("GA4_PROPERTY_ID") || "539650621";
 const serviceAccountJson = Deno.env.get("GA4_SERVICE_ACCOUNT_JSON");
+const serviceAccountJsonB64 = Deno.env.get("GA4_SERVICE_ACCOUNT_JSON_B64");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,12 +32,37 @@ function pemToArrayBuffer(pem: string) {
   return bytes.buffer;
 }
 
-async function getAccessToken() {
-  if (!serviceAccountJson) {
-    throw new Error("GA4_SERVICE_ACCOUNT_JSON is not configured.");
+function decodeBase64(value: string) {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+function getServiceAccount() {
+  if (serviceAccountJsonB64) {
+    try {
+      return JSON.parse(decodeBase64(serviceAccountJsonB64));
+    } catch (_error) {
+      throw new Error("GA4_SERVICE_ACCOUNT_JSON_B64 is not valid base64 encoded JSON.");
+    }
   }
 
-  const serviceAccount = JSON.parse(serviceAccountJson);
+  if (serviceAccountJson) {
+    try {
+      return JSON.parse(serviceAccountJson);
+    } catch (_error) {
+      throw new Error("GA4_SERVICE_ACCOUNT_JSON is not valid JSON. Prefer setting GA4_SERVICE_ACCOUNT_JSON_B64.");
+    }
+  }
+
+  throw new Error("GA4 service account secret is not configured.");
+}
+
+async function getAccessToken() {
+  const serviceAccount = getServiceAccount();
   const issuedAt = Math.floor(Date.now() / 1000);
   const header = {
     alg: "RS256",
