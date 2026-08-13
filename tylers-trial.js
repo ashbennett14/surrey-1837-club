@@ -120,9 +120,9 @@
   };
   const abilityGuide = {
     sword: "Nearest threat removed. Limited charges.",
-    guard: "Blocks entry for five seconds. Once per Trial.",
+    guard: "Blocks the Lodge entrance for five seconds. Once per Trial.",
     installation: "Setup: randomise the whole board once before the Trial begins.",
-    close: "Freezes all threats briefly. Once per Trial.",
+    close: "Call Off freezes all threats briefly. Once per Trial.",
   };
   const localLeaderboardKey = "tylersTrialLocalScores";
   const localLeaderboardResetKey = "tylersTrialLocalScoresResetV1";
@@ -343,7 +343,7 @@
     refillEmptyTiles();
     if ((state.trial - 1) % 10 === 0) {
       randomiseUnimprovedTiles();
-      say("A new Degree begins. The board has been randomised, but improved defences have stayed in place.");
+      say("A new Degree begins. Unbuilt resource tiles have been randomised; all defences have stayed in place.");
     } else {
       say("THE LODGE IS SECURE. Prepare for the next Trial.");
     }
@@ -658,7 +658,7 @@
       for (let col = 0; col < GRID; col += 1) {
         const cell = state.board[row][col];
         const tile = cell.tile;
-        const canMove = tile && (!tile.tower || tile.level === 0);
+        const canMove = tile && !tile.tower;
         if (!cell.path && canMove) {
           slots.push({ row, col });
           tiles.push(tile);
@@ -866,8 +866,20 @@
 
   function reachDoor(enemy) {
     const pos = pathPoint(enemy);
-    if (state.tyler.guard > 0 || state.tyler.charges > 0) {
-      if (state.tyler.charges > 0) state.tyler.charges -= 1;
+    if (state.tyler.guard > 0) {
+      enemy.progress = Math.max(0, enemy.progress - 2.2);
+      enemy.hp -= Math.max(12, enemy.maxHp * 0.18);
+      enemy.slow = Math.min(enemy.slow, 0.35);
+      enemy.warned = false;
+      state.tyler.stance = "guard";
+      particle(pos, palette.lightBlue, 34);
+      floatText("GUARDED", pos.x, pos.y - 28, palette.lightBlue, 18);
+      say("Guard held the Lodge entrance.");
+      if (enemy.hp <= 0) damageEnemy(enemy, 1, "ashlar");
+      return;
+    }
+    if (state.tyler.charges > 0) {
+      state.tyler.charges -= 1;
       state.tyler.stance = "strike";
       particle(pos, palette.gold, 30);
       state.score += Math.round(enemy.type.reward * 0.7);
@@ -937,13 +949,13 @@
     }
     if (id === "close") {
       if (state.tyler.closeUses <= 0 || state.tyler.closed > 0) {
-        say("Close has already been used for this Trial.");
+        say("Call Off has already been used for this Trial.");
         return;
       }
-      state.tyler.closeUses -= 1;
-      state.tyler.closed = 4;
-      say("Close the Lodge: the doors are protected.");
-    }
+    state.tyler.closeUses -= 1;
+    state.tyler.closed = 4;
+    say("Call Off: all threats pause briefly.");
+  }
   }
 
   function updateTimers(dt) {
@@ -1247,10 +1259,10 @@
       { id: "begin", label: state.mode === "prep" ? "BEGIN TRIAL" : "PREPARE", x: 1288, y: 770, w: 240, h: 58 },
       { id: "scores", label: "SCORES", x: 1234, y: 704, w: 144, h: 48 },
       { id: "help", label: "HELP", x: 1390, y: 704, w: 138, h: 48 },
-      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 74, y: 720, w: 160, h: 46 },
-      { id: "guard", label: `GUARD ${state.tyler.guardUses}`, x: 252, y: 720, w: 138, h: 46 },
-      { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 74, y: 780, w: 160, h: 46 },
-      { id: "close", label: `CLOSE ${state.tyler.closeUses}`, x: 252, y: 780, w: 138, h: 46 },
+      { id: "sword", label: `SWORD ${state.tyler.charges}`, x: 74, y: 720, w: 154, h: 46 },
+      { id: "guard", label: `GUARD ${state.tyler.guardUses}`, x: 242, y: 720, w: 148, h: 46 },
+      { id: "installation", label: `INSTALL ${state.tyler.installation}`, x: 74, y: 780, w: 154, h: 46 },
+      { id: "close", label: `CALL OFF ${state.tyler.closeUses}`, x: 242, y: 780, w: 148, h: 46 },
     ];
   }
 
@@ -2182,12 +2194,12 @@
     label("TYLER'S TRIAL", W / 2, 164, 66, palette.cream, 900, "center");
     label("A Masonic puzzle of preparation, harmony, and defence", W / 2, 242, 22, palette.lightBlue, 900, "center");
     if (state.mode === "how") {
-      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. Each Trial has an objective for bonus score. Ashlar is balanced, Candle reaches far, Lewis boosts nearby defences, Wand slows fast threats, and Jewels provide rewards. During setup, Installation deliberately randomises the board once. Between Degrees, only non-upgraded defences are reshuffled so stronger work stays in place.", 520, 302, 560, 26, 17, palette.cream, 800, "center", 11);
+      wrap("Loop: swap adjacent resources, match three to build a defence, merge three matching defences to strengthen them, then begin the Trial. Each Trial has an objective for bonus score. Ashlar is balanced, Candle reaches far, Lewis boosts nearby defences, Wand slows fast threats, and Jewels provide rewards. During setup, Installation deliberately randomises the board once. Between Degrees, only unbuilt resource tiles are reshuffled so all defences stay in place.", 520, 302, 560, 26, 17, palette.cream, 800, "center", 11);
     } else if (state.mode === "achievements") {
       drawMenuHighScores();
     } else {
       wrap("Build the Lodge before each Trial begins. Swap tiles to make matches, turn resources into defences, then protect the Lodge entrance from approaching threats.", 500, 296, 600, 22, 15, "rgba(255,255,255,0.82)", 800, "center", 3);
-      wrap("Every ten Trials you move to the next Degree. Enemies become harder, and non-upgraded tiles reshuffle while stronger work stays in place.", 500, 358, 600, 22, 15, "rgba(255,255,255,0.74)", 800, "center", 3);
+      wrap("Every ten Trials you move to the next Degree. Enemies become harder, and unbuilt resource tiles reshuffle while all defences stay in place.", 500, 358, 600, 22, 15, "rgba(255,255,255,0.74)", 800, "center", 3);
       menuRects().forEach((rect) => drawButton(rect, false));
     }
     if (state.mode !== "menu") drawButton({ id: "back", label: "BACK TO MENU", x: 650, y: 746, w: 300, h: 56 }, false);
