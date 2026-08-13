@@ -2,6 +2,26 @@
   "socialEvents": [],
   "lodgeEvents": [
     {
+      "id": "2026-09-14-morden-lodge-other",
+      "date": "2026-09-14",
+      "title": "Morden Lodge",
+      "lodgeName": "Morden Lodge",
+      "lodgeNumber": "4958",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Morden Lodge No. 4958",
+      "type": "lodge",
+      "poster": "assets/2026-09-14-morden-lodge.png",
+      "posterAlt": "Morden Lodge No. 4958 crest",
+      "tags": [
+        "Other",
+        "No. 4958",
+        "Surbiton"
+      ],
+      "description": "Morden Lodge No. 4958 meeting in Surbiton for Other."
+    },
+    {
       "id": "2026-09-17-welcome-lodge-raising",
       "date": "2026-09-17",
       "title": "Welcome Lodge",
