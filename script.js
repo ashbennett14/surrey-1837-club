@@ -168,7 +168,6 @@ let selectedEventId = null;
 let activeMeetingType = "";
 let activeMeetingLocation = "";
 let activeSocialCategory = "";
-const compactDayEventsQuery = window.matchMedia("(min-width: 721px)");
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   weekday: "long",
@@ -258,12 +257,7 @@ function renderCalendar() {
   const visibleDays = getMonthDays(activeDate);
   const activeMonth = activeDate.getMonth();
   const activeYear = activeDate.getFullYear();
-  const compactDayEvents = compactDayEventsQuery.matches;
-  const visibleEventLimit = compactDayEvents
-    ? calendarType === "social"
-      ? 2
-      : 1
-    : Number.POSITIVE_INFINITY;
+  const visibleEventLimit = calendarType === "social" ? 2 : 1;
   const monthlyEvents = events.filter((event) => {
     const eventDate = parseLocalDate(event.date);
     return (
@@ -463,8 +457,6 @@ document.querySelector("#todayButton").addEventListener("click", () => {
   activeDate = new Date(today.getFullYear(), today.getMonth(), 1);
   renderCalendar();
 });
-
-compactDayEventsQuery.addEventListener("change", renderCalendar);
 
 document.addEventListener("click", (event) => {
   if (!calendarGrid.contains(event.target)) {
