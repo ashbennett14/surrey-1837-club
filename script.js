@@ -341,10 +341,9 @@ function renderCalendar() {
       return button;
     };
 
-    const visibleEvents = dayEvents.slice(0, visibleEventLimit);
     const hiddenEvents = dayEvents.slice(visibleEventLimit);
 
-    visibleEvents.forEach((event) => {
+    dayEvents.forEach((event) => {
       list.append(createEventButton(event));
     });
 
