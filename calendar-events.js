@@ -943,6 +943,26 @@ window.surrey1837ManagedCalendarData = {
       "description": "Old Strodians' Lodge No. 7803 meeting in Chertsey for an Installation."
     },
     {
+      "id": "2026-09-09-royal-borough-of-kingston-lodge-other",
+      "date": "2026-09-09",
+      "title": "Royal Borough of Kingston Lodge",
+      "lodgeName": "Royal Borough of Kingston Lodge",
+      "lodgeNumber": "4614",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Royal Borough of Kingston Lodge No. 4614",
+      "type": "lodge",
+      "poster": "assets/2026-09-09-royal-borough-of-kingston-lodge.png",
+      "posterAlt": "Royal Borough of Kingston Lodge No. 4614 crest",
+      "tags": [
+        "Other",
+        "No. 4614",
+        "Surbiton"
+      ],
+      "description": "Royal Borough of Kingston Lodge No. 4614 meeting in Surbiton for Other."
+    },
+    {
       "id": "coulsdon-lodge-installation",
       "date": "2026-09-10",
       "title": "Coulsdon Lodge",
