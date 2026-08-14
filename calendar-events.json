@@ -1123,6 +1123,26 @@
       "description": "Triumvirate Lodge No. 9505 meeting in Sutton for Installation."
     },
     {
+      "id": "2026-09-23-noel-surrey-motorcycle-lodge-raising",
+      "date": "2026-09-23",
+      "title": "Noel Surrey Motorcycle Lodge",
+      "lodgeName": "Noel Surrey Motorcycle Lodge",
+      "lodgeNumber": "2444",
+      "degree": "Raising",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Noel Surrey Motorcycle Lodge No. 2444",
+      "type": "lodge",
+      "poster": "assets/2026-09-23-noel-surrey-motorcycle-lodge.png",
+      "posterAlt": "Noel Surrey Motorcycle Lodge No. 2444 crest",
+      "tags": [
+        "Raising",
+        "No. 2444",
+        "Surbiton"
+      ],
+      "description": "Noel Surrey Motorcycle Lodge No. 2444 meeting in Surbiton for Raising."
+    },
+    {
       "id": "claremont-lodge-other",
       "date": "2026-09-28",
       "title": "Claremont Lodge",
