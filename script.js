@@ -168,6 +168,7 @@ let selectedEventId = null;
 let activeMeetingType = "";
 let activeMeetingLocation = "";
 let activeSocialCategory = "";
+const compactDayEventsQuery = window.matchMedia("(min-width: 721px)");
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   weekday: "long",
@@ -257,6 +258,12 @@ function renderCalendar() {
   const visibleDays = getMonthDays(activeDate);
   const activeMonth = activeDate.getMonth();
   const activeYear = activeDate.getFullYear();
+  const compactDayEvents = compactDayEventsQuery.matches;
+  const visibleEventLimit = compactDayEvents
+    ? calendarType === "social"
+      ? 2
+      : 1
+    : Number.POSITIVE_INFINITY;
   const monthlyEvents = events.filter((event) => {
     const eventDate = parseLocalDate(event.date);
     return (
@@ -307,7 +314,7 @@ function renderCalendar() {
 
     const list = cell.querySelector(".event-list");
 
-    dayEvents.forEach((event) => {
+    const createEventButton = (event) => {
       const isMeetingEvent = event.type === "lodge" || event.type === "chapter";
       const button = document.createElement("button");
       button.className = isMeetingEvent ? "event-pill lodge-event" : "event-pill";
@@ -337,8 +344,58 @@ function renderCalendar() {
       }
 
       button.addEventListener("click", () => selectEvent(event.id));
-      list.append(button);
+      return button;
+    };
+
+    const visibleEvents = dayEvents.slice(0, visibleEventLimit);
+    const hiddenEvents = dayEvents.slice(visibleEventLimit);
+
+    visibleEvents.forEach((event) => {
+      list.append(createEventButton(event));
     });
+
+    if (hiddenEvents.length > 0) {
+      cell.classList.add("has-event-overflow");
+
+      const moreButton = document.createElement("button");
+      moreButton.className = "event-more-button";
+      moreButton.type = "button";
+      moreButton.setAttribute("aria-expanded", "false");
+      moreButton.setAttribute(
+        "aria-label",
+        `Show ${hiddenEvents.length} more ${countLabel}${hiddenEvents.length === 1 ? "" : "s"} on ${dateFormatter.format(day)}`,
+      );
+      moreButton.textContent = `+${hiddenEvents.length} more`;
+
+      const popover = document.createElement("div");
+      popover.className = "event-overflow-popover";
+      popover.hidden = true;
+
+      hiddenEvents.forEach((event) => {
+        popover.append(createEventButton(event));
+      });
+
+      moreButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const isOpen = !popover.hidden;
+        calendarGrid
+          .querySelectorAll(".event-overflow-popover")
+          .forEach((openPopover) => {
+            openPopover.hidden = true;
+          });
+        calendarGrid
+          .querySelectorAll(".event-more-button[aria-expanded='true']")
+          .forEach((openButton) => {
+            openButton.setAttribute("aria-expanded", "false");
+          });
+
+        popover.hidden = isOpen;
+        moreButton.setAttribute("aria-expanded", String(!isOpen));
+      });
+
+      list.append(moreButton);
+      list.append(popover);
+    }
 
     calendarGrid.append(cell);
   });
@@ -405,6 +462,38 @@ document.querySelector("#nextMonth").addEventListener("click", () => {
 document.querySelector("#todayButton").addEventListener("click", () => {
   activeDate = new Date(today.getFullYear(), today.getMonth(), 1);
   renderCalendar();
+});
+
+compactDayEventsQuery.addEventListener("change", renderCalendar);
+
+document.addEventListener("click", (event) => {
+  if (!calendarGrid.contains(event.target)) {
+    calendarGrid
+      .querySelectorAll(".event-overflow-popover")
+      .forEach((popover) => {
+        popover.hidden = true;
+      });
+    calendarGrid
+      .querySelectorAll(".event-more-button[aria-expanded='true']")
+      .forEach((button) => {
+        button.setAttribute("aria-expanded", "false");
+      });
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    calendarGrid
+      .querySelectorAll(".event-overflow-popover")
+      .forEach((popover) => {
+        popover.hidden = true;
+      });
+    calendarGrid
+      .querySelectorAll(".event-more-button[aria-expanded='true']")
+      .forEach((button) => {
+        button.setAttribute("aria-expanded", "false");
+      });
+  }
 });
 
 if (meetingTypeFilter) {
