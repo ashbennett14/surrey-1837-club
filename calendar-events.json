@@ -1083,6 +1083,26 @@
       "description": "Operative Lodge No. 8783 meeting in Croydon."
     },
     {
+      "id": "2026-09-19-moreford-lodge-installation",
+      "date": "2026-09-19",
+      "title": "Moreford Lodge",
+      "lodgeName": "Moreford Lodge",
+      "lodgeNumber": "7097",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Moreford Lodge No. 7097",
+      "type": "lodge",
+      "poster": "assets/2026-09-19-moreford-lodge.png",
+      "posterAlt": "Moreford Lodge No. 7097 crest",
+      "tags": [
+        "Installation",
+        "No. 7097",
+        "Surbiton"
+      ],
+      "description": "Moreford Lodge No. 7097 meeting in Surbiton for Installation."
+    },
+    {
       "id": "saxondom-lodge-initiation-september",
       "date": "2026-09-19",
       "title": "Saxondom Lodge",
