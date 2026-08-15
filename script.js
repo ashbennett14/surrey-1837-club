@@ -34,6 +34,8 @@ function normalizeManagedEvent(event, calendarType) {
           managedEvent.degree ? ` for ${managedEvent.degree}.` : "."
         }`
       : "");
+  managedEvent.displayPoster = managedEvent.displayPoster || managedEvent.poster;
+  managedEvent.fullPoster = managedEvent.fullPoster || managedEvent.poster;
 
   if (isMeeting) {
     managedEvent.lodgeName = managedEvent.lodgeName || managedEvent.title || managedEvent.host;
@@ -422,7 +424,8 @@ function selectEvent(eventId) {
   detailPoster.classList.toggle("hidden", !event.poster);
 
   if (event.poster) {
-    detailPoster.src = event.poster;
+    detailPoster.src = event.displayPoster || event.poster;
+    detailPoster.dataset.fullSrc = event.fullPoster || event.poster;
     detailPoster.alt = event.posterAlt || `${event.title} poster`;
     detailPoster.tabIndex = 0;
     detailPoster.setAttribute("role", "button");
@@ -525,14 +528,14 @@ if (socialCategoryFilter) {
 if (detailPoster) {
   detailPoster.addEventListener("click", () => {
     if (!detailPoster.classList.contains("hidden") && detailPoster.src) {
-      posterLightbox.open(detailPoster.src, detailPoster.alt);
+      posterLightbox.open(detailPoster.dataset.fullSrc || detailPoster.src, detailPoster.alt);
     }
   });
 
   detailPoster.addEventListener("keydown", (event) => {
     if ((event.key === "Enter" || event.key === " ") && !detailPoster.classList.contains("hidden")) {
       event.preventDefault();
-      posterLightbox.open(detailPoster.src, detailPoster.alt);
+      posterLightbox.open(detailPoster.dataset.fullSrc || detailPoster.src, detailPoster.alt);
     }
   });
 }

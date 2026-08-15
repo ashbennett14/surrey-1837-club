@@ -17,9 +17,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
     <title>Event Manager | The Surrey 1837 Club</title>
-    <link rel="stylesheet" href="styles.css?v=compact-calendar-v3" />
-    <script src="auth.js?v=login-gate"></script>
-    <script src="motion.js?v=visual-polish" defer></script>
+    <link rel="stylesheet" href="styles.css?v=site-improvement-v1" />
+    <script src="auth.js?v=site-improvement-v1"></script>
+    <script src="motion.js?v=site-improvement-v1" defer></script>
   </head>
   <body>
     <main class="manager-shell">
@@ -42,11 +42,10 @@
 
         <nav class="page-nav" aria-label="Admin pages">
           <a href="admin.html">Admin Home</a>
-          <a href="index.html">Home</a>
-          <a href="social-events.html">Social Events</a>
-          <a href="lodge-meetings.html">Lodge Meetings</a>
-          <a href="chapter-meetings.html">Chapter Meetings</a>
-          <a href="stats.html">Stats</a>
+          <a href="stats.html">Website Stats</a>
+          <a href="event-manager.html" aria-current="page">Event Manager</a>
+          <a href="tylers-trial.html">Tyler's Trial</a>
+          <a href="index.html">Public Site</a>
         </nav>
 
         <header class="manager-hero">
@@ -139,6 +138,10 @@
               Upload image
               <input id="eventImageFile" name="imageFile" type="file" accept="image/*" />
             </label>
+            <div class="manager-image-preview" id="imagePreview" hidden>
+              <img alt="" />
+              <span>No image selected.</span>
+            </div>
             <p class="manager-help">
               Use image upload when adding a new crest or poster. The manager will save it into
               <code>assets/</code> when you publish to GitHub. The image path box is only for
@@ -189,6 +192,7 @@
               <h2>Review and publish</h2>
             </div>
             <div class="manager-summary" id="managerSummary"></div>
+            <div class="manager-validation" id="validationSummary" aria-live="polite"></div>
             <div class="managed-list" id="managedList"></div>
             <div class="manager-actions">
               <button class="small-action-link" id="downloadJson" type="button">Download JSON</button>
@@ -221,6 +225,7 @@
             <button class="login-button" id="publishGithub" type="button">
               Publish calendar-events.json
             </button>
+            <div class="publish-plan" id="publishPlan"></div>
             <p class="manager-status" id="managerStatus" role="status"></p>
           </section>
         </section>
@@ -233,8 +238,8 @@
       </footer>
     </main>
 
-    <script src="calendar-events.js?v=managed-events"></script>
-    <script src="event-manager.js?v=event-manager-images" defer></script>
-    <script src="easter-egg.js?v=tylers-trial-click3"></script>
+    <script src="calendar-events.js?v=site-improvement-v1"></script>
+    <script src="event-manager.js?v=site-improvement-v1" defer></script>
+    <script src="easter-egg.js?v=site-improvement-v1"></script>
   </body>
 </html>

@@ -285,11 +285,11 @@ function renderStats(rows, source = "online") {
     </article>
     <article>
       <span>${visitors}</span>
-      <p>Estimated unique visitors</p>
+      <p>Estimated visitors, browser-based</p>
     </article>
     <article>
       <span>${sessions}</span>
-      <p>Estimated sessions</p>
+      <p>Estimated sessions, browser-based</p>
     </article>
     <article>
       <span>${todayViews}</span>
@@ -342,8 +342,8 @@ function renderStats(rows, source = "online") {
   renderTrend(rows);
 
   statsStatus.textContent = source === "online"
-    ? `Live Supabase page-view stats loaded for ${getRangeLabel()}.`
-    : `Supabase stats are unavailable, so this page is showing fallback stats from this device for ${getRangeLabel()}.`;
+    ? `Live Supabase anonymous page-view stats loaded for ${getRangeLabel()}.`
+    : `Supabase stats are unavailable, so this page is showing local fallback stats from this device for ${getRangeLabel()}.`;
   statsStatus.dataset.state = source === "online" ? "ok" : "error";
 }
 

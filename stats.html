@@ -17,13 +17,13 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="site.webmanifest" />
     <title>1837 Club Website Stats</title>
-    <link rel="stylesheet" href="styles.css?v=compact-calendar-v3" />
-    <script src="auth.js?v=login-gate"></script>
-    <script src="motion.js?v=visual-polish" defer></script>
+    <link rel="stylesheet" href="styles.css?v=site-improvement-v1" />
+    <script src="auth.js?v=site-improvement-v1"></script>
+    <script src="motion.js?v=site-improvement-v1" defer></script>
   </head>
   <body>
-    <main class="stats-shell">
-      <section class="stats-panel" aria-label="Website statistics">
+    <main class="manager-shell stats-shell">
+      <section class="manager-panel stats-panel" aria-label="Website statistics">
         <div class="brand-strip" aria-label="1837 Club">
           <div class="brand-lockup">
             <img
@@ -42,10 +42,20 @@
 
         <nav class="page-nav" aria-label="Admin pages">
           <a href="admin.html">Admin Home</a>
-          <a href="index.html">Home</a>
+          <a href="stats.html" aria-current="page">Website Stats</a>
           <a href="event-manager.html">Event Manager</a>
-          <a href="stats.html" aria-current="page">Stats</a>
+          <a href="tylers-trial.html">Tyler's Trial</a>
+          <a href="index.html">Public Site</a>
         </nav>
+
+        <header class="manager-hero stats-hero">
+          <p class="section-kicker">Private Dashboard</p>
+          <h1>Website Stats</h1>
+          <p>
+            Supabase shows anonymous page-view activity recorded by the website. Google
+            Analytics 4 adds approximate towns and cities where Google has enough data to report.
+          </p>
+        </header>
 
         <div class="stats-summary" id="statsSummary"></div>
         <p class="manager-status stats-status" id="statsStatus" aria-live="polite">
@@ -59,6 +69,10 @@
         <section class="stats-card">
           <p class="section-kicker">Supabase Page Views</p>
           <h1>Page Views</h1>
+          <p class="stats-empty">
+            These are anonymous views from public pages only. Estimated visitors and sessions are
+            browser-based counts, not named people.
+          </p>
           <div class="stats-table" id="pageStats"></div>
         </section>
         <section class="stats-card">
@@ -68,6 +82,10 @@
         <section class="stats-card">
           <p class="section-kicker">Google Analytics 4</p>
           <h2>GA4 Towns and Cities</h2>
+          <p class="stats-empty">
+            GA4 location data is approximate, may group or hide small volumes, and can include
+            network or browser-location effects.
+          </p>
           <p class="stats-empty" id="ga4LocationStatus">Loading Google Analytics location data...</p>
           <div class="ga4-location-table" id="ga4LocationStats"></div>
         </section>
@@ -81,11 +99,11 @@
             <div class="stats-breakdown" id="referrerStats"></div>
           </section>
           <section class="stats-card">
-            <h2>Country Hints</h2>
+            <h2>Browser Country Hints</h2>
             <div class="stats-breakdown" id="locationStats"></div>
           </section>
           <section class="stats-card">
-            <h2>Timezone Hints</h2>
+            <h2>Browser Timezone Hints</h2>
             <div class="stats-breakdown" id="timezoneStats"></div>
           </section>
         </div>
@@ -112,8 +130,8 @@
       </footer>
     </main>
 
-    <script src="site-stats-config.js?v=site-stats-v3"></script>
-    <script src="stats.js?v=feature-admin-polish-v1"></script>
-    <script src="easter-egg.js?v=tylers-trial-click3"></script>
+    <script src="site-stats-config.js?v=site-improvement-v1"></script>
+    <script src="stats.js?v=site-improvement-v1"></script>
+    <script src="easter-egg.js?v=site-improvement-v1"></script>
   </body>
 </html>

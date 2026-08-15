@@ -19,6 +19,8 @@
   const downloadJson = document.querySelector("#downloadJson");
   const downloadJs = document.querySelector("#downloadJs");
   const eventImageFile = document.querySelector("#eventImageFile");
+  const eventPoster = document.querySelector("#eventPoster");
+  const imagePreview = document.querySelector("#imagePreview");
   const copyJson = document.querySelector("#copyJson");
   const clearManaged = document.querySelector("#clearManaged");
   const publishGithub = document.querySelector("#publishGithub");
@@ -27,7 +29,19 @@
   const managedList = document.querySelector("#managedList");
   const managerSummary = document.querySelector("#managerSummary");
   const managerStatus = document.querySelector("#managerStatus");
+  const validationSummary = document.querySelector("#validationSummary");
+  const publishPlan = document.querySelector("#publishPlan");
   const pendingAssets = new Map();
+  const socialCategories = new Set(["1837 Club Event", "Community Event"]);
+  const meetingTypes = new Set([
+    "Installation",
+    "Initiation",
+    "Passing",
+    "Raising",
+    "Other",
+    "Royal Arch",
+    "Initiation & Passing",
+  ]);
 
   const savedToken = localStorage.getItem("surrey1837GithubToken");
   if (savedToken) {
@@ -44,6 +58,8 @@
   copyJson.addEventListener("click", copyManagedJson);
   clearManaged.addEventListener("click", clearManagedEvents);
   publishGithub.addEventListener("click", publishToGithub);
+  eventImageFile.addEventListener("change", updateImagePreview);
+  eventPoster.addEventListener("input", updateImagePreview);
   rememberToken.addEventListener("change", () => {
     if (!rememberToken.checked) {
       localStorage.removeItem("surrey1837GithubToken");
@@ -74,9 +90,16 @@
     const title = clean(formData.get("title"));
     const date = clean(formData.get("date"));
     const location = clean(formData.get("location"));
+    const lodgeNumber = clean(formData.get("lodgeNumber"));
+    const degree = clean(formData.get("degree"));
 
     if (!title || !date || !location) {
       setStatus("Add a title, date, and location before adding the item.", true);
+      return;
+    }
+
+    if (!isSocial && (!lodgeNumber || !degree)) {
+      setStatus("Add the lodge or chapter number and meeting type before adding the item.", true);
       return;
     }
 
@@ -88,6 +111,7 @@
     form.reset();
     calendarType.value = key;
     syncCalendarFields();
+    updateImagePreview();
     setStatus(`${record.title} added to the managed file.`);
   }
 
@@ -294,6 +318,8 @@
       <span><b>${state.chapterEvents.length}</b> chapter</span>
       <span><b>${total}</b> total</span>
     `;
+    renderValidationSummary();
+    renderPublishPlan();
 
     const allEvents = [
       ...state.socialEvents.map((event) => ({ ...event, key: "socialEvents", label: "Social" })),
@@ -373,10 +399,20 @@
       localStorage.setItem("surrey1837GithubToken", token);
     }
 
-    setStatus("Publishing to GitHub...");
+    setStatus("Checking managed items before publishing...");
     publishGithub.disabled = true;
 
     try {
+      const validation = await validateForPublish();
+      renderValidationSummary(validation);
+      renderPublishPlan();
+
+      if (validation.errors.length > 0) {
+        throw new Error("Fix the validation errors before publishing.");
+      }
+
+      setStatus("Publishing to GitHub...");
+
       if (pendingAssets.size > 0) {
         setStatus(`Uploading ${pendingAssets.size} image${pendingAssets.size === 1 ? "" : "s"}...`);
       }
@@ -394,8 +430,10 @@
         "Update managed calendar event preview data",
       );
 
-      setStatus("Published. GitHub Pages should update shortly.");
+      setStatus("Published calendar-events.json, calendar-events.js, and any uploaded images. GitHub Pages should update shortly.");
       pendingAssets.clear();
+      renderValidationSummary();
+      renderPublishPlan();
     } catch (error) {
       setStatus(`Publish failed: ${error.message}`, true);
     } finally {
@@ -542,6 +580,159 @@
     return `window.surrey1837ManagedCalendarData = ${JSON.stringify(state, null, 2)};\n`;
   }
 
+  function renderValidationSummary(validation = validateState(false)) {
+    if (!validationSummary) return;
+
+    const issues = [
+      ...validation.errors.map((message) => ({ message, type: "error" })),
+      ...validation.warnings.map((message) => ({ message, type: "warning" })),
+    ];
+
+    validationSummary.innerHTML = issues.length
+      ? `
+        <p><b>${validation.errors.length}</b> error${validation.errors.length === 1 ? "" : "s"} · <b>${validation.warnings.length}</b> warning${validation.warnings.length === 1 ? "" : "s"}</p>
+        <ul>
+          ${issues
+            .slice(0, 8)
+            .map((issue) => `<li data-state="${issue.type}">${escapeHtml(issue.message)}</li>`)
+            .join("")}
+        </ul>
+      `
+      : `<p class="manager-empty">Validation passed. Managed items are ready to publish.</p>`;
+  }
+
+  function renderPublishPlan() {
+    if (!publishPlan) return;
+    const assetCount = pendingAssets.size;
+    publishPlan.innerHTML = `
+      <p class="manager-help">Publishing will update:</p>
+      <ul>
+        <li><code>${managedFile}</code> as the single calendar data source</li>
+        <li><code>${managedScriptFile}</code> for local <code>file://</code> preview fallback</li>
+        <li>${assetCount} uploaded image asset${assetCount === 1 ? "" : "s"}</li>
+      </ul>
+    `;
+  }
+
+  function validateState(checkImages) {
+    const errors = [];
+    const warnings = [];
+    const seenIds = new Map();
+    const seenDuplicates = new Map();
+
+    const add = (list, key, record, message) => {
+      const label = record?.title || record?.lodgeName || record?.id || key;
+      list.push(`${label}: ${message}`);
+    };
+
+    const dateIsValid = (value) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return false;
+      const [year, month, day] = value.split("-").map(Number);
+      const parsed = new Date(year, month - 1, day);
+      return (
+        parsed.getFullYear() === year &&
+        parsed.getMonth() === month - 1 &&
+        parsed.getDate() === day
+      );
+    };
+
+    Object.entries(state).forEach(([key, records]) => {
+      records.forEach((record) => {
+        const isSocial = key === "socialEvents";
+        const isMeeting = key === "lodgeEvents" || key === "chapterEvents";
+        const required = isSocial
+          ? ["id", "date", "title", "location", "category"]
+          : ["id", "date", "title", "lodgeName", "lodgeNumber", "degree", "location"];
+
+        required.forEach((field) => {
+          if (!clean(record[field])) add(errors, key, record, `missing ${field}`);
+        });
+
+        if (!dateIsValid(record.date)) add(errors, key, record, `invalid date "${record.date || ""}"`);
+
+        if (record.id && seenIds.has(record.id)) {
+          add(errors, key, record, `duplicate ID also used by ${seenIds.get(record.id)}`);
+        } else if (record.id) {
+          seenIds.set(record.id, record.title || key);
+        }
+
+        const duplicateKey = [key, record.date, record.title, record.location]
+          .map((value) => clean(value).toLowerCase())
+          .join("|");
+        if (seenDuplicates.has(duplicateKey)) {
+          add(warnings, key, record, "possible duplicate event on the same date and location");
+        } else {
+          seenDuplicates.set(duplicateKey, record.id);
+        }
+
+        if (isSocial && !socialCategories.has(record.category)) {
+          add(errors, key, record, `category must be 1837 Club Event or Community Event`);
+        }
+
+        if (isMeeting && !meetingTypes.has(record.degree)) {
+          add(errors, key, record, `meeting type is not recognised`);
+        }
+
+        if (checkImages && record.poster) {
+          if (!pendingAssets.has(record.poster) && !record.poster.startsWith("assets/") && !/^https?:\/\//i.test(record.poster)) {
+            add(warnings, key, record, "image path should normally be inside assets/");
+          }
+        }
+      });
+    });
+
+    for (const [path, asset] of pendingAssets) {
+      if (asset.size > 4 * 1024 * 1024) {
+        errors.push(`${path}: uploaded image is over 4 MB; please resize it before publishing`);
+      } else if (asset.size > 750 * 1024) {
+        warnings.push(`${path}: uploaded image is large; run the display image optimiser after publishing`);
+      }
+    }
+
+    return { errors, warnings };
+  }
+
+  async function validateForPublish() {
+    const validation = validateState(true);
+    const imageChecks = [];
+
+    Object.entries(state).forEach(([key, records]) => {
+      records.forEach((record) => {
+        ["poster", "displayPoster"].forEach((field) => {
+          const imagePath = clean(record[field]);
+          if (!imagePath || pendingAssets.has(imagePath) || /^https?:\/\//i.test(imagePath)) return;
+          imageChecks.push(
+            imageLoads(imagePath).then((loads) => {
+              if (!loads) {
+                const label = record.title || record.lodgeName || record.id || key;
+                validation.errors.push(`${label}: ${field} does not load (${imagePath})`);
+              }
+            }),
+          );
+        });
+      });
+    });
+
+    await Promise.all(imageChecks);
+    return validation;
+  }
+
+  function imageLoads(src) {
+    return new Promise((resolve) => {
+      const image = new Image();
+      const timeout = window.setTimeout(() => resolve(false), 5000);
+      image.onload = () => {
+        window.clearTimeout(timeout);
+        resolve(true);
+      };
+      image.onerror = () => {
+        window.clearTimeout(timeout);
+        resolve(false);
+      };
+      image.src = src;
+    });
+  }
+
   async function updateGithubFile(token, path, content, message, contentIsBase64 = false) {
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
     const currentResponse = await fetch(`${apiUrl}?ref=${branch}`, {
@@ -575,8 +766,37 @@
 
     const extension = getFileExtension(selectedFile);
     const path = `assets/${createId(formData.get("date"), title)}${extension}`;
-    pendingAssets.set(path, { contentPromise: fileToBase64(selectedFile) });
+    pendingAssets.set(path, { contentPromise: fileToBase64(selectedFile), size: selectedFile.size });
     return path;
+  }
+
+  function updateImagePreview() {
+    if (!imagePreview) return;
+    const image = imagePreview.querySelector("img");
+    const label = imagePreview.querySelector("span");
+    const selectedFile = eventImageFile.files[0];
+    const typedPath = clean(eventPoster.value);
+
+    if (selectedFile) {
+      image.src = URL.createObjectURL(selectedFile);
+      image.alt = `${selectedFile.name} preview`;
+      label.textContent = `${selectedFile.name} · ${Math.round(selectedFile.size / 1024)} KB`;
+      imagePreview.hidden = false;
+      return;
+    }
+
+    if (typedPath) {
+      image.src = typedPath;
+      image.alt = "Existing website image preview";
+      label.textContent = typedPath;
+      imagePreview.hidden = false;
+      return;
+    }
+
+    image.removeAttribute("src");
+    image.alt = "";
+    label.textContent = "No image selected.";
+    imagePreview.hidden = true;
   }
 
   function getFileExtension(file) {

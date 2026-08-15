@@ -108,7 +108,9 @@
         "Family and friends welcome",
         "Charity raffle"
       ],
-      "description": "A family-friendly BBQ at Nutfield Masonic Centre with garden games for all ages, BBQ food, a cashless bar, and a charity raffle. The event supports St Raphael's Hospice, The Prostate Project, and the Surrey 2030 Festival."
+      "description": "A family-friendly BBQ at Nutfield Masonic Centre with garden games for all ages, BBQ food, a cashless bar, and a charity raffle. The event supports St Raphael's Hospice, The Prostate Project, and the Surrey 2030 Festival.",
+      "displayPoster": "assets/display/burstow-lodge-bbq-display.png",
+      "fullPoster": "assets/burstow-lodge-bbq.png"
     },
     {
       "id": "city-of-london-walking-tour",
@@ -126,7 +128,9 @@
         "Maximum 14 people",
         "Donations welcome"
       ],
-      "description": "A guided walking tour through the heart of the City of London with an official City of London Green Badge Guide, exploring masonic connections and wider history. The walk lasts approximately two hours, with an optional pub lunch booked for 13:30."
+      "description": "A guided walking tour through the heart of the City of London with an official City of London Green Badge Guide, exploring masonic connections and wider history. The walk lasts approximately two hours, with an optional pub lunch booked for 13:30.",
+      "displayPoster": "assets/display/city-of-london-walking-tour-display.png",
+      "fullPoster": "assets/city-of-london-walking-tour.png"
     },
     {
       "id": "surrey-craft-lecture-festival",
@@ -145,7 +149,9 @@
         "Light Blues",
         "Croydon"
       ],
-      "description": "The 2026 Surrey Craft Lecture Festival, sponsored by Addiscombe Lodge of Instruction No. 1556. The event features three sections from The Lectures of the Three Degrees in Craft Masonry, worked by Master Masons with Light Blue Masons occupying the floor offices. Open to Master Masons and above."
+      "description": "The 2026 Surrey Craft Lecture Festival, sponsored by Addiscombe Lodge of Instruction No. 1556. The event features three sections from The Lectures of the Three Degrees in Craft Masonry, worked by Master Masons with Light Blue Masons occupying the floor offices. Open to Master Masons and above.",
+      "displayPoster": "assets/display/surrey-craft-lecture-festival-display.png",
+      "fullPoster": "assets/surrey-craft-lecture-festival.png"
     },
     {
       "id": "brownrigg-family-fishing-fun-day",
@@ -164,7 +170,9 @@
         "Equipment and bait supplied",
         "Refreshments available"
       ],
-      "description": "A family fishing fun day on Ash Lake at Warwick Wold Waters. All are welcome, with fishing equipment and bait supplied and refreshments available."
+      "description": "A family fishing fun day on Ash Lake at Warwick Wold Waters. All are welcome, with fishing equipment and bait supplied and refreshments available.",
+      "displayPoster": "assets/display/brownrigg-family-fishing-fun-day-display.png",
+      "fullPoster": "assets/brownrigg-family-fishing-fun-day.png"
     },
     {
       "id": "shannon-court-summer-party",
@@ -203,7 +211,9 @@
         "BBQ lunch",
         "Charity auction and raffle"
       ],
-      "description": "A charity golf tournament supporting Myeloma UK and DASH. Registration includes coffee and bacon rolls on arrival, 18 holes of golf, a BBQ lunch, charity auction, and raffle."
+      "description": "A charity golf tournament supporting Myeloma UK and DASH. Registration includes coffee and bacon rolls on arrival, 18 holes of golf, a BBQ lunch, charity auction, and raffle.",
+      "displayPoster": "assets/display/ember-manor-charity-golf-tournament-display.png",
+      "fullPoster": "assets/ember-manor-charity-golf-tournament.png"
     },
     {
       "id": "addiscombe-lodge-bbq",
@@ -277,7 +287,9 @@
         "Food and dancing",
         "Raffle prizes"
       ],
-      "description": "A Provincial Charity BBQ and live music night at Chobham Rugby Club, with live band, food and dancing, raffle prizes, and proceeds supporting medical research and healthcare, education and bursaries, and disaster relief and community support."
+      "description": "A Provincial Charity BBQ and live music night at Chobham Rugby Club, with live band, food and dancing, raffle prizes, and proceeds supporting medical research and healthcare, education and bursaries, and disaster relief and community support.",
+      "displayPoster": "assets/display/provincial-charity-bbq-display.png",
+      "fullPoster": "assets/provincial-charity-bbq.png"
     },
     {
       "id": "james-terry-court-real-hog-roast",
@@ -315,7 +327,9 @@
         "Good company",
         "Great conversations"
       ],
-      "description": "A casual social for all 1837 Club members at The Treehouse in Croydon. Meet the committee, catch up with old friends, meet new ones, and share ideas for events in the Masonic year ahead."
+      "description": "A casual social for all 1837 Club members at The Treehouse in Croydon. Meet the committee, catch up with old friends, meet new ones, and share ideas for events in the Masonic year ahead.",
+      "displayPoster": "assets/display/treehouse-croydon-social-display.png",
+      "fullPoster": "assets/treehouse-croydon-social.png"
     },
     {
       "id": "2026-09-01-tales-from-the-secretariat",
@@ -350,7 +364,9 @@
         "Light Blue Masons",
         "Godalming"
       ],
-      "description": "A Bisley Lodge of Instruction Festival celebrating learning, confidence and fellowship. Every office will be filled by Light Blue Masons, demonstrating a First Degree ceremony at Godalming Masonic Hall."
+      "description": "A Bisley Lodge of Instruction Festival celebrating learning, confidence and fellowship. Every office will be filled by Light Blue Masons, demonstrating a First Degree ceremony at Godalming Masonic Hall.",
+      "displayPoster": "assets/display/bisley-lodge-of-instruction-festival-display.png",
+      "fullPoster": "assets/bisley-lodge-of-instruction-festival.png"
     },
     {
       "id": "rifle-shooting-day",
@@ -368,7 +384,9 @@
         "Only 7 spaces remain",
         "BBQ lunch included"
       ],
-      "description": "A rifle shooting day on a private range near Bexhill-on-Sea, with professional instruction and the opportunity to shoot multiple rifles at distances from 50m to 200m. Includes at least 100 rounds of ammunition, BBQ lunch and refreshments."
+      "description": "A rifle shooting day on a private range near Bexhill-on-Sea, with professional instruction and the opportunity to shoot multiple rifles at distances from 50m to 200m. Includes at least 100 rounds of ammunition, BBQ lunch and refreshments.",
+      "displayPoster": "assets/display/rifle-shooting-day-display.png",
+      "fullPoster": "assets/rifle-shooting-day.png"
     },
     {
       "id": "2026-09-09-tracing-boards-in-craft-masonry-history-variations-and-use",
@@ -520,7 +538,9 @@
         "Lodge No. 5164",
         "Croydon"
       ],
-      "description": "Croydon Lodge of Unity No. 5164 meeting in Croydon for an Installation."
+      "description": "Croydon Lodge of Unity No. 5164 meeting in Croydon for an Installation.",
+      "displayPoster": "assets/display/croydon-lodge-of-unity-crest-display.png",
+      "fullPoster": "assets/croydon-lodge-of-unity-crest.png"
     },
     {
       "id": "st-georges-lodge-initiation",
@@ -660,7 +680,9 @@
         "Lodge No. 8426",
         "Surbiton"
       ],
-      "description": "Pinewood Lodge No. 8426 meeting in Surbiton for an Initiation."
+      "description": "Pinewood Lodge No. 8426 meeting in Surbiton for an Initiation.",
+      "displayPoster": "assets/display/pinewood-lodge-crest-display.png",
+      "fullPoster": "assets/pinewood-lodge-crest.png"
     },
     {
       "id": "lodge-of-friendship-and-harmony-other",
@@ -720,7 +742,9 @@
         "Lodge No. 6786",
         "Croydon"
       ],
-      "description": "Saxondom Lodge No. 6786 meeting in Croydon for an Initiation."
+      "description": "Saxondom Lodge No. 6786 meeting in Croydon for an Initiation.",
+      "displayPoster": "assets/display/saxondom-lodge-crest-display.png",
+      "fullPoster": "assets/saxondom-lodge-crest.png"
     },
     {
       "id": "lodge-of-allegiance-other",
@@ -800,7 +824,9 @@
         "Lodge No. 2769",
         "Nutfield"
       ],
-      "description": "East Surrey Lodge No. 2769 meeting in Nutfield for a Passing."
+      "description": "East Surrey Lodge No. 2769 meeting in Nutfield for a Passing.",
+      "displayPoster": "assets/display/east-surrey-lodge-crest-display.png",
+      "fullPoster": "assets/east-surrey-lodge-crest.png"
     },
     {
       "id": "look-forward-lodge-other",
@@ -840,7 +866,9 @@
         "Lodge No. 2422",
         "Croydon"
       ],
-      "description": "Ebbisham Lodge No. 2422 meeting in Croydon."
+      "description": "Ebbisham Lodge No. 2422 meeting in Croydon.",
+      "displayPoster": "assets/display/ebbisham-lodge-crest-display.png",
+      "fullPoster": "assets/ebbisham-lodge-crest.png"
     },
     {
       "id": "arnold-lodge-other-september",
@@ -880,7 +908,9 @@
         "Lodge No. 4181",
         "Surbiton"
       ],
-      "description": "Turner Lodge No. 4181 meeting in Surbiton."
+      "description": "Turner Lodge No. 4181 meeting in Surbiton.",
+      "displayPoster": "assets/display/turner-lodge-crest-display.png",
+      "fullPoster": "assets/turner-lodge-crest.png"
     },
     {
       "id": "kingston-temple-lodge-other",
@@ -940,7 +970,9 @@
         "Lodge No. 7803",
         "Chertsey"
       ],
-      "description": "Old Strodians' Lodge No. 7803 meeting in Chertsey for an Installation."
+      "description": "Old Strodians' Lodge No. 7803 meeting in Chertsey for an Installation.",
+      "displayPoster": "assets/display/old-strodians-lodge-crest-display.png",
+      "fullPoster": "assets/old-strodians-lodge-crest.png"
     },
     {
       "id": "2026-09-09-royal-borough-of-kingston-lodge-other",
@@ -980,7 +1012,9 @@
         "Lodge No. 4547",
         "Croydon"
       ],
-      "description": "Coulsdon Lodge No. 4547 meeting in Croydon for an Installation."
+      "description": "Coulsdon Lodge No. 4547 meeting in Croydon for an Installation.",
+      "displayPoster": "assets/display/coulsdon-lodge-crest-display.png",
+      "fullPoster": "assets/coulsdon-lodge-crest.png"
     },
     {
       "id": "the-redwood-lodge-passing",
@@ -1040,7 +1074,9 @@
         "No. 4958",
         "Surbiton"
       ],
-      "description": "Morden Lodge No. 4958 meeting in Surbiton for Other."
+      "description": "Morden Lodge No. 4958 meeting in Surbiton for Other.",
+      "displayPoster": "assets/display/2026-09-14-morden-lodge-display.png",
+      "fullPoster": "assets/2026-09-14-morden-lodge.png"
     },
     {
       "id": "2026-09-17-welcome-lodge-raising",
@@ -1060,7 +1096,9 @@
         "No. 5055",
         "Surbiton"
       ],
-      "description": "Welcome Lodge No. 5055 meeting in Surbiton for Raising."
+      "description": "Welcome Lodge No. 5055 meeting in Surbiton for Raising.",
+      "displayPoster": "assets/display/2026-09-17-welcome-lodge-display.png",
+      "fullPoster": "assets/2026-09-17-welcome-lodge.png"
     },
     {
       "id": "operative-lodge-other",
@@ -1120,7 +1158,9 @@
         "Lodge No. 6786",
         "Croydon"
       ],
-      "description": "Saxondom Lodge No. 6786 meeting in Croydon for an Initiation."
+      "description": "Saxondom Lodge No. 6786 meeting in Croydon for an Initiation.",
+      "displayPoster": "assets/display/saxondom-lodge-crest-display.png",
+      "fullPoster": "assets/saxondom-lodge-crest.png"
     },
     {
       "id": "2026-09-21-triumvirate-lodge-installation",
@@ -1180,7 +1220,9 @@
         "Lodge No. 1861",
         "Croydon"
       ],
-      "description": "Claremont Lodge No. 1861 meeting in Croydon."
+      "description": "Claremont Lodge No. 1861 meeting in Croydon.",
+      "displayPoster": "assets/display/claremont-lodge-crest-display.png",
+      "fullPoster": "assets/claremont-lodge-crest.png"
     },
     {
       "id": "surrey-united-services-lodge-other",
@@ -1200,7 +1242,30 @@
         "Lodge No. 9999",
         "Surbiton"
       ],
-      "description": "Surrey United Services Lodge No. 9999 meeting in Surbiton."
+      "description": "Surrey United Services Lodge No. 9999 meeting in Surbiton.",
+      "displayPoster": "assets/display/surrey-united-services-lodge-crest-display.png",
+      "fullPoster": "assets/surrey-united-services-lodge-crest.png"
+    },
+    {
+      "id": "2026-09-30-albert-edward-lodge-other",
+      "date": "2026-09-30",
+      "title": "Albert Edward Lodge",
+      "lodgeName": "Albert Edward Lodge",
+      "lodgeNumber": "1714",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Albert Edward Lodge No. 1714",
+      "type": "lodge",
+      "poster": "assets/albert-edward-lodge-crest.png",
+      "posterAlt": "Albert Edward Lodge No. 1714 crest",
+      "tags": [
+        "Other",
+        "No. 1714",
+        "Surbiton"
+      ],
+      "description": "Albert Edward Lodge No. 1714 meeting in Surbiton for Other.",
+      "fullPoster": "assets/albert-edward-lodge-crest.png"
     },
     {
       "id": "2026-09-30-albert-edward-lodge-raising",
@@ -1240,7 +1305,9 @@
         "No. 8221",
         "Godalming"
       ],
-      "description": "Woolsack Lodge No. 8221 meeting in Godalming for Initiation."
+      "description": "Woolsack Lodge No. 8221 meeting in Godalming for Initiation.",
+      "displayPoster": "assets/display/2026-10-07-woolsack-lodge-display.png",
+      "fullPoster": "assets/2026-10-07-woolsack-lodge.png"
     },
     {
       "id": "lumen-lodge-installation-october",
@@ -1280,7 +1347,9 @@
         "Lodge No. 6076",
         "Surbiton"
       ],
-      "description": "Chessington Lodge No. 6076 meeting in Surbiton for an Installation."
+      "description": "Chessington Lodge No. 6076 meeting in Surbiton for an Installation.",
+      "displayPoster": "assets/display/chessington-lodge-crest-display.png",
+      "fullPoster": "assets/chessington-lodge-crest.png"
     },
     {
       "id": "windlesham-dawn-installation",
@@ -1320,7 +1389,9 @@
         "Lodge No. 6429",
         "Croydon"
       ],
-      "description": "Lavender Lodge No. 6429 meeting in Croydon for an Installation."
+      "description": "Lavender Lodge No. 6429 meeting in Croydon for an Installation.",
+      "displayPoster": "assets/display/lavender-lodge-crest-display.png",
+      "fullPoster": "assets/lavender-lodge-crest.png"
     }
   ],
   "chapterEvents": [
