@@ -1247,47 +1247,6 @@ window.surrey1837ManagedCalendarData = {
       "fullPoster": "assets/surrey-united-services-lodge-crest.png"
     },
     {
-      "id": "2026-09-30-albert-edward-lodge-other",
-      "date": "2026-09-30",
-      "title": "Albert Edward Lodge",
-      "lodgeName": "Albert Edward Lodge",
-      "lodgeNumber": "1714",
-      "degree": "Other",
-      "time": "TBC",
-      "location": "Surbiton",
-      "host": "Albert Edward Lodge No. 1714",
-      "type": "lodge",
-      "poster": "assets/albert-edward-lodge-crest.png",
-      "posterAlt": "Albert Edward Lodge No. 1714 crest",
-      "tags": [
-        "Other",
-        "No. 1714",
-        "Surbiton"
-      ],
-      "description": "Albert Edward Lodge No. 1714 meeting in Surbiton for Other.",
-      "fullPoster": "assets/albert-edward-lodge-crest.png"
-    },
-    {
-      "id": "2026-09-30-albert-edward-lodge-raising",
-      "date": "2026-09-30",
-      "title": "Albert Edward Lodge",
-      "lodgeName": "Albert Edward Lodge",
-      "lodgeNumber": "1714",
-      "degree": "Raising",
-      "time": "TBC",
-      "location": "Camberley",
-      "host": "Albert Edward Lodge No. 1714",
-      "type": "lodge",
-      "poster": "assets/2026-09-30-albert-edward-lodge.png",
-      "posterAlt": "Albert Edward Lodge No. 1714 crest",
-      "tags": [
-        "Raising",
-        "No. 1714",
-        "Camberley"
-      ],
-      "description": "Albert Edward Lodge No. 1714 meeting in Camberley for Raising."
-    },
-    {
       "id": "2026-10-07-woolsack-lodge-initiation",
       "date": "2026-10-07",
       "title": "Woolsack Lodge",
