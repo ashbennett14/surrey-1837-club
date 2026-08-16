@@ -1163,6 +1163,26 @@
       "fullPoster": "assets/saxondom-lodge-crest.png"
     },
     {
+      "id": "2026-09-19-st-george-s-lodge-passing",
+      "date": "2026-09-19",
+      "title": "St George's Lodge",
+      "lodgeName": "St George's Lodge",
+      "lodgeNumber": "370",
+      "degree": "Passing",
+      "time": "TBC",
+      "location": "Chertsey",
+      "host": "St George's Lodge No. 370",
+      "type": "lodge",
+      "poster": "assets/2026-09-19-st-george-s-lodge.png",
+      "posterAlt": "St George's Lodge No. 370 crest",
+      "tags": [
+        "Passing",
+        "No. 370",
+        "Chertsey"
+      ],
+      "description": "St George's Lodge No. 370 meeting in Chertsey for Passing."
+    },
+    {
       "id": "2026-09-21-triumvirate-lodge-installation",
       "date": "2026-09-21",
       "title": "Triumvirate Lodge",
