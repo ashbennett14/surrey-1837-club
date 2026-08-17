@@ -1079,6 +1079,26 @@ window.surrey1837ManagedCalendarData = {
       "fullPoster": "assets/2026-09-14-morden-lodge.png"
     },
     {
+      "id": "2026-09-16-east-surrey-lodge-initiation",
+      "date": "2026-09-16",
+      "title": "East Surrey Lodge",
+      "lodgeName": "East Surrey Lodge",
+      "lodgeNumber": "2769",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Nutfield",
+      "host": "East Surrey Lodge No. 2769",
+      "type": "lodge",
+      "poster": "assets/2026-09-16-east-surrey-lodge.png",
+      "posterAlt": "East Surrey Lodge No. 2769 crest",
+      "tags": [
+        "Initiation",
+        "No. 2769",
+        "Nutfield"
+      ],
+      "description": "East Surrey Lodge No. 2769 meeting in Nutfield for Initiation."
+    },
+    {
       "id": "2026-09-17-welcome-lodge-raising",
       "date": "2026-09-17",
       "title": "Welcome Lodge",
@@ -1327,6 +1347,26 @@ window.surrey1837ManagedCalendarData = {
         "Surbiton"
       ],
       "description": "Lumen Lodge No. 4922 meeting in Surbiton for an Installation."
+    },
+    {
+      "id": "2026-10-08-onslow-lodge-initiation",
+      "date": "2026-10-08",
+      "title": "Onslow Lodge",
+      "lodgeName": "Onslow Lodge",
+      "lodgeNumber": "2234",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Guildford",
+      "host": "Onslow Lodge No. 2234",
+      "type": "lodge",
+      "poster": "assets/2026-10-08-onslow-lodge.png",
+      "posterAlt": "Onslow Lodge No. 2234 crest",
+      "tags": [
+        "Initiation",
+        "No. 2234",
+        "Guildford"
+      ],
+      "description": "Onslow Lodge No. 2234 meeting in Guildford for Initiation."
     },
     {
       "id": "chessington-lodge-installation",
