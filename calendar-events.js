@@ -1307,6 +1307,26 @@ window.surrey1837ManagedCalendarData = {
       "description": "Albert Edward Lodge No. 1714 meeting in Camberley for Raising."
     },
     {
+      "id": "2026-10-02-corinthian-initiation",
+      "date": "2026-10-02",
+      "title": "Corinthian",
+      "lodgeName": "Corinthian",
+      "lodgeNumber": "5482",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Corinthian No. 5482",
+      "type": "lodge",
+      "poster": "assets/2026-10-02-corinthian.webp",
+      "posterAlt": "Corinthian No. 5482 crest",
+      "tags": [
+        "Initiation",
+        "No. 5482",
+        "Surbiton"
+      ],
+      "description": "Corinthian No. 5482 meeting in Surbiton for Initiation."
+    },
+    {
       "id": "2026-10-07-woolsack-lodge-initiation",
       "date": "2026-10-07",
       "title": "Woolsack Lodge",
