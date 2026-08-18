@@ -332,6 +332,22 @@ window.surrey1837ManagedCalendarData = {
       "fullPoster": "assets/treehouse-croydon-social.png"
     },
     {
+      "id": "2026-08-22-castle-lodge-fishing-competition",
+      "date": "2026-08-22",
+      "title": "Castle Lodge Fishing Competition",
+      "time": "09:30",
+      "location": "Rushmoor Lakes",
+      "host": "Castle Lodge",
+      "type": "social",
+      "category": "Community Event",
+      "poster": "assets/2026-08-22-castle-lodge-fishing-competition.png",
+      "posterAlt": "Castle Lodge Fishing Competition poster",
+      "tags": [
+        "Community Event",
+        "Rushmoor Lakes"
+      ]
+    },
+    {
       "id": "2026-09-01-tales-from-the-secretariat",
       "date": "2026-09-01",
       "title": "Tales from the Secretariat",
