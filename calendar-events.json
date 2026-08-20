@@ -949,6 +949,24 @@
       "description": "Kingston Temple Lodge No. 4722 meeting in Surbiton."
     },
     {
+      "id": "2026-09-05-lodge-of-radiance-initiation",
+      "date": "2026-09-05",
+      "title": "Lodge of Radiance",
+      "lodgeName": "Lodge of Radiance",
+      "lodgeNumber": "6950",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Lodge of Radiance No. 6950",
+      "type": "lodge",
+      "tags": [
+        "Initiation",
+        "No. 6950",
+        "Croydon"
+      ],
+      "description": "Lodge of Radiance No. 6950 meeting in Croydon for Initiation."
+    },
+    {
       "id": "croydon-lodge-of-concord-other",
       "date": "2026-09-09",
       "title": "Croydon Lodge of Concord",
@@ -1157,6 +1175,26 @@
       "description": "Operative Lodge No. 8783 meeting in Croydon."
     },
     {
+      "id": "2026-09-18-prince-david-lodge-other",
+      "date": "2026-09-18",
+      "title": "Prince David Lodge",
+      "lodgeName": "Prince David Lodge",
+      "lodgeNumber": "4915",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Bisley",
+      "host": "Prince David Lodge No. 4915",
+      "type": "lodge",
+      "poster": "assets/2026-09-18-prince-david-lodge.png",
+      "posterAlt": "Prince David Lodge No. 4915 crest",
+      "tags": [
+        "Other",
+        "No. 4915",
+        "Bisley"
+      ],
+      "description": "Prince David Lodge No. 4915 meeting in Bisley for Other."
+    },
+    {
       "id": "2026-09-19-moreford-lodge-installation",
       "date": "2026-09-19",
       "title": "Moreford Lodge",
@@ -1257,6 +1295,46 @@
         "Surbiton"
       ],
       "description": "Noel Surrey Motorcycle Lodge No. 2444 meeting in Surbiton for Raising."
+    },
+    {
+      "id": "2026-09-26-copthorne-installation",
+      "date": "2026-09-26",
+      "title": "Copthorne",
+      "lodgeName": "Copthorne",
+      "lodgeNumber": "5427",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Sutton",
+      "host": "Copthorne No. 5427",
+      "type": "lodge",
+      "poster": "assets/2026-09-26-copthorne.png",
+      "posterAlt": "Copthorne No. 5427 crest",
+      "tags": [
+        "Installation",
+        "No. 5427",
+        "Sutton"
+      ],
+      "description": "Copthorne No. 5427 meeting in Sutton for Installation."
+    },
+    {
+      "id": "2026-09-28-chingestune-installation",
+      "date": "2026-09-28",
+      "title": "Chingestune",
+      "lodgeName": "Chingestune",
+      "lodgeNumber": "5542",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Chingestune No. 5542",
+      "type": "lodge",
+      "poster": "assets/2026-09-28-chingestune.png",
+      "posterAlt": "Chingestune No. 5542 crest",
+      "tags": [
+        "Installation",
+        "No. 5542",
+        "Surbiton"
+      ],
+      "description": "Chingestune No. 5542 meeting in Surbiton for Installation."
     },
     {
       "id": "claremont-lodge-other",
