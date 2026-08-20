@@ -17,12 +17,12 @@
     breadcrumb.append(back, document.createTextNode(" / "), element("span", "", article.section));
 
     const sectionImages = {
-      general: { src: "assets/guide-general.jpg", alt: "An open notebook in a warm, historic meeting room" },
-      surrey: { src: "assets/guide-surrey.jpg", alt: "A Surrey landscape and welcoming historic hall at golden hour" },
-      lodge: { src: "assets/guide-your-lodge.jpg", alt: "Suited Lodge members preparing a meeting table together" },
-      visiting: { src: "assets/guide-visiting.jpg", alt: "Two visitors arriving together at a warmly lit historic hall" },
-      club: { src: "assets/guide-1837-club.jpg", alt: "A sociable group of members talking in a welcoming Surrey venue" },
-      learn: { src: "assets/guide-learning.jpg", alt: "Books, a notebook and a tablet arranged for quiet study" }
+      general: { src: "assets/guide-real-general.jpg", alt: "Members of the Surrey 1837 Club together in a Lodge room", source: "https://surreyfreemasons.org.uk/surrey-1837-club/" },
+      surrey: { src: "assets/guide-real-surrey.jpg", alt: "Surrey Light Blues and Provincial representatives in a Lodge room", source: "https://surreyfreemasons.org.uk/surrey-light-blues-at-quarterly-communications/" },
+      lodge: { src: "assets/guide-real-lodge.jpg", alt: "Members gathered in a Surrey Lodge room after a meeting", source: "https://surreyfreemasons.org.uk/surrey-1837-club/" },
+      visiting: { src: "assets/guide-real-visiting.jpg", alt: "Two Surrey Freemasons enjoying a festive board", source: "https://surreyfreemasons.org.uk/surrey-1837-club/" },
+      club: { src: "assets/guide-real-club.jpg", alt: "Surrey 1837 Club members celebrating at a social event", source: "https://surreyfreemasons.org.uk/surrey-1837-club-hits-top-gear-at-buckmore-park/" },
+      learn: { src: "assets/guide-real-learning.jpg", alt: "Members taking part in the Surrey Craft Lecture Festival", source: "https://surreyfreemasons.org.uk/surrey-craft-lecture-festival-2026/" }
     };
     const header = element("header", "guide-article-header");
     const headerCopy = element("div", "guide-article-header-copy");
@@ -32,6 +32,12 @@
     headerImage.src = imageData.src;
     headerImage.alt = imageData.alt;
     header.append(headerCopy, headerImage);
+    const imageCredit = element("p", "guide-photo-credit", "Photography: ");
+    const imageCreditLink = element("a", "", "Surrey Freemasons");
+    imageCreditLink.href = imageData.source;
+    imageCreditLink.target = "_blank";
+    imageCreditLink.rel = "noopener noreferrer";
+    imageCredit.append(imageCreditLink);
 
     const layout = element("div", "guide-article-layout");
     const content = element("article", "guide-article-content");
@@ -73,7 +79,7 @@
     all.href = `initiates-guide.html#${article.sectionId}`;
     next.append(all);
 
-    root.append(breadcrumb, header, layout, next);
+    root.append(breadcrumb, header, imageCredit, layout, next);
     document.title = `${article.title} | Initiates’ Guide | The Surrey 1837 Club`;
     document.querySelector('meta[name="description"]').content = article.summary;
     const canonicalUrl = new URL(window.location.href);
