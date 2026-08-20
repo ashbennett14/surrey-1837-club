@@ -1418,7 +1418,7 @@ body[data-calendar="chapter"] .detail-date {
 
 .calendar-links {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -1808,6 +1808,7 @@ body[data-calendar="chapter"] .detail-date {
 .social-card,
 .lodge-card,
 .chapter-card,
+.guide-card,
 .join-card {
   background: #ffffff;
 }
@@ -1822,6 +1823,10 @@ body[data-calendar="chapter"] .detail-date {
 
 .chapter-card {
   --card-art: url("assets/home-card-lodge.webp");
+}
+
+.guide-card {
+  --card-art: url("assets/guide-general.jpg");
 }
 
 .join-card {
@@ -4665,10 +4670,14 @@ body[data-calendar="chapter"] .event-details[data-event-type="chapter"] .time-de
 }
 
 .guide-article-grid span {
-  color: var(--badge-red);
+  color: var(--navy);
   font-size: 0.7rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.guide-shell .kicker {
+  color: var(--navy);
 }
 
 .guide-article-grid h3 {

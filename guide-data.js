@@ -198,7 +198,7 @@ window.SURREY_GUIDE_ARTICLES = {
     blocks: [
       {
         heading: "The short answer",
-        paragraphs: ["Visiting has a long tradition in English Freemasonry, but it is not the same as walking into any meeting unannounced. The host Lodge controls admission, may have limits in its by-laws and needs enough notice to arrange dining and confirm you as a visitor.", "As an Entered Apprentice, you can attend meetings or parts of meetings open to your degree. If a higher degree is being worked, the Lodge will explain what you can attend and when you may need to retire."]
+        paragraphs: ["Visiting has a long tradition in English Freemasonry, but it is not the same as walking into any meeting unannounced. The host Lodge controls admission, may have limits in its by-laws and needs enough notice to arrange dining and confirm you as a visitor.", "Some meetings include work intended for members at a later stage. The host Lodge will confirm what a visitor is eligible to attend and handle the arrangements discreetly."]
       },
       {
         heading: "Why visiting is worth doing",
@@ -206,7 +206,7 @@ window.SURREY_GUIDE_ARTICLES = {
       },
       {
         heading: "Good standing and introduction",
-        paragraphs: ["Your Lodge Secretary can confirm your status and introduce you to the host Secretary. If you are not personally known, the host may need to establish that you are a Freemason and entitled to attend. Arranging the visit through recognised Lodge or Provincial channels makes this straightforward."]
+        paragraphs: ["Your Lodge Secretary can confirm your status and introduce you to the host Secretary. Using recognised Lodge or Provincial channels allows the host to complete its normal eligibility checks without you needing to navigate the process alone."]
       },
       {
         heading: "When to ask before saying yes",
@@ -241,11 +241,11 @@ window.SURREY_GUIDE_ARTICLES = {
       },
       {
         heading: "On the evening",
-        paragraphs: ["Bring the regalia appropriate to your degree unless the host has said it will be provided. Wear the dress stated on the summons or invitation; if it is unclear, ask. Arrive early enough to find the entrance, meet the host Secretary and be introduced before the Lodge opens.", "You may be asked a few discreet questions if no one present can personally vouch for you. That is normal safeguarding of the meeting, not an unfriendly test."]
+        paragraphs: ["Bring the regalia appropriate to your degree unless the host has said it will be provided. Wear the dress stated on the summons or invitation; if it is unclear, ask. Arrive early enough to find the entrance, meet the host Secretary and be introduced before the Lodge opens.", "The host Secretary will manage any normal eligibility checks. They are a routine part of looking after the meeting and should not make a properly arranged visitor feel unwelcome."]
       },
       {
         heading: "Be a good guest",
-        paragraphs: ["Follow the Director of Ceremonies, keep your phone away, respect local customs and settle any dining charge promptly. A short thank-you to the Brother who hosted or introduced you is always appreciated.", "If the ceremony is above your degree, the Lodge will arrange for you to retire at the appropriate point. There is no embarrassment in this—it is simply how progressive ceremonies work."]
+        paragraphs: ["Follow the Director of Ceremonies, keep your phone away, respect local customs and settle any dining charge promptly. A short thank-you to the Brother who hosted or introduced you is always appreciated.", "If part of the meeting is not suitable for your current stage, the host will guide you clearly and respectfully. This is a normal part of Freemasonry’s progressive structure."]
       }
     ],
     shortcut: { heading: "Your first visit", text: "Choose an organised 1837 Club visit or go with a Brother from your Lodge. A familiar face removes most of the uncertainty." },
@@ -444,7 +444,7 @@ window.SURREY_GUIDE_ARTICLES = {
       },
       {
         heading: "Before your next degree",
-        paragraphs: ["Your Lodge will decide the timing of your Passing according to its programme and your readiness. You may be invited to learn answers to a small set of questions, attend a rehearsal or Lodge of Instruction, and watch another Initiation from a different seat in the Lodge."],
+        paragraphs: ["Your Lodge will decide the timing of your next degree according to its programme and your readiness. You may be offered degree-appropriate learning, a rehearsal or Lodge of Instruction, and opportunities to become more familiar with Lodge life."],
         list: ["Attend regular meetings when you can.", "Complete the Welcome Apprentice material on Solomon.", "Meet your Mentor and ask what your own Lodge expects.", "Try a supported visit to another Surrey Lodge working an Initiation."]
       },
       {
@@ -464,23 +464,23 @@ window.SURREY_GUIDE_ARTICLES = {
     section: "Your Lodge",
     sectionId: "lodge",
     title: "What am I expected to learn before my next degree?",
-    summary: "Most Lodges ask for a short set of degree questions, but understanding and confidence matter more than perfect performance.",
+    summary: "Your Lodge may offer degree-appropriate learning before you progress, but understanding and confidence matter more than perfect performance.",
     blocks: [
       {
         heading: "Ask what your Lodge expects",
-        paragraphs: ["There is no advantage in guessing. Your Mentor or Director of Ceremonies can give you the correct wording used by your Lodge, explain how the questions are delivered and arrange someone to practise with you.", "Some Lodges expect the candidate to answer from memory; others provide more prompting. Local custom varies, so advice from another constitution—or even another Surrey Lodge—may not match your own evening."]
+        paragraphs: ["There is no advantage in guessing. Your Mentor or Director of Ceremonies can provide the approved learning material used by your Lodge, explain what is expected and arrange someone to practise with you.", "Local custom varies, so advice from another constitution—or even another Surrey Lodge—may not match your own experience. Use the support provided by your Lodge rather than material found through a general search."]
       },
       {
         heading: "Learn in small pieces",
-        list: ["Understand the meaning before concentrating on exact words.", "Practise aloud with one Brother rather than silently from a page.", "Work in short, regular sessions instead of one long rehearsal.", "Ask for help as soon as a phrase causes difficulty.", "Use only material for the degree you have received."],
+        list: ["Understand the meaning instead of treating learning as a memory test.", "Practise with a Brother rather than relying only on a page.", "Work in short, regular sessions instead of one long rehearsal.", "Ask for help as soon as anything causes difficulty.", "Use only material approved for your current stage."],
         paragraphs: []
       },
       {
         heading: "Learning is not an examination",
-        paragraphs: ["The questions help you revisit your experience and show that you are ready to continue. They are not intended to embarrass you. If memory, language, disability or anxiety affects how you learn, tell your Mentor privately so the Lodge can support you appropriately."]
+        paragraphs: ["The learning helps you revisit your experience and prepare confidently for what comes next. It is not intended to embarrass you. If memory, language, disability or anxiety affects how you learn, tell your Mentor privately so the Lodge can support you appropriately."]
       }
     ],
-    shortcut: { heading: "Practise with a person", text: "Ask your Mentor to hear the questions exactly as they will be asked. Ten calm minutes together is often more useful than an hour alone." },
+    shortcut: { heading: "Practise with a person", text: "Ask your Mentor to work through the approved material with you. Ten calm minutes together is often more useful than an hour alone." },
     links: [
       { label: "Solomon learning platform", href: "https://solomon.ugle.org.uk/" },
       { label: "Lodge of Instruction and rehearsals", href: "guide-article.html?article=lodge-of-instruction" }
@@ -655,7 +655,7 @@ window.SURREY_GUIDE_ARTICLES = {
     blocks: [
       {
         heading: "Rehearsals",
-        paragraphs: ["Before a ceremony, the officers and candidate may meet to walk through entrances, positions and practical details. You should not be shown material beyond your degree, but a rehearsal can remove uncertainty about where to be and when.", "Ask what to bring and how long it will take. Rehearsals are working sessions, so dress is usually less formal unless your Lodge says otherwise."]
+        paragraphs: ["Before a ceremony, the officers and candidate may meet to cover practical arrangements. A rehearsal can remove uncertainty while keeping the experience appropriate to the candidate’s current stage.", "Ask what to bring and how long it will take. Rehearsals are working sessions, so dress is usually less formal unless your Lodge says otherwise."]
       },
       {
         heading: "Lodge of Instruction",
