@@ -332,6 +332,22 @@
       "fullPoster": "assets/treehouse-croydon-social.png"
     },
     {
+      "id": "2026-08-22-castle-lodge-fishing-competition",
+      "date": "2026-08-22",
+      "title": "Castle Lodge Fishing Competition",
+      "time": "09:30",
+      "location": "Rushmoor Lakes",
+      "host": "Castle Lodge",
+      "type": "social",
+      "category": "Community Event",
+      "poster": "assets/2026-08-22-castle-lodge-fishing-competition.png",
+      "posterAlt": "Castle Lodge Fishing Competition poster",
+      "tags": [
+        "Community Event",
+        "Rushmoor Lakes"
+      ]
+    },
+    {
       "id": "2026-09-01-tales-from-the-secretariat",
       "date": "2026-09-01",
       "title": "Tales from the Secretariat",
@@ -933,6 +949,24 @@
       "description": "Kingston Temple Lodge No. 4722 meeting in Surbiton."
     },
     {
+      "id": "2026-09-05-lodge-of-radiance-initiation",
+      "date": "2026-09-05",
+      "title": "Lodge of Radiance",
+      "lodgeName": "Lodge of Radiance",
+      "lodgeNumber": "6950",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Lodge of Radiance No. 6950",
+      "type": "lodge",
+      "tags": [
+        "Initiation",
+        "No. 6950",
+        "Croydon"
+      ],
+      "description": "Lodge of Radiance No. 6950 meeting in Croydon for Initiation."
+    },
+    {
       "id": "croydon-lodge-of-concord-other",
       "date": "2026-09-09",
       "title": "Croydon Lodge of Concord",
@@ -1079,6 +1113,26 @@
       "fullPoster": "assets/2026-09-14-morden-lodge.png"
     },
     {
+      "id": "2026-09-16-east-surrey-lodge-initiation",
+      "date": "2026-09-16",
+      "title": "East Surrey Lodge",
+      "lodgeName": "East Surrey Lodge",
+      "lodgeNumber": "2769",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Nutfield",
+      "host": "East Surrey Lodge No. 2769",
+      "type": "lodge",
+      "poster": "assets/2026-09-16-east-surrey-lodge.png",
+      "posterAlt": "East Surrey Lodge No. 2769 crest",
+      "tags": [
+        "Initiation",
+        "No. 2769",
+        "Nutfield"
+      ],
+      "description": "East Surrey Lodge No. 2769 meeting in Nutfield for Initiation."
+    },
+    {
       "id": "2026-09-17-welcome-lodge-raising",
       "date": "2026-09-17",
       "title": "Welcome Lodge",
@@ -1119,6 +1173,26 @@
         "Croydon"
       ],
       "description": "Operative Lodge No. 8783 meeting in Croydon."
+    },
+    {
+      "id": "2026-09-18-prince-david-lodge-other",
+      "date": "2026-09-18",
+      "title": "Prince David Lodge",
+      "lodgeName": "Prince David Lodge",
+      "lodgeNumber": "4915",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Bisley",
+      "host": "Prince David Lodge No. 4915",
+      "type": "lodge",
+      "poster": "assets/2026-09-18-prince-david-lodge.png",
+      "posterAlt": "Prince David Lodge No. 4915 crest",
+      "tags": [
+        "Other",
+        "No. 4915",
+        "Bisley"
+      ],
+      "description": "Prince David Lodge No. 4915 meeting in Bisley for Other."
     },
     {
       "id": "2026-09-19-moreford-lodge-installation",
@@ -1163,6 +1237,26 @@
       "fullPoster": "assets/saxondom-lodge-crest.png"
     },
     {
+      "id": "2026-09-19-st-george-s-lodge-passing",
+      "date": "2026-09-19",
+      "title": "St George's Lodge",
+      "lodgeName": "St George's Lodge",
+      "lodgeNumber": "370",
+      "degree": "Passing",
+      "time": "TBC",
+      "location": "Chertsey",
+      "host": "St George's Lodge No. 370",
+      "type": "lodge",
+      "poster": "assets/2026-09-19-st-george-s-lodge.png",
+      "posterAlt": "St George's Lodge No. 370 crest",
+      "tags": [
+        "Passing",
+        "No. 370",
+        "Chertsey"
+      ],
+      "description": "St George's Lodge No. 370 meeting in Chertsey for Passing."
+    },
+    {
       "id": "2026-09-21-triumvirate-lodge-installation",
       "date": "2026-09-21",
       "title": "Triumvirate Lodge",
@@ -1201,6 +1295,46 @@
         "Surbiton"
       ],
       "description": "Noel Surrey Motorcycle Lodge No. 2444 meeting in Surbiton for Raising."
+    },
+    {
+      "id": "2026-09-26-copthorne-installation",
+      "date": "2026-09-26",
+      "title": "Copthorne",
+      "lodgeName": "Copthorne",
+      "lodgeNumber": "5427",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Sutton",
+      "host": "Copthorne No. 5427",
+      "type": "lodge",
+      "poster": "assets/2026-09-26-copthorne.png",
+      "posterAlt": "Copthorne No. 5427 crest",
+      "tags": [
+        "Installation",
+        "No. 5427",
+        "Sutton"
+      ],
+      "description": "Copthorne No. 5427 meeting in Sutton for Installation."
+    },
+    {
+      "id": "2026-09-28-chingestune-installation",
+      "date": "2026-09-28",
+      "title": "Chingestune",
+      "lodgeName": "Chingestune",
+      "lodgeNumber": "5542",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Chingestune No. 5542",
+      "type": "lodge",
+      "poster": "assets/2026-09-28-chingestune.png",
+      "posterAlt": "Chingestune No. 5542 crest",
+      "tags": [
+        "Installation",
+        "No. 5542",
+        "Surbiton"
+      ],
+      "description": "Chingestune No. 5542 meeting in Surbiton for Installation."
     },
     {
       "id": "claremont-lodge-other",
@@ -1247,6 +1381,26 @@
       "fullPoster": "assets/surrey-united-services-lodge-crest.png"
     },
     {
+      "id": "2026-10-02-corinthian-initiation",
+      "date": "2026-10-02",
+      "title": "Corinthian",
+      "lodgeName": "Corinthian",
+      "lodgeNumber": "5482",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Corinthian No. 5482",
+      "type": "lodge",
+      "poster": "assets/2026-10-02-corinthian.webp",
+      "posterAlt": "Corinthian No. 5482 crest",
+      "tags": [
+        "Initiation",
+        "No. 5482",
+        "Surbiton"
+      ],
+      "description": "Corinthian No. 5482 meeting in Surbiton for Initiation."
+    },
+    {
       "id": "2026-10-07-woolsack-lodge-initiation",
       "date": "2026-10-07",
       "title": "Woolsack Lodge",
@@ -1287,6 +1441,26 @@
         "Surbiton"
       ],
       "description": "Lumen Lodge No. 4922 meeting in Surbiton for an Installation."
+    },
+    {
+      "id": "2026-10-08-onslow-lodge-initiation",
+      "date": "2026-10-08",
+      "title": "Onslow Lodge",
+      "lodgeName": "Onslow Lodge",
+      "lodgeNumber": "2234",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Guildford",
+      "host": "Onslow Lodge No. 2234",
+      "type": "lodge",
+      "poster": "assets/2026-10-08-onslow-lodge.png",
+      "posterAlt": "Onslow Lodge No. 2234 crest",
+      "tags": [
+        "Initiation",
+        "No. 2234",
+        "Guildford"
+      ],
+      "description": "Onslow Lodge No. 2234 meeting in Guildford for Initiation."
     },
     {
       "id": "chessington-lodge-installation",

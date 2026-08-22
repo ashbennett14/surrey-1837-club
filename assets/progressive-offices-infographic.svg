@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Progressive offices in a Craft Lodge</title>
+  <desc id="desc">A simple stepped infographic showing common progressive offices from Steward through to Worshipful Master, with a note that each Lodge has its own practice.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fdf9ef"/>
+      <stop offset="1" stop-color="#e5f3ff"/>
+    </linearGradient>
+    <style>
+      .bg{fill:url(#bg)}
+      .step{fill:#ffffff;stroke:#0d376d;stroke-width:4}
+      .top{fill:#0d376d}
+      .gold{fill:#c59a36}
+      .title{font:700 34px Georgia,serif;fill:#0d223f}
+      .label{font:800 24px Arial,sans-serif;fill:#0d223f}
+      .small{font:600 18px Arial,sans-serif;fill:#4b5b70}
+      .white{fill:#ffffff}
+      .arrow{stroke:#c59a36;stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="760" rx="28"/>
+  <text x="600" y="70" text-anchor="middle" class="title">The Progressive Offices</text>
+  <text x="600" y="104" text-anchor="middle" class="small">A common route through Lodge office. Every Lodge manages progression in its own way.</text>
+  <path class="arrow" d="M152 584H1010"/>
+  <path class="arrow" d="M1010 584l-28-24m28 24-28 24"/>
+
+  <g transform="translate(90 520)">
+    <rect class="step" width="132" height="86" rx="12"/><rect class="top" width="132" height="22" rx="10"/>
+    <text x="66" y="53" text-anchor="middle" class="label">Steward</text>
+  </g>
+  <g transform="translate(220 468)">
+    <rect class="step" width="150" height="138" rx="12"/><rect class="top" width="150" height="24" rx="10"/>
+    <text x="75" y="66" text-anchor="middle" class="label">Inner</text><text x="75" y="94" text-anchor="middle" class="label">Guard</text>
+  </g>
+  <g transform="translate(368 416)">
+    <rect class="step" width="150" height="190" rx="12"/><rect class="top" width="150" height="24" rx="10"/>
+    <text x="75" y="82" text-anchor="middle" class="label">Junior</text><text x="75" y="112" text-anchor="middle" class="label">Deacon</text>
+  </g>
+  <g transform="translate(516 364)">
+    <rect class="step" width="150" height="242" rx="12"/><rect class="top" width="150" height="24" rx="10"/>
+    <text x="75" y="96" text-anchor="middle" class="label">Senior</text><text x="75" y="126" text-anchor="middle" class="label">Deacon</text>
+  </g>
+  <g transform="translate(664 312)">
+    <rect class="step" width="150" height="294" rx="12"/><rect class="top" width="150" height="24" rx="10"/>
+    <text x="75" y="114" text-anchor="middle" class="label">Junior</text><text x="75" y="144" text-anchor="middle" class="label">Warden</text>
+  </g>
+  <g transform="translate(812 260)">
+    <rect class="step" width="150" height="346" rx="12"/><rect class="top" width="150" height="24" rx="10"/>
+    <text x="75" y="132" text-anchor="middle" class="label">Senior</text><text x="75" y="162" text-anchor="middle" class="label">Warden</text>
+  </g>
+  <g transform="translate(960 190)">
+    <rect class="step" width="150" height="416" rx="12"/><rect class="gold" width="150" height="36" rx="10"/>
+    <text x="75" y="150" text-anchor="middle" class="label">Worshipful</text><text x="75" y="180" text-anchor="middle" class="label">Master</text>
+  </g>
+
+  <rect x="170" y="130" width="860" height="96" rx="14" fill="#0d376d" opacity=".94"/>
+  <text x="600" y="170" text-anchor="middle" class="label white">Progression is service, not a race</text>
+  <text x="600" y="202" text-anchor="middle" class="small white">Talk openly with your Mentor and Lodge officers about time, confidence and interest.</text>
+
+  <rect x="210" y="634" width="780" height="54" rx="12" fill="#fff" stroke="#c59a36" stroke-width="3"/>
+  <text x="600" y="668" text-anchor="middle" class="small">Secretary, Treasurer, Director of Ceremonies, Almoner, Charity Steward and Mentor are also important roles.</text>
+</svg>

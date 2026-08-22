@@ -7,6 +7,8 @@
     "social-events.html",
     "lodge-meetings.html",
     "chapter-meetings.html",
+    "initiates-guide.html",
+    "guide-article.html",
     "join-the-community.html",
     "tylers-trial.html",
   ]);
