@@ -68,7 +68,14 @@ window.SURREY_GUIDE_ARTICLES = {
       },
       {
         heading: "Surrey and nearby Provinces",
-        paragraphs: ["Surrey sits among several other UGLE areas. Nearby are Metropolitan Grand Lodge of London, Middlesex, Kent, Sussex, Hampshire and Isle of Wight, and Berkshire. These are Masonic areas used by UGLE, so they do not always match modern council or county boundaries exactly."]
+        paragraphs: ["Surrey sits among several other UGLE areas. Nearby are Metropolitan Grand Lodge of London, Middlesex, Kent, Sussex, Hampshire and Isle of Wight, and Berkshire. These are Masonic areas used by UGLE, so they do not always match modern council or county boundaries exactly."],
+        image: {
+          src: "assets/ugle-provinces-map.png",
+          alt: "UGLE Provinces map showing the 48 Provincial Grand Lodges across England, Wales, the Isle of Man and the Channel Islands.",
+          caption: "UGLE Provinces map showing the wider Provincial structure. Province boundaries are illustrative and roughly based on old county boundaries.",
+          width: 1536,
+          height: 1024
+        }
       },
       {
         heading: "Who should I contact?",
