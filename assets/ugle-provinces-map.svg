@@ -1,58 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
   <title id="title">UGLE provincial structure around Surrey</title>
-  <desc id="desc">A simplified map showing Surrey within the United Grand Lodge of England provincial structure, with nearby provinces and Metropolitan Grand Lodge of London.</desc>
+  <desc id="desc">A clean schematic showing UGLE, the Province of Surrey, London and surrounding Provinces.</desc>
   <defs>
     <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#fbf7ed"/>
-      <stop offset="1" stop-color="#e5f3ff"/>
+      <stop offset="1" stop-color="#e6f4ff"/>
     </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0d223f" flood-opacity="0.14"/>
     </filter>
     <style>
       .bg{fill:url(#paper)}
-      .county{stroke:#0d376d;stroke-width:4;stroke-linejoin:round;filter:url(#shadow)}
-      .neighbour{fill:#d8ebff}
-      .surrey{fill:#0d376d}
-      .london{fill:#eaf4ff}
-      .line{stroke:#c59a36;stroke-width:4;fill:none;stroke-linecap:round}
-      .label{font:700 30px Georgia,serif;fill:#0d223f}
-      .small{font:600 20px Arial,sans-serif;fill:#4b5b70}
-      .surreyText{fill:#fff}
-      .pin{fill:#c59a36}
+      .rule{stroke:#c59a36;stroke-width:4;stroke-linecap:round}
+      .card{fill:#fff;stroke:#c59a36;stroke-width:3;filter:url(#shadow)}
+      .navy{fill:#0d376d}
+      .soft{fill:#e8f5ff;stroke:#0d376d;stroke-width:3}
+      .title{font:700 38px Georgia,serif;fill:#0d223f}
+      .label{font:800 25px Arial,sans-serif;fill:#0d223f}
+      .small{font:600 18px Arial,sans-serif;fill:#4b5b70}
+      .white{fill:#fff}
+      .gold{fill:#c59a36}
     </style>
   </defs>
-  <rect class="bg" width="1200" height="760" rx="28"/>
-  <path class="line" d="M72 80h1056M72 680h1056"/>
-  <text x="600" y="78" text-anchor="middle" class="label">How Surrey Fits Within UGLE</text>
-  <text x="600" y="114" text-anchor="middle" class="small">A simple guide to Provinces near Surrey under the United Grand Lodge of England</text>
+  <rect class="bg" width="1200" height="760" rx="30"/>
+  <line class="rule" x1="74" y1="92" x2="1126" y2="92"/>
+  <line class="rule" x1="74" y1="668" x2="1126" y2="668"/>
+  <text x="600" y="70" text-anchor="middle" class="title">How Surrey Fits Within UGLE</text>
 
-  <path class="county neighbour" d="M390 142 537 126 617 214 574 332 424 346 334 260z"/>
-  <text x="485" y="226" text-anchor="middle" class="label">Middlesex</text>
+  <rect class="card" x="407" y="124" width="386" height="112" rx="18"/>
+  <text x="600" y="169" text-anchor="middle" class="label">United Grand Lodge of England</text>
+  <text x="600" y="202" text-anchor="middle" class="small">The governing body for Craft Freemasonry</text>
+  <path class="rule" d="M600 236v46"/>
 
-  <path class="county london" d="M598 156 760 154 835 244 782 350 618 344 572 244z"/>
-  <text x="707" y="236" text-anchor="middle" class="label">Metropolitan</text>
-  <text x="707" y="265" text-anchor="middle" class="small">London</text>
+  <rect class="navy" x="408" y="282" width="384" height="120" rx="18"/>
+  <text x="600" y="329" text-anchor="middle" class="label white">Province of Surrey</text>
+  <text x="600" y="361" text-anchor="middle" class="small white">Supports Surrey Lodges locally</text>
+  <circle cx="600" cy="388" r="9" class="gold"/>
 
-  <path class="county neighbour" d="M154 282 334 260 424 346 384 512 198 516 96 402z"/>
-  <text x="260" y="392" text-anchor="middle" class="label">Berkshire</text>
+  <path class="rule" d="M600 402v48M268 450h664M268 450v52M434 450v52M766 450v52M932 450v52"/>
 
-  <path class="county surrey" d="M424 346 618 344 700 458 626 604 432 606 384 512z"/>
-  <text x="540" y="462" text-anchor="middle" class="label surreyText">Surrey</text>
-  <text x="540" y="494" text-anchor="middle" class="small surreyText">Provincial Grand Lodge</text>
-  <circle class="pin" cx="540" cy="526" r="10"/>
+  <g>
+    <rect class="soft" x="94" y="502" width="220" height="92" rx="16"/>
+    <text x="204" y="541" text-anchor="middle" class="label">London</text>
+    <text x="204" y="570" text-anchor="middle" class="small">Metropolitan</text>
+  </g>
+  <g>
+    <rect class="soft" x="324" y="502" width="220" height="92" rx="16"/>
+    <text x="434" y="541" text-anchor="middle" class="label">Middlesex</text>
+    <text x="434" y="570" text-anchor="middle" class="small">Nearby Province</text>
+  </g>
+  <g>
+    <rect class="soft" x="554" y="502" width="220" height="92" rx="16"/>
+    <text x="664" y="541" text-anchor="middle" class="label">Kent</text>
+    <text x="664" y="570" text-anchor="middle" class="small">Nearby Province</text>
+  </g>
+  <g>
+    <rect class="soft" x="784" y="502" width="220" height="92" rx="16"/>
+    <text x="894" y="541" text-anchor="middle" class="label">Sussex</text>
+    <text x="894" y="570" text-anchor="middle" class="small">Nearby Province</text>
+  </g>
+  <g>
+    <rect class="soft" x="210" y="616" width="300" height="72" rx="16"/>
+    <text x="360" y="660" text-anchor="middle" class="label">Berkshire</text>
+  </g>
+  <g>
+    <rect class="soft" x="690" y="616" width="300" height="72" rx="16"/>
+    <text x="840" y="648" text-anchor="middle" class="label">Hampshire</text>
+    <text x="840" y="672" text-anchor="middle" class="small">&amp; Isle of Wight</text>
+  </g>
 
-  <path class="county neighbour" d="M782 350 966 316 1092 438 1024 590 830 594 700 458z"/>
-  <text x="915" y="456" text-anchor="middle" class="label">Kent</text>
-
-  <path class="county neighbour" d="M198 516 384 512 432 606 370 674 160 668 88 578z"/>
-  <text x="260" y="598" text-anchor="middle" class="label">Hampshire</text>
-  <text x="260" y="627" text-anchor="middle" class="small">&amp; Isle of Wight</text>
-
-  <path class="county neighbour" d="M432 606 626 604 830 594 780 686 430 686 370 674z"/>
-  <text x="608" y="650" text-anchor="middle" class="label">Sussex</text>
-
-  <rect x="760" y="82" width="350" height="66" rx="12" fill="#ffffff" opacity="0.82" stroke="#c59a36" stroke-width="2"/>
-  <text x="935" y="110" text-anchor="middle" class="small">Schematic, not to scale</text>
-  <text x="935" y="136" text-anchor="middle" class="small">Civil and Masonic boundaries can differ.</text>
+  <text x="600" y="726" text-anchor="middle" class="small">Schematic guide only: Masonic areas do not always match modern council boundaries.</text>
 </svg>

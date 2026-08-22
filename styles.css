@@ -2471,14 +2471,40 @@ body[data-calendar="chapter"] .detail-date {
 }
 
 .guide-section summary {
+  position: relative;
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) minmax(160px, 230px);
+  grid-template-columns: 52px minmax(0, 1fr) clamp(180px, 24vw, 260px);
   gap: 14px;
   align-items: center;
-  padding: 20px;
+  min-width: 0;
+  padding: 20px 62px 20px 20px;
   color: var(--navy-deep);
   cursor: pointer;
   list-style: none;
+}
+
+.guide-section summary::after {
+  position: absolute;
+  top: 22px;
+  right: 20px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(197, 154, 54, 0.48);
+  border-radius: 50%;
+  color: var(--gold);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 8px 18px rgba(5, 20, 42, 0.08);
+  content: "+";
+  font-family: Arial, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+  place-items: center;
+}
+
+.guide-section[open] summary::after {
+  content: "−";
 }
 
 .guide-section-image {
@@ -2515,26 +2541,18 @@ body[data-calendar="chapter"] .detail-date {
 }
 
 .guide-section summary h2 {
-  padding-right: 36px;
+  max-width: 100%;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.35rem, 2.4vw, 2rem);
   line-height: 1.1;
-}
-
-.guide-section summary h2::after {
-  float: right;
-  color: var(--gold);
-  content: "+";
-}
-
-.guide-section[open] summary h2::after {
-  content: "−";
+  overflow-wrap: anywhere;
 }
 
 .guide-section summary p {
   margin-top: 5px;
   color: var(--muted);
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .guide-section[open] summary {
@@ -2744,7 +2762,9 @@ body[data-calendar="chapter"] .detail-date {
   display: block;
   width: 100%;
   height: auto;
+  max-height: 620px;
   border-radius: 6px;
+  object-fit: contain;
 }
 
 .guide-article-figure figcaption {
@@ -2823,6 +2843,15 @@ body[data-calendar="chapter"] .detail-date {
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .guide-section summary {
+    grid-template-columns: 46px minmax(0, 1fr);
+  }
+
+  .guide-section-image {
+    grid-column: 1 / -1;
+    height: 170px;
+  }
 }
 
 @media (max-width: 620px) {
@@ -2832,7 +2861,15 @@ body[data-calendar="chapter"] .detail-date {
 
   .guide-section summary {
     grid-template-columns: 40px minmax(0, 1fr);
-    padding: 16px;
+    padding: 16px 54px 16px 16px;
+  }
+
+  .guide-section summary::after {
+    top: 17px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    font-size: 1.1rem;
   }
 
   .guide-section-image {
@@ -2847,6 +2884,7 @@ body[data-calendar="chapter"] .detail-date {
 
   .guide-section summary h2 {
     padding-right: 0;
+    font-size: clamp(1.2rem, 7vw, 1.6rem);
   }
 }
 
