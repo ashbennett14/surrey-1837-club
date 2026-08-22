@@ -70,11 +70,11 @@ window.SURREY_GUIDE_ARTICLES = {
         heading: "Surrey and nearby Provinces",
         paragraphs: ["Surrey sits among several other UGLE areas. Nearby are Metropolitan Grand Lodge of London, Middlesex, Kent, Sussex, Hampshire and Isle of Wight, and Berkshire. These are Masonic areas used by UGLE, so they do not always match modern council or county boundaries exactly."],
         image: {
-          src: "assets/ugle-provinces-map.svg",
-          alt: "Simplified map showing Surrey and nearby UGLE Provinces including London, Middlesex, Kent, Sussex, Hampshire and Berkshire.",
-          caption: "A simplified guide to the UGLE structure around Surrey. It is schematic rather than a legal boundary map.",
-          width: 1200,
-          height: 760
+          src: "assets/guide-ai-ugle-provinces-map.webp",
+          alt: "Illustrated map showing Surrey among nearby UGLE Provinces including London, Middlesex, Kent, Sussex, Hampshire and Berkshire.",
+          caption: "A generated map-style guide to Surrey and nearby UGLE Provinces. It is illustrative rather than a legal boundary map.",
+          width: 1568,
+          height: 1003
         }
       },
       {
@@ -153,11 +153,11 @@ window.SURREY_GUIDE_ARTICLES = {
         heading: "A Province of local centres",
         paragraphs: ["Surrey Freemasons describes Masonic centres across the Province, including locations around Bisley and Brookwood, Camberley, Chertsey, Cranleigh, Croydon, Dorking, Epsom, Esher, Farnborough, Farnham, Godalming, Great Bookham, Guildford, Hindhead, Kingston, Redhill, South Croydon, Surbiton and Sutton.", "Venues and the units meeting in them can change, so treat any copied list as an introduction. The official Provincial centre finder is the best source for current locations and directions."],
         image: {
-          src: "assets/surrey-masonic-centres-map.svg",
-          alt: "Simplified Surrey map with pins for commonly used Masonic centres including Croydon, Surbiton, Chertsey, Guildford, Godalming, Farnham, Sutton, Esher, Nutfield and Bisley.",
-          caption: "A simple visual guide to the spread of Masonic centres used around Surrey. Check the summons or official centre finder for the exact venue.",
-          width: 1200,
-          height: 800
+          src: "assets/guide-ai-surrey-centres-map.webp",
+          alt: "Illustrated Surrey map with pins for commonly used Masonic centres including Croydon, Surbiton, Chertsey, Guildford, Godalming, Farnham, Sutton, Esher, Nutfield and Bisley.",
+          caption: "A generated map-style guide to the spread of Masonic centres used around Surrey. Check the summons or official centre finder for the exact venue.",
+          width: 1586,
+          height: 992
         }
       },
       {
@@ -188,11 +188,11 @@ window.SURREY_GUIDE_ARTICLES = {
         heading: "The usual idea",
         paragraphs: ["In many Lodges, newer officers gradually learn by taking a series of roles over a number of years. This is often called the progressive line.", "A common route runs from Steward or Inner Guard through the Deacons and Wardens before a Brother is invited to serve as Worshipful Master. The exact route varies between Lodges."],
         image: {
-          src: "assets/progressive-offices-infographic.svg",
-          alt: "Infographic showing a common progression from Steward, Inner Guard, Junior Deacon, Senior Deacon, Junior Warden, Senior Warden and Worshipful Master.",
+          src: "assets/guide-ai-progressive-offices.webp",
+          alt: "Illustrated lodge room showing a common progression from Steward through Inner Guard, Deacons, Wardens and Master.",
           caption: "A common pattern, not a rule for every Lodge. Ask your Mentor how your own Lodge approaches office.",
-          width: 1200,
-          height: 760
+          width: 1568,
+          height: 1003
         }
       },
       {
