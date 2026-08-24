@@ -1,6 +1,6 @@
 (() => {
   const repoOwner = "ashbennett14";
-  const repoName = "surrey-1837-club";
+  const repoName = "1837-Club";
   const branch = "main";
   const managedFile = "calendar-events.json";
   const managedScriptFile = "calendar-events.js";
