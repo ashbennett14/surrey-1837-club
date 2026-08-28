@@ -887,26 +887,6 @@ window.surrey1837ManagedCalendarData = {
       "fullPoster": "assets/ebbisham-lodge-crest.png"
     },
     {
-      "id": "2026-08-30-albert-edward-lodge-raising",
-      "date": "2026-08-30",
-      "title": "Albert Edward Lodge",
-      "lodgeName": "Albert Edward Lodge",
-      "lodgeNumber": "1714",
-      "degree": "Raising",
-      "time": "TBC",
-      "location": "Camberley",
-      "host": "Albert Edward Lodge No. 1714",
-      "type": "lodge",
-      "poster": "assets/2026-08-30-albert-edward-lodge.png",
-      "posterAlt": "Albert Edward Lodge No. 1714 crest",
-      "tags": [
-        "Raising",
-        "No. 1714",
-        "Camberley"
-      ],
-      "description": "Albert Edward Lodge No. 1714 meeting in Camberley for Raising."
-    },
-    {
       "id": "arnold-lodge-other-september",
       "date": "2026-09-01",
       "title": "Arnold Lodge",
@@ -1599,6 +1579,26 @@ window.surrey1837ManagedCalendarData = {
       "description": "Surrey United Services Lodge No. 9999 meeting in Surbiton.",
       "displayPoster": "assets/display/surrey-united-services-lodge-crest-display.png",
       "fullPoster": "assets/surrey-united-services-lodge-crest.png"
+    },
+    {
+      "id": "2026-09-30-albert-edward-lodge-raising",
+      "date": "2026-09-30",
+      "title": "Albert Edward Lodge",
+      "lodgeName": "Albert Edward Lodge",
+      "lodgeNumber": "1714",
+      "degree": "Raising",
+      "time": "TBC",
+      "location": "Camberley",
+      "host": "Albert Edward Lodge No. 1714",
+      "type": "lodge",
+      "poster": "assets/2026-09-30-albert-edward-lodge.png",
+      "posterAlt": "Albert Edward Lodge No. 1714 crest",
+      "tags": [
+        "Raising",
+        "No. 1714",
+        "Camberley"
+      ],
+      "description": "Albert Edward Lodge No. 1714 meeting in Camberley for Raising."
     },
     {
       "id": "2026-10-02-corinthian-initiation",
