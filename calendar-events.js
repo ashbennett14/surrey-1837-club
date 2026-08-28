@@ -1111,6 +1111,26 @@ window.surrey1837ManagedCalendarData = {
       "description": "Cyclist Lodge No. 2246 meeting in Surbiton for an Initiation."
     },
     {
+      "id": "2026-09-12-shirley-park-lodge",
+      "date": "2026-09-12",
+      "title": "Shirley Park Lodge",
+      "lodgeName": "Shirley Park Lodge",
+      "lodgeNumber": "3938",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Shirley Park Lodge No. 3938",
+      "type": "lodge",
+      "poster": "assets/2026-09-12-shirley-park-lodge.png",
+      "posterAlt": "Shirley Park Lodge No. 3938 crest",
+      "tags": [
+        "Other",
+        "Lodge No. 3938",
+        "Croydon"
+      ],
+      "description": "Shirley Park Lodge No. 3938 meeting in Croydon for Other."
+    },
+    {
       "id": "2026-09-14-morden-lodge-other",
       "date": "2026-09-14",
       "title": "Morden Lodge",
@@ -1133,6 +1153,46 @@ window.surrey1837ManagedCalendarData = {
       "fullPoster": "assets/2026-09-14-morden-lodge.png"
     },
     {
+      "id": "2026-09-16-beddington-lodge",
+      "date": "2026-09-16",
+      "title": "Beddington Lodge",
+      "lodgeName": "Beddington Lodge",
+      "lodgeNumber": "5492",
+      "degree": "Raising",
+      "time": "TBC",
+      "location": "Sutton",
+      "host": "Beddington Lodge No. 5492",
+      "type": "lodge",
+      "poster": "assets/2026-09-16-beddington-lodge.png",
+      "posterAlt": "Beddington Lodge No. 5492 crest",
+      "tags": [
+        "Raising",
+        "Lodge No. 5492",
+        "Sutton"
+      ],
+      "description": "Beddington Lodge No. 5492 meeting in Sutton for Raising."
+    },
+    {
+      "id": "2026-09-16-burstow-lodge",
+      "date": "2026-09-16",
+      "title": "Burstow Lodge",
+      "lodgeName": "Burstow Lodge",
+      "lodgeNumber": "4376",
+      "degree": "Raising",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Burstow Lodge No. 4376",
+      "type": "lodge",
+      "poster": "assets/2026-09-16-burstow-lodge.png",
+      "posterAlt": "Burstow Lodge No. 4376 crest",
+      "tags": [
+        "Raising",
+        "Lodge No. 4376",
+        "Croydon"
+      ],
+      "description": "Burstow Lodge No. 4376 meeting in Croydon for Raising."
+    },
+    {
       "id": "2026-09-16-east-surrey-lodge-initiation",
       "date": "2026-09-16",
       "title": "East Surrey Lodge",
@@ -1151,6 +1211,46 @@ window.surrey1837ManagedCalendarData = {
         "Nutfield"
       ],
       "description": "East Surrey Lodge No. 2769 meeting in Nutfield for Initiation."
+    },
+    {
+      "id": "2026-09-16-nonsuch-park-lodge",
+      "date": "2026-09-16",
+      "title": "Nonsuch Park Lodge",
+      "lodgeName": "Nonsuch Park Lodge",
+      "lodgeNumber": "5859",
+      "degree": "Passing",
+      "time": "TBC",
+      "location": "Sutton",
+      "host": "Nonsuch Park Lodge No. 5859",
+      "type": "lodge",
+      "poster": "assets/2026-09-16-nonsuch-park-lodge.png",
+      "posterAlt": "Nonsuch Park Lodge No. 5859 crest",
+      "tags": [
+        "Passing",
+        "Lodge No. 5859",
+        "Sutton"
+      ],
+      "description": "Nonsuch Park Lodge No. 5859 meeting in Sutton for Passing."
+    },
+    {
+      "id": "2026-09-17-surrey-hills-lodge",
+      "date": "2026-09-17",
+      "title": "Surrey Hills Lodge",
+      "lodgeName": "Surrey Hills Lodge",
+      "lodgeNumber": "7494",
+      "degree": "Passing",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Surrey Hills Lodge No. 7494",
+      "type": "lodge",
+      "poster": "assets/2026-09-17-surrey-hills-lodge.png",
+      "posterAlt": "Surrey Hills Lodge No. 7494 crest",
+      "tags": [
+        "Passing",
+        "Lodge No. 7494",
+        "Croydon"
+      ],
+      "description": "Surrey Hills Lodge No. 7494 meeting in Croydon for Passing."
     },
     {
       "id": "2026-09-17-welcome-lodge-raising",
@@ -1317,6 +1417,66 @@ window.surrey1837ManagedCalendarData = {
       "description": "Triumvirate Lodge No. 9505 meeting in Sutton for Installation."
     },
     {
+      "id": "2026-09-22-croydon-lodge-of-achievement",
+      "date": "2026-09-22",
+      "title": "Croydon Lodge of Achievement",
+      "lodgeName": "Croydon Lodge of Achievement",
+      "lodgeNumber": "8554",
+      "degree": "Installation & Initiation",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Croydon Lodge of Achievement No. 8554",
+      "type": "lodge",
+      "poster": "assets/2026-09-22-croydon-lodge-of-achievement.png",
+      "posterAlt": "Croydon Lodge of Achievement No. 8554 crest",
+      "tags": [
+        "Installation & Initiation",
+        "Lodge No. 8554",
+        "Croydon"
+      ],
+      "description": "Croydon Lodge of Achievement No. 8554 meeting in Croydon for Installation & Initiation."
+    },
+    {
+      "id": "2026-09-23-croydon-lodge-of-freedom",
+      "date": "2026-09-23",
+      "title": "Croydon Lodge of Freedom",
+      "lodgeName": "Croydon Lodge of Freedom",
+      "lodgeNumber": "5878",
+      "degree": "Raising",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Croydon Lodge of Freedom No. 5878",
+      "type": "lodge",
+      "poster": "assets/2026-09-23-croydon-lodge-of-freedom.png",
+      "posterAlt": "Croydon Lodge of Freedom No. 5878 crest",
+      "tags": [
+        "Raising",
+        "Lodge No. 5878",
+        "Croydon"
+      ],
+      "description": "Croydon Lodge of Freedom No. 5878 meeting in Croydon for Raising."
+    },
+    {
+      "id": "2026-09-23-elizabethan-jubilee-lodge",
+      "date": "2026-09-23",
+      "title": "Elizabethan Jubilee Lodge",
+      "lodgeName": "Elizabethan Jubilee Lodge",
+      "lodgeNumber": "8814",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Elizabethan Jubilee Lodge No. 8814",
+      "type": "lodge",
+      "poster": "assets/2026-09-23-elizabethan-jubilee-lodge.png",
+      "posterAlt": "Elizabethan Jubilee Lodge No. 8814 crest",
+      "tags": [
+        "Other",
+        "Lodge No. 8814",
+        "Croydon"
+      ],
+      "description": "Elizabethan Jubilee Lodge No. 8814 meeting in Croydon for Other."
+    },
+    {
       "id": "2026-09-23-noel-surrey-motorcycle-lodge-raising",
       "date": "2026-09-23",
       "title": "Noel Surrey Motorcycle Lodge",
@@ -1335,6 +1495,26 @@ window.surrey1837ManagedCalendarData = {
         "Surbiton"
       ],
       "description": "Noel Surrey Motorcycle Lodge No. 2444 meeting in Surbiton for Raising."
+    },
+    {
+      "id": "2026-09-23-st-peters-lodge",
+      "date": "2026-09-23",
+      "title": "St Peter's Lodge",
+      "lodgeName": "St Peter's Lodge",
+      "lodgeNumber": "7406",
+      "degree": "Passing",
+      "time": "TBC",
+      "location": "Chertsey",
+      "host": "St Peter's Lodge No. 7406",
+      "type": "lodge",
+      "poster": "assets/2026-09-23-st-peters-lodge.png",
+      "posterAlt": "St Peter's Lodge No. 7406 crest",
+      "tags": [
+        "Passing",
+        "Lodge No. 7406",
+        "Chertsey"
+      ],
+      "description": "St Peter's Lodge No. 7406 meeting in Chertsey for Passing."
     },
     {
       "id": "2026-09-26-copthorne-installation",
@@ -1545,6 +1725,26 @@ window.surrey1837ManagedCalendarData = {
       "description": "Windlesham Dawn Lodge No. 9686 meeting in Chertsey for an Installation."
     },
     {
+      "id": "2026-10-20-the-lamborn-lodge",
+      "date": "2026-10-20",
+      "title": "The Lamborn Lodge",
+      "lodgeName": "The Lamborn Lodge",
+      "lodgeNumber": "8733",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "The Lamborn Lodge No. 8733",
+      "type": "lodge",
+      "poster": "assets/2026-10-20-the-lamborn-lodge.png",
+      "posterAlt": "The Lamborn Lodge No. 8733 crest",
+      "tags": [
+        "Installation",
+        "Lodge No. 8733",
+        "Surbiton"
+      ],
+      "description": "The Lamborn Lodge No. 8733 meeting in Surbiton for Installation."
+    },
+    {
       "id": "lavender-lodge-installation",
       "date": "2026-10-21",
       "title": "Lavender Lodge",
@@ -1565,6 +1765,26 @@ window.surrey1837ManagedCalendarData = {
       "description": "Lavender Lodge No. 6429 meeting in Croydon for an Installation.",
       "displayPoster": "assets/display/lavender-lodge-crest-display.png",
       "fullPoster": "assets/lavender-lodge-crest.png"
+    },
+    {
+      "id": "2026-10-30-mid-surrey-masters-lodge",
+      "date": "2026-10-30",
+      "title": "Mid Surrey Masters Lodge",
+      "lodgeName": "Mid Surrey Masters Lodge",
+      "lodgeNumber": "7388",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Sutton",
+      "host": "Mid Surrey Masters Lodge No. 7388",
+      "type": "lodge",
+      "poster": "assets/2026-10-30-mid-surrey-masters-lodge.png",
+      "posterAlt": "Mid Surrey Masters Lodge No. 7388 crest",
+      "tags": [
+        "Other",
+        "Lodge No. 7388",
+        "Sutton"
+      ],
+      "description": "Mid Surrey Masters Lodge No. 7388 meeting in Sutton for Other."
     }
   ],
   "chapterEvents": [

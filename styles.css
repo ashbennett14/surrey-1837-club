@@ -3992,6 +3992,10 @@ body[data-calendar="chapter"] .calendar-grid {
   background: #7c2d91;
 }
 
+.degree-badge[data-degree="Installation & Initiation"] {
+  background: linear-gradient(135deg, #7c2d91 0%, #7c2d91 50%, #0d7a5f 50%, #0d7a5f 100%);
+}
+
 .degree-badge[data-degree="Initiation"] {
   background: #0d7a5f;
 }

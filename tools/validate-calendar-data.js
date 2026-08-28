@@ -12,6 +12,7 @@ const socialCategories = new Set(["1837 Club Event", "Community Event"]);
 const meetingTypes = new Set([
   "Installation",
   "Initiation",
+  "Installation & Initiation",
   "Passing",
   "Raising",
   "Other",

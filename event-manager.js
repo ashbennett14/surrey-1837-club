@@ -36,6 +36,7 @@
   const meetingTypes = new Set([
     "Installation",
     "Initiation",
+    "Installation & Initiation",
     "Passing",
     "Raising",
     "Other",
