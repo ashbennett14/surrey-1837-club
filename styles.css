@@ -1630,13 +1630,13 @@ body[data-calendar="chapter"] .detail-date {
   flex: 1 1 0;
   display: block;
   min-width: 0;
-  max-width: 12ch;
+  max-width: 14ch;
   padding: 5px 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(0.98rem, 1.25vw, 1.18rem);
+  font-size: clamp(0.9rem, 1.05vw, 1.05rem);
   font-weight: 800;
-  line-height: 1.12;
-  overflow-wrap: anywhere;
+  line-height: 1.15;
+  overflow-wrap: normal;
   text-wrap: balance;
   word-break: normal;
 }
