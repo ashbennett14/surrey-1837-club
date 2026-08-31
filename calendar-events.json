@@ -967,6 +967,26 @@
       "description": "Lodge of Radiance No. 6950 meeting in Croydon for Initiation."
     },
     {
+      "id": "2026-09-07-walton-on-thames-lodge-other",
+      "date": "2026-09-07",
+      "title": "Walton On Thames Lodge",
+      "lodgeName": "Walton On Thames Lodge",
+      "lodgeNumber": "6348",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Walton On Thames Lodge No. 6348",
+      "type": "lodge",
+      "poster": "assets/2026-09-07-walton-on-thames-lodge.png",
+      "posterAlt": "Walton On Thames Lodge No. 6348 crest",
+      "tags": [
+        "Other",
+        "Lodge No. 6348",
+        "Surbiton"
+      ],
+      "description": "Walton On Thames Lodge No. 6348 meeting in Surbiton for Other."
+    },
+    {
       "id": "croydon-lodge-of-concord-other",
       "date": "2026-09-09",
       "title": "Croydon Lodge of Concord",
@@ -1131,6 +1151,26 @@
       "description": "Morden Lodge No. 4958 meeting in Surbiton for Other.",
       "displayPoster": "assets/display/2026-09-14-morden-lodge-display.png",
       "fullPoster": "assets/2026-09-14-morden-lodge.png"
+    },
+    {
+      "id": "2026-09-16-abbey-lodge-passing",
+      "date": "2026-09-16",
+      "title": "Abbey Lodge",
+      "lodgeName": "Abbey Lodge",
+      "lodgeNumber": "2120",
+      "degree": "Passing",
+      "time": "TBC",
+      "location": "Chertsey",
+      "host": "Abbey Lodge No. 2120",
+      "type": "lodge",
+      "poster": "assets/2026-09-16-abbey-lodge.png",
+      "posterAlt": "Abbey Lodge No. 2120 crest",
+      "tags": [
+        "Passing",
+        "Lodge No. 2120",
+        "Chertsey"
+      ],
+      "description": "Abbey Lodge No. 2120 meeting in Chertsey for Passing."
     },
     {
       "id": "2026-09-16-beddington-lodge",
@@ -1377,6 +1417,26 @@
       "description": "St George's Lodge No. 370 meeting in Chertsey for Passing."
     },
     {
+      "id": "2026-09-21-british-forces-foundation-lodge-installation",
+      "date": "2026-09-21",
+      "title": "British Forces Foundation Lodge",
+      "lodgeName": "British Forces Foundation Lodge",
+      "lodgeNumber": "9725",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "British Forces Foundation Lodge No. 9725",
+      "type": "lodge",
+      "poster": "assets/2026-09-21-british-forces-foundation-lodge.png",
+      "posterAlt": "British Forces Foundation Lodge No. 9725 crest",
+      "tags": [
+        "Installation",
+        "Lodge No. 9725",
+        "Croydon"
+      ],
+      "description": "British Forces Foundation Lodge No. 9725 meeting in Croydon for Installation."
+    },
+    {
       "id": "2026-09-21-triumvirate-lodge-installation",
       "date": "2026-09-21",
       "title": "Triumvirate Lodge",
@@ -1495,6 +1555,26 @@
         "Chertsey"
       ],
       "description": "St Peter's Lodge No. 7406 meeting in Chertsey for Passing."
+    },
+    {
+      "id": "2026-09-25-lodge-of-good-report-other",
+      "date": "2026-09-25",
+      "title": "Lodge of Good Report",
+      "lodgeName": "Lodge of Good Report",
+      "lodgeNumber": "7535",
+      "degree": "Other",
+      "time": "TBC",
+      "location": "Croydon",
+      "host": "Lodge of Good Report No. 7535",
+      "type": "lodge",
+      "poster": "assets/2026-09-25-lodge-of-good-report.png",
+      "posterAlt": "Lodge of Good Report No. 7535 crest",
+      "tags": [
+        "Other",
+        "Lodge No. 7535",
+        "Croydon"
+      ],
+      "description": "Lodge of Good Report No. 7535 meeting in Croydon for Other."
     },
     {
       "id": "2026-09-26-copthorne-installation",
@@ -1621,6 +1701,46 @@
       "description": "Corinthian No. 5482 meeting in Surbiton for Initiation."
     },
     {
+      "id": "2026-10-03-cradiden-lodge-initiation",
+      "date": "2026-10-03",
+      "title": "Cradiden Lodge",
+      "lodgeName": "Cradiden Lodge",
+      "lodgeNumber": "6571",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Nutfield",
+      "host": "Cradiden Lodge No. 6571",
+      "type": "lodge",
+      "poster": "assets/2026-10-03-cradiden-lodge.png",
+      "posterAlt": "Cradiden Lodge No. 6571 crest",
+      "tags": [
+        "Initiation",
+        "Lodge No. 6571",
+        "Nutfield"
+      ],
+      "description": "Cradiden Lodge No. 6571 meeting in Nutfield for Initiation."
+    },
+    {
+      "id": "2026-10-07-hale-lodge-initiation",
+      "date": "2026-10-07",
+      "title": "Hale Lodge",
+      "lodgeName": "Hale Lodge",
+      "lodgeNumber": "9272",
+      "degree": "Initiation",
+      "time": "TBC",
+      "location": "Farnham",
+      "host": "Hale Lodge No. 9272",
+      "type": "lodge",
+      "poster": "assets/2026-10-07-hale-lodge.jpg",
+      "posterAlt": "Hale Lodge No. 9272 crest",
+      "tags": [
+        "Initiation",
+        "Lodge No. 9272",
+        "Farnham"
+      ],
+      "description": "Hale Lodge No. 9272 meeting in Farnham for Initiation."
+    },
+    {
       "id": "2026-10-07-woolsack-lodge-initiation",
       "date": "2026-10-07",
       "title": "Woolsack Lodge",
@@ -1723,6 +1843,26 @@
         "Chertsey"
       ],
       "description": "Windlesham Dawn Lodge No. 9686 meeting in Chertsey for an Installation."
+    },
+    {
+      "id": "2026-10-17-kingston-aero-lodge-installation",
+      "date": "2026-10-17",
+      "title": "Kingston Aero Lodge",
+      "lodgeName": "Kingston Aero Lodge",
+      "lodgeNumber": "3860",
+      "degree": "Installation",
+      "time": "TBC",
+      "location": "Surbiton",
+      "host": "Kingston Aero Lodge No. 3860",
+      "type": "lodge",
+      "poster": "assets/2026-10-17-kingston-aero-lodge.png",
+      "posterAlt": "Kingston Aero Lodge No. 3860 crest",
+      "tags": [
+        "Installation",
+        "Lodge No. 3860",
+        "Surbiton"
+      ],
+      "description": "Kingston Aero Lodge No. 3860 meeting in Surbiton for Installation."
     },
     {
       "id": "2026-10-20-the-lamborn-lodge",
